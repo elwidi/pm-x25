@@ -1,0 +1,125 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+include dirname(__FILE__).DIRECTORY_SEPARATOR.'SsoClient/ClientAPI.php';
+
+class IssueRisk extends CI_Controller {
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Maps to the following URL
+	 * 		http://example.com/index.php/welcome
+	 *	- or -
+	 * 		http://example.com/index.php/welcome/index
+	 *	- or -
+	 * Since this controller is set as the default controller in
+	 * config/routes.php, it's displayed at http://example.com/
+	 *
+	 * So any other public methods not prefixed with an underscore will
+	 * map to /index.php/welcome/<method_name>
+	 * @see https://codeigniter.com/user_guide/general/urls.html
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->model('IssueRisk_model', 'm_risk');
+		$this->load->model('Planning_model', 'm_plan');
+
+		//TODO: create an object and call a class method
+		$ClientApi = new ClientAPI();
+		$ClientApi->doCurl();
+	}
+
+	public function index()
+	{
+		// Get Apps Config
+		$data = $this->apps->info();
+		$data['page_title'] = '<span class="text-semibold">Issue & Risk</span>';
+		$data['project'] = $this->m_plan->getProjects();
+
+		$this->load->view('issue_risk/list_issue_risk_register', $data);
+	}
+
+    public function detail($id)
+    {
+        $issueRisk = $this->m_risk->getIssueRiskDetail($id);
+        if (!empty($issueRisk)) {
+            $data = array('status' => 'Success', 'data' => $issueRisk);
+        } else {
+            $data = array('status' => 'Failed', 'data' => '');
+        }
+        echo json_encode($data);
+        exit();
+    }
+
+    public function create()
+    {
+        if ($this->m_risk->saveNewIssueRisk()) {
+            $data = array('status' => 'Success');
+        } else {
+            $data = array('status' => 'Failed');
+        }
+
+        echo json_encode($data);
+        exit();
+    }
+
+
+    public function update()
+    {
+        if ($this->m_risk->updateIssueRisk()) {
+            $data = array('status' => 'Success');
+        } else {
+            $data = array('status' => 'Failed');
+        }
+
+        echo json_encode($data);
+        exit();
+    }
+
+    
+
+	public function datatableIssueRisk()
+    {
+        $list = $this->m_risk->get_datatable_issueRisk();
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $mta) {
+            $no++;
+            $row = array();
+            $row['no'] = $no;
+            foreach ($mta as $key => $value) {
+                if (empty($value)){
+                    $value = "";
+                }
+                $row[$key] = $value;
+
+            }
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->m_risk->count_filtered_issueRisk(),
+            "recordsFiltered" => $this->m_risk->count_all_issueRisk(),
+            "data" => $data,
+        );
+        echo json_encode($output); exit;
+    }
+
+    public function delete()
+    {
+        $issueId = $this->input->post('id');
+        if ($this->m_risk->deleteIssueRisk($issueId)) {
+            $data = array('status' => 'Success');
+        } else {
+            $data = array('status' => 'Failed');
+        }
+
+        echo json_encode($data);
+        exit();
+    }
+
+
+}

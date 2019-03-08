@@ -1,0 +1,4028 @@
+/* ------------------------------------------------------------------------------
+
+ *  Datatables data sources
+ *
+ *  @Kardiwan <kardiwan@gmail.com>
+ *
+ * ---------------------------------------------------------------------------- */
+
+$(function () {
+
+    // Table setup
+    // ------------------------------
+
+    // Setting datatable defaults
+    $.extend($.fn.dataTable.defaults, {
+        autoWidth: false,
+        columnDefs: [{
+            //orderable: false,
+            //width: '100px',
+            //targets: [ 5 ]
+        }],
+        dom: '<"datatable-header"fl><"datatable-scroll"t><"datatable-footer"ip>',
+        language: {
+            search: '<span>Filter:</span> _INPUT_',
+            lengthMenu: '<span>Show:</span> _MENU_',
+            paginate: {'first': 'First', 'last': 'Last', 'next': '&rarr;', 'previous': '&larr;'}
+        },
+        drawCallback: function () {
+            $(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').addClass('dropup');
+        },
+        preDrawCallback: function () {
+            $(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').removeClass('dropup');
+        }
+    });
+
+
+    // Project list - datatable
+    $('.datatable-projects-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/planning/dataTableProjectList",
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    var bgColor = ['bg-teal-400', 'bg-warning-400', 'bg-blue', 'bg-success-400', 'bg-pink-400', 'bg-brown-400'];
+                    var rand = bgColor[Math.floor(Math.random() * bgColor.length)];
+
+                    return '<div class="media-left media-middle">' +
+                        '<a href="' + JS_BASE_URL + '/projects/id/' + row.id + '" class="btn ' + rand + ' btn-rounded btn-icon btn-xs">' +
+                            //'<span class="letter-icon">' + data.substr(0,1) + '</span>' +
+                        '<span class="letter-icon">' + row.id + '</span>' +
+                        '</a>' +
+                        '</div>' +
+                        '<div class="media-body">' +
+                        '<a href="' + JS_BASE_URL + '/planning/id/' + row.id + '" class="display-inline-block text-default text-semibold letter-icon-title">' + data + '</a>' +
+                        '</div>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    var bgColor = ['bg-teal-400', 'bg-warning-400', 'bg-blue', 'bg-success-400', 'bg-pink-400', 'bg-brown-400'];
+                    var rand = bgColor[Math.floor(Math.random() * bgColor.length)];
+
+                    //return '<div class="media-left media-middle">' +
+                    //'<a href="' + JS_BASE_URL + '/projects/id/' + row.id + '" class="btn ' + rand + ' btn-rounded btn-icon btn-xs">' +
+                    //'<span class="letter-icon">' + data.substr(0,1) + '</span>' +
+                    //'<span class="letter-icon">' + row.id + '</span>' +
+                    //'</a>' +
+                    //'</div>' +
+                    return '<div class="media-body">' +
+                        '<a href="' + JS_BASE_URL + '/planning/id/' + row.id + '" class="display-inline-block text-default text-semibold letter-icon-title">' + data + '</a>' +
+                        '<div class="text-muted text-size-small"><span class="status-mark border-success position-left"></span>' + row.company + '</div>' +
+                        '</div>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    return '<div class = "display-inline-block text-default text-semibold letter-icon-title">' + Number(data).toFixed(2) + '%</div>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+                render: function (data, type, row) {
+                    return '<div class = "display-inline-block text-default text-semibold letter-icon-title">' + data + '</div>';
+                },
+                orderable: false,
+                targets: 3
+            },
+            {
+                render: function (data, type, row) {
+                    if (row.start_date == null) {
+                        row.start_date = "-";
+                    }
+
+                    if (row.description == null) {
+                        row.description = "-";
+                    }
+
+                    if (row.description.length >= 25) {
+                        row.description = row.description.substring(0, 20) + "...";
+                    }
+                    return '<div class = "display-inline-block text-default letter-icon-title">' + row.description + '</div>';
+                },
+                orderable: false,
+                visible: false,
+                targets: 4
+            },
+            {
+                render: function (data, type, row) {
+                    if (row.start_date == null) {
+                        row.start_date = "-"
+                    }
+                    return '<div class = "display-inline-block text-default text-semibold letter-icon-title">' + row.customer + '</div>';
+                },
+                orderable: false,
+                visible: false,
+                targets: 5
+            },
+            {
+                visible: false,
+                targets: 6
+            },
+            {
+                visible: false,
+                targets: 7
+            },
+            {
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                            //'<li><a href="#" target="_blank"><i class="icon-clipboard3"></i> Application form</a></li>' +
+                            // '<li><a class = "assign" data-id = "'+row.emp_requisition_id+'" candidate_id = "'+row.candidate_id+'"><i class="icon-users2"></i> Assign Inteviewer</li>'
+                        '<li><a class = "edit_project" project_id = "' + row['id'] + '"><i class="icon-pencil5"></i>Edit Project</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                targets: 8
+
+            }
+        ],
+        //dom: '<"datatable-scroll"t><"datatable-footer"ip>',
+        order: [8, "asc"],
+        columns: [
+            {data: "project_id"},
+            {data: "project_name"},
+            {data: "completion"},
+            {data: "scope"},
+            {data: "team"},
+            {data: "customer"},
+            {data: "description"},
+            {data: "category"},
+            {data: "id"}
+        ],
+        fnDrawCallback: function () {
+            CallbackProject();
+            /*this.api().on('draw', function() {
+             CallbackMilestone();
+             });*/
+        }
+
+    });
+
+    var project_id = $('#project_id').val();
+    $('.datatable-milestone-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/planning/dataTableMilestone/" + project_id,
+            "type": "POST"
+        },
+        columnDefs: [
+            /*{
+             render: function (data, type, row) {
+
+             return '<div class="checkbox"><input type="checkbox" class="styled"></div>';
+             },
+             orderable: false,
+             targets: 0
+             },*/
+            {
+                render: function (data, type, row) {
+
+                    return '<h6 class="text-default"> ' + row.a.milestone_name + '</h6>' +
+                        '<div class="text-muted text-size-small"><i class="icon-calendar2 position-left"></i> ' + row.a.due_date + '</div>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.b.fullname + '</span>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                visible: false,
+                targets: 2
+            },
+            {
+                visible: false,
+                targets: 3
+            },
+            {
+                visible: false,
+                targets: 4
+            },
+            {
+                visible: false,
+                targets: 5
+            },
+            {
+                visible: false,
+                targets: 6
+            },
+            {
+
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "attach_tasklist" project_id = "' + project_id + '" ><i class="icon-attachment"></i>Attach a tasklist</a></li>' +
+                        '<li><a href="#" class = "edit_milestone" milestone_id="' + row.a.id + '"><i class="icon-pencil6"></i>Edit Milestone</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 7
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "a.milestone_name"},
+            {data: "a.due_date"},
+            {data: "a.description"},
+            {data: "a.responsible_to"},
+            {data: "a.can_see_it"},
+            {data: "a.should_follow_it"},
+            {data: "b.fullname"},
+            {data: "a.id"}
+        ],
+        fnDrawCallback: function () {
+            CallbackMilestone();
+            /*this.api().on('draw', function() {
+             CallbackMilestone();
+             });*/
+        }
+
+    });
+
+    $('.datatable-task-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/planning/dataTableTaskList/" + project_id,
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-default ml-20">' + row.a.tasks_name + '</span>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.a.start_date + '</span>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.a.due_date + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.a.progress + '% </span>';
+                },
+                orderable: false,
+                targets: 3
+            },
+            {
+                visible: false,
+                targets: 4
+            },
+            {
+                visible: false,
+                targets: 5
+            },
+            {
+                visible: false,
+                targets: 6
+            },
+            {
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                            /*                        '<li><a href="#" class = "attach_tasklist" project_id = "'+row.a.project_id+'"><i class="icon-attachment"></i>Attach a tasklist</a></li>' +*/
+                        '<li><a href="#" class = "edit-task" task_id = "' + row.a.id + '"><i class=" icon-pencil" ></i>Edit Task</a></li>' +
+                        '<li><a href="#" class = "delete-task" task_id = "' + row.a.id + '"><i class=" icon-trash" ></i>Delete Task</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 7
+            },
+            {
+                visible: false,
+                targets: 8
+            },
+        ],
+        //dom: '<"datatable-scroll"t><"datatable-footer"ip>',
+        order: [[4, "asc"], [6, "asc"]],
+        columns: [
+            {data: "a.tasks_name"},
+            {data: "a.start_date"},
+            {data: "a.due_date"},
+            {data: "a.progress"},
+            {data: "a.task_list_id"},
+            {data: "a.progress"},
+            {data: "a.id"},
+            {data: "b.task_list_name"},
+            {data: "a.projects_id"},
+        ],
+        fnDrawCallback: function () {
+            callBackTaskList();
+            /*this.api().on('draw', function() {
+             CallbackMilestone();
+             });*/
+            var api = this.api();
+            var rows = api.rows({page: 'current'}).nodes();
+            var last = null;
+
+            api.column(7, {page: 'current'}).data().each(function (group, i) {
+                if (last !== group) {
+                    $(rows).eq(i).before(
+                        '<tr class="group"><td colspan="7"><b>' + group + '</b></td></tr>'
+                    );
+
+                    last = group;
+                }
+            });
+        }
+
+    });
+
+    $('.datatable-people-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/planning/dataTablePeople/" + project_id,
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default"> ' + row.b.fullname + '</span>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.b.email + '</span>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default"> </span>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+                visible: false,
+                targets: 3
+            },
+            {
+                visible: false,
+                targets: 4
+            },
+            /*{
+             visible: false,
+             targets: 5
+             },
+             {
+             visible: false,
+             targets: 6
+             },
+             {
+             visible: false,
+             targets: 7
+             }*/
+        ],
+        //dom: '<"datatable-scroll"t><"datatable-footer"ip>',
+        order: [0, "desc"],
+        columns: [
+            {data: "a.id"},
+            {data: "b.fullname"},
+            {data: "b.email"},
+            {data: "b.role_id"},
+            {data: "b.active"},
+        ]
+
+    });
+
+
+    $('.datatable-role-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/administration/datatableRole/",
+            "type": "POST"
+        },
+        columnDefs: [
+            /*{
+             render: function (data, type, row) {
+
+             return '<div class="checkbox"><input type="checkbox" class="styled"></div>';
+             },
+             orderable: false,
+             targets: 0
+             },*/
+            {
+                render: function (data, type, row) {
+
+                    return '<div class="text-muted text-size-small"></i> ' + row.no + '</div>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.role_name + '</span>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="/administration/rolePermissions/' + row.id + '" class = "attach_tasklist" ><i class="icon-user-lock"></i>Role Permission</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 2
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "id"},
+            {data: "role_name"},
+        ],
+        fnDrawCallback: function () {
+        }
+
+    });
+
+    $('.datatable-permission-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/administration/datatablePermission/",
+            "type": "POST"
+        },
+        columnDefs: [
+            /*{
+             render: function (data, type, row) {
+
+             return '<div class="checkbox"><input type="checkbox" class="styled"></div>';
+             },
+             orderable: false,
+             targets: 0
+             },*/
+            {
+                render: function (data, type, row) {
+
+                    return '<div class="text-size-small"></i> ' + row.name + '</div>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.description + '</span>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.menu_name + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+                visible: false,
+                targets: 3
+            },
+            {
+                visible: false,
+                targets: 4
+            },
+            {
+                visible: false,
+                targets: 5
+            },
+            {
+                visible: false,
+                targets: 6
+            },
+            {
+
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 7
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "name"},
+            {data: "description"},
+            {data: "id_permission"},
+            {data: "menu_id"},
+            {data: "created_at"},
+            {data: "created_by"},
+            {data: "updated_at"},
+            {data: "created_by"}
+        ],
+        fnDrawCallback: function () {
+            CallbackMilestone();
+            /*this.api().on('draw', function() {
+             CallbackMilestone();
+             });*/
+        }
+
+    });
+
+    $('.datatable-user-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/administration/datatableUser/1",
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.email + '</span>';
+
+                },
+                orderable: false,
+                visible: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.fullname + '</span>';
+
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.role_name + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "edit-user" user_id = "' + row.user_id + '"><i class="icon-pencil"></i>Edit User</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 3
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "email"},
+            {data: "full_name"},
+            {data: "row_name"},
+            {data: "user_id"},
+        ],
+        fnDrawCallback: function () {
+            CallbackUser();
+            /*this.api().on('draw', function() {
+             CallbackMilestone();
+             });*/
+        }
+
+    });
+
+    $('.datatable-resource-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/resource/datatableResource/",
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    return '<a href="' + JS_BASE_URL + '/resource/details/' + row.id + '"><span class="text-size-small text-default"> ' + row.fullname + '</span></a>';
+
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.position_title + '</span>';
+
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.join_date + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.work_location + '</span>';
+                },
+                orderable: false,
+                targets: 3
+            },
+            {
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "edit-resource" res_id = "' + row.id + '"><i class="icon-pencil"></i>Edit Resource</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 4
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "email"},
+            {data: "full_name"},
+            {data: "title"},
+            {data: "join_date"},
+            {data: "work_location"},
+        ],
+        fnDrawCallback: function () {
+            CallbackResource();
+        }
+
+    });
+
+    $('.datatable-resource-allocation').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/resource/datatableAllocateResource/",
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.fullname + '</span>';
+
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.project_name + '</span>';
+
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "edit-resource" res_id = "' + row.id + '"><i class="icon-pencil"></i>Edit Resource</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 2
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "email"},
+            {data: "full_name"},
+            {data: "title"},
+        ],
+        fnDrawCallback: function () {
+            CallbackResource();
+        }
+
+    });
+    $('.datatable-tools-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/toolmanagement/datatableTools/",
+            "type": "POST"
+        },
+        columnDefs: [
+            /*{
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.tools_id + '</span>';
+                },
+                orderable: false,
+                targets: 0
+            },*/
+            {
+                render: function (data, type, row) {
+                    // return '<span class="text-size-small text-default"> ' + row.description + '</span>';
+                    return '<a href="#" class = "detail-tools" tools_id = "' + row.id + '">'+row.description+'</a>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.pr_number + '</span>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.pr_date + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },{
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.po_number + '</span>';
+                },
+                orderable: false,
+                targets: 3
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.po_date + '</span>';
+                },
+                orderable: false,
+                targets: 4
+            },
+            {
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "edit-tools" tools_id = "' + row.id + '"><i class="icon-pencil"></i>Edit Tools</a></li>' +
+                        '<li><a href="#" class = "delete-tools" tools_id = "' + row.id + '"><i class="icon-trash"></i>Delete Tools</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 5
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "email"},
+            {data: "full_name"},
+            {data: "title"},
+            {data: "join_date"},
+            {data: "work_location"},
+        ],
+        fnDrawCallback: function () {
+            CallbackTools();
+        }
+
+    });
+
+    $('.datatable-issue-risk-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/issueRisk/datatableIssueRisk/",
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.issue_no + '</span>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    var issue_risk = row.issue_risk.substring(0, 50)+"...";
+                    // return '<span class="text-size-small text-default"> ' + row.issue_risk + '</span>';
+                    return '<a href="#" class = "detail-issue-risk" issue_risk = "' + row.id + '">'+issue_risk+'</a>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.project_name + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + capt(row.issue_or_risk) + '</span>';
+                },
+                orderable: false,
+                targets: 3
+            },{
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.raised_date + '</span>';
+                },
+                orderable: false,
+                targets: 4
+            },{
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + capt(row.status) + '</span>';
+                },
+                orderable: false,
+                targets: 5
+            },{
+                render: function (data, type, row) {
+                    var a = "", b = "";
+                    if(row.closable == 0 ){
+                        a = '<span class="label label-flat border-grey text-grey-600">Close</span> ';
+                        /*a = 'style = "pointer-events:none;"';
+                        b = "disabled"*/
+
+                    } else if(row.status == 'closed'){
+                        a = '<span class="label label-flat border-grey text-grey-600">Closed</span> ';
+                    }else {
+                        a = '<a href="#" title="Closed" class = "issue_close '+b+'" issue_risk = "' + row.id + '" '+a+'><span class="label label-flat border-danger text-danger-600">Close</span></i></a> ';
+                    }
+
+                    if (row.status == 'open'){
+                        b = '<a href="#" title="Follow up" class = "issue_follow_up" issue_risk = "' + row.id + '"><span class="label label-flat border-primary text-primary-600">Follow Up</span></a> ';
+                    } else {
+                        b = '<span class="label label-flat border-grey text-grey-600">Follow Up</span> ';
+                    }
+                    return '<span class="text-size-small text-default">' +
+                            b +
+                            a +
+                            ' ' + '</span>';
+                    },
+                orderable: false,
+                targets: 6
+            }, {
+                render: function (data, type, row) {
+                    var js_base = JS_BASE_URL.replace('index.php', '');
+                    if(row.file_attachment !== ""){
+                        return '<a target = "_blank" href="'+js_base+'/assets/file/issue_risk/'+row.file_attachment+'" class = "detail-issue-risk"><i class = "icon-attachment"></i></a>';
+                    } else {
+                        return '<span><i class = "icon-attachment"></i></span>';
+                    }
+                    // return '<span class="text-size-small text-default"> ' + row.issue_risk + '</span>';
+                    
+                },
+                orderable: false,
+                targets: 7
+            },
+            {
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "edit-issue-risk" issue_risk = "' + row.id + '"><i class="icon-pencil"></i>Edit</a></li>' +
+                        '<li><a href="#" class = "delete-issue-risk" issue_risk = "' + row.id + '"><i class="icon-trash"></i>Delete</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 8
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "email"},
+            {data: "full_name"},
+            {data: "title"},
+            {data: "join_date"},
+            {data: "work_location"},
+        ],
+        fnDrawCallback: function () {
+            CallbackIssueRisk();
+        }
+
+    });
+
+    $('.datatable-transmittal-daily-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/toolManagement/datatableTransmittalDaily/",
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    // return '<span class="text-size-small text-default"> ' + row.tools_name + '</span>';
+                    return '<a href="#" class = "detail-trans" trans_id = "' + row.id + '">'+row.tools_name+'</a>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.serial_number + '</span>';
+                    /*return '<a href="#" class = "detail-issue-risk" issue_risk = "' + row.id + '">'+row.serial_number+'</a>';*/
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.date_of_borrowing + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.date_of_returning + '</span>';
+                },
+                orderable: false,
+                targets: 3
+            },{
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.remark_borrowing + '</span>';
+                },
+                orderable: false,
+                targets: 4
+            },{
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "edit-trans" trans_id = "' + row.id + '"><i class="icon-pencil"></i>Edit</a></li>' +
+                        '<li><a href="#" class = "delete-trans" trans_id = "' + row.id + '"><i class="icon-trash"></i>Delete</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 5
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "email"},
+            {data: "full_name"},
+            {data: "title"},
+            {data: "join_date"},
+            {data: "work_location"},
+        ],
+        fnDrawCallback: function () {
+            CallbackTransmittal();
+        }
+
+    });
+
+    $('.datatable-customer-list').dataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/planning/datatableCustomer/",
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default"> ' + row.no + '</span>';
+                    // return '<a href="#" class = "detail-tools" tools_id = "' + row.id + '">'+row.description+'</a>';
+                },
+                orderable: false,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.customer_name + '</span>';
+                },
+                orderable: false,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.customer_address + '</span>';
+                },
+                orderable: false,
+                targets: 2
+            },{
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.customer_phone + '</span>';
+                },
+                orderable: false,
+                targets: 3
+            },
+            {
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.customer_email + '</span>';
+                },
+                orderable: false,
+                targets: 4
+            },{
+                render: function (data, type, row) {
+                    return '<span class="text-size-small text-default">' + row.other_customer_details + '</span>';
+                },
+                orderable: false,
+                targets: 5
+            },
+            {
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" class = "edit-customer" customer_id = "' + row.id + '"><i class="icon-pencil"></i>Edit</a></li>' +
+                        '<li><a href="#" class = "delete-customer" customer_id = "' + row.id + '"><i class="icon-trash"></i>Delete</a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+                },
+                orderable: false,
+                visible: true,
+                targets: 6
+            }
+        ],
+        order: [1, "desc"],
+        columns: [
+            {data: "email"},
+            {data: "full_name"},
+            {data: "title"},
+            {data: "join_date"},
+            {data: "work_location"},
+        ],
+        fnDrawCallback: function () {
+            CallbackCustomer();
+        }
+
+    });
+
+
+//==============================================================================================================
+
+    // Javascript sourced data
+    var dataSet = [
+        ['Trident', 'Internet Explorer 4.0', 'Win 95+', '4', 'X'],
+        ['Trident', 'Internet Explorer 5.0', 'Win 95+', '5', 'C'],
+        ['Trident', 'Internet Explorer 5.5', 'Win 95+', '5.5', 'A'],
+        ['Trident', 'Internet Explorer 6', 'Win 98+', '6', 'A'],
+        ['Gecko', 'Firefox 1.0', 'Win 98+ / OSX.2+', '1.7', 'A'],
+        ['Gecko', 'Firefox 1.5', 'Win 98+ / OSX.2+', '1.8', 'A'],
+        ['Gecko', 'Firefox 2.0', 'Win 98+ / OSX.2+', '1.8', 'A'],
+        ['Gecko', 'Firefox 3.0', 'Win 2k+ / OSX.3+', '1.9', 'A'],
+        ['Gecko', 'Camino 1.0', 'OSX.2+', '1.8', 'A'],
+        ['Gecko', 'Camino 1.5', 'OSX.3+', '1.8', 'A'],
+        ['Webkit', 'Safari 1.2', 'OSX.3', '125.5', 'A'],
+        ['Webkit', 'Safari 1.3', 'OSX.3', '312.8', 'A'],
+        ['Webkit', 'Safari 2.0', 'OSX.4+', '419.3', 'A'],
+        ['Presto', 'Opera 7.0', 'Win 95+ / OSX.1+', '-', 'A'],
+        ['Presto', 'Opera 7.5', 'Win 95+ / OSX.2+', '-', 'A'],
+        ['Misc', 'NetFront 3.1', 'Embedded devices', '-', 'C'],
+        ['Misc', 'NetFront 3.4', 'Embedded devices', '-', 'A'],
+        ['Misc', 'Dillo 0.8', 'Embedded devices', '-', 'X'],
+        ['Misc', 'Links', 'Text only', '-', 'X']
+    ];
+
+    $('.datatable-js').dataTable({
+        data: dataSet,
+        columnDefs: []
+    });
+
+
+    // Nested object data
+    $('.datatable-nested').dataTable({
+        ajax: 'assets/demo_data/tables/datatable_nested.json',
+        columns: [
+            {data: "name[, ]"},
+            {data: "hr.0"},
+            {data: "office"},
+            {data: "extn"},
+            {data: "hr.2"},
+            {data: "hr.1"}
+        ]
+    });
+
+
+    // Generate content for a column
+    var table = $('.datatable-generated').DataTable({
+        ajax: 'assets/demo_data/tables/datatable_ajax.json',
+        columnDefs: [{
+            targets: 2,
+            data: null,
+            defaultContent: "<button class='label label-default'>Show</button>"
+        },
+            {
+                orderable: false,
+                targets: [0, 2]
+            }]
+    });
+
+    $('.datatable-generated tbody').on('click', 'button', function () {
+        var data = table.row($(this).parents('tr')).data();
+        alert(data[0] + "'s location is: " + data[2]);
+    });
+
+
+    // External table additions
+    // ------------------------------
+
+    // Add placeholder to the datatable filter option
+    $('.dataTables_filter input[type=search]').attr('placeholder', 'Type to filter...');
+
+
+    // Enable Select2 select for the length option
+    $('.dataTables_length select').select2({
+        minimumResultsForSearch: Infinity,
+        width: 'auto'
+    });
+
+
+});
+
+function capt(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function CurrencyFormat(number) {
+    return (Math.round(number * 100) / 100).toLocaleString('id');
+}
+
+function alertSuccess(){
+    new PNotify({
+        title: 'Success',
+        text: 'Data has been saved.',
+        addclass: 'alert alert-success alert-styled-right',
+        type: 'success'
+    });
+}
+
+var CallbackMilestone = function () {
+    $('.attach_tasklist').on('click', function () {
+        var option = "";
+        var project_id = $(this).attr('project_id');
+        var milestone_id = $(this).attr('milestone_id');
+
+        $.ajax({
+            url: JS_BASE_URL + '/projects/getTaskList',
+            type: 'POST',
+            dataType: 'json',
+            data: {project_id: project_id},
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        option += '<option value="' + val.id + '">' + val.task_list_name + '</option> ';
+                    });
+                }
+            }
+        });
+        bootbox.dialog({
+                title: "Attach Task List",
+                message: '<div class="row">  ' +
+                '<div class="col-md-12">' +
+                '<form action="#" id = "task_list_form">' +
+                '<div class="form-group">' +
+                '<input type = "hidden" name = "milestone_id" value = "' + milestone_id + '">' +
+                '<select name="task_list_id" data-placeholder="Select tasklist" class="select">' +
+                '<option value="">No Milestone</option>' +
+                option +
+                '</select>' +
+                '</div>' +
+                '</form>' +
+                '</div>' +
+                '</div>',
+                buttons: {
+                    success: {
+                        label: "Attach Task List",
+                        className: "btn-success",
+                        callback: function () {
+                            var form = $('#task_list_form');
+                            $.ajax({
+                                url: JS_BASE_URL + '/projects/attachTaskList',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: form.serialize(),
+                                success: function (res) {
+                                    /*if(res.status == 'Success'){
+                                     window.location.replace(JS_BASE_URL +'/projects/all');
+                                     }*/
+                                }
+                            });
+
+                        }
+                    }
+                }
+            }
+        );
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+
+        // Single picker
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+
+        });
+    });
+
+    $('.edit_milestone').on('click', function () {
+        var milestone_name = "", responsible_user = "", due_date = "", note = "", followers = "";
+        var project = "";
+        var milestone_id = $(this).attr('milestone_id');
+        $.ajax({
+            url: JS_BASE_URL + '/projects/getMilestoneDetail/' + milestone_id,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    milestone_name = res.data[0].milestone_name;
+                    responsible_user = res.data[0].responsible_to;
+                    due_date = res.data[0].due_date;
+                    note = res.data[0].description;
+                    project = res.data[0].projects_id;
+                }
+            }
+        });
+        var option = "";
+        console.log(project);
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getPeopleInProject/' + project,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var selected = "";
+                        if (responsible_user == val.id) {
+                            selected = "selected";
+                        }
+                        option += '<option value="' + val.id + '" ' + selected + '>' + val.name + '</option> ';
+                    });
+                }
+            }
+        });
+        console.log(option);
+        bootbox.dialog({
+                title: "Edit Milestone",
+                message: '<div class="row"> ' +
+                '<div class="col-md-12">' +
+                '<form action="#" id = "add_milestone_form">' +
+                '<div class="form-group">' +
+                '<div class="row">' +
+                '<div class="col-sm-12">' +
+                '<label>Name the milestone</label> ' +
+                '<input type="text" name = "milestone" value = "' + milestone_name + '"class="form-control"> ' +
+                    //'<input type="hidden" name = "project_id"  value = "<?php echo $project_id?>" class="form-control">' +
+                '</div> ' +
+                '</div> ' +
+                '</div>' +
+                '<div class="row">' +
+                '<div class="col-sm-6">' +
+                '<div class="form-group"> ' +
+                '<label>Who is responsible?</label> ' +
+                '<select id="country" name="asignee" data-placeholder="Anyone" class="select company">' +
+                '<option value="">Anyone</option> ' +
+                option +
+                '</select>' +
+                '</div> ' +
+                '</div>' +
+                '<div class="col-sm-6">' +
+                '<label>Due Date</label>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon"><i class="icon-calendar22"></i></span>' +
+                '<input type="text" id = "due_date" class="form-control daterange-single" name = "milestone_due_date" placeholder="No date">' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">' +
+                '<li class="active"><a href="#a" data-toggle="tab" aria-expanded="true">Notes</a></li>' +
+                ' <li class=""><a href="#b" data-toggle="tab" aria-expanded="false">Followers</a></li>' +
+                '</ul>' +
+                '<div class="tab-content">' +
+                '<div class="tab-pane fade active in" id="a">' +
+                '<div class="form-group">' +
+                '<label class = "m-10">Provide a Description (Optional):</label> ' +
+                '<textarea rows="4" cols="5" name = "description" placeholder="Description..." class="form-control"></textarea>' +
+                '</div>' +
+                '</div>' +
+                '<div class="tab-pane fade" id="b">' +
+                '<div class="form-group">' +
+                '<label class = "m-10">Who can see it?</label>' +
+                '<select data-placeholder="Select user" class="select company" multiple = "multiple">' +
+                '<option value="anyone">Anyone in this project</option>' +
+                '<option value="me">Me</option>' +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '</form>' +
+                '</div>' +
+                '</div>',
+                buttons: {
+                    success: {
+                        label: "Save",
+                        className: "btn-success",
+                        callback: function () {
+                            var form = $('#add_milestone_form');
+                            $.ajax({
+                                url: JS_BASE_URL + '/projects/saveMilestone',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: form.serialize(),
+                                success: function (res) {
+                                    var dbmil = $('.datatable-milestone-list').dataTable();
+                                    if (res.status == 'Success') {
+                                        dbmil.api().ajax.reload();
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                }
+            }
+        );
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+        // Single picker
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+        });
+    });
+};
+var callBackTaskList = function () {
+    $('.edit-task').on('click', function () {
+        var taskName = "", startDate = "", endDate = "", progress = "", tasklistId = "";
+        var taskId = $(this).attr('task_id');
+        var projectId = "";
+        $.ajax({
+            url: JS_BASE_URL + '/planning/taskDetail/' + taskId,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    console.log(res.data);
+                    taskName = res.data.tasks_name;
+                    startDate = res.data.start_date;
+                    endDate = res.data.due_date;
+                    progress = res.data.progress;
+                    tasklistId = res.data.description;
+                    projectId = res.data.projects_id;
+                }
+            }
+        });
+        var option = "";
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getTaskList/',
+            type: 'POST',
+            data: {project_id: projectId},
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var selected = "";
+                        if (tasklistId == val.id) {
+                            selected = "selected";
+                        }
+                        option += '<option value="' + val.id + '" ' + selected + '>' + val.task_list_name + '</option> ';
+                    });
+
+                }
+            }
+        });
+        bootbox.dialog({
+                title: "Edit Task",
+                message: '<div class="row"> ' +
+                '<div class="col-md-12">' +
+                '<form action="#" id = "add_milestone_form">' +
+                '<div class="form-group">' +
+                '<div class="row">' +
+                '<div class="col-sm-12">' +
+                '<label>Name the task</label> ' +
+                '<input type="hidden" name = "task_id" value = "' + taskId + '"> ' +
+                '<input type="text" name = "task_name" value = "' + taskName + '"class="form-control"> ' +
+                    //'<input type="hidden" name = "project_id"  value = "<?php echo $project_id?>" class="form-control">' +
+                '</div> ' +
+                '</div> ' +
+                '</div>' +
+                '<div class="row">' +
+                '<div class="col-sm-6">' +
+                '<div class="form-group"> ' +
+                '<label>Start Date</label> ' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon"><i class="icon-calendar22"></i></span>' +
+                '<input type="text" id = "start_date" class="form-control daterange-single" name = "start_date" placeholder="No date">'+
+                '</div> ' +
+                '</div> ' +
+                '</div>' +
+                '<div class="col-sm-6">' +
+                '<label>End Date</label>' +
+                '<div class="input-group">' +
+                '<span class="input-group-addon"><i class="icon-calendar22"></i></span>' +
+                '<input type="text" id = "end_date" class="form-control daterange-single" name = "due_date" placeholder="No date">' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '<div class="row">' +
+                '<div class="col-sm-6">' +
+                '<div class="form-group"> ' +
+                '<label>Progress</label> ' +
+                '<div class="input-group">' +
+                '<input type="progress" id = "progress" class="form-control" name = "progress">' +
+                '<span class="input-group-addon">%</span>' +
+                '</div> ' +
+                '</div> ' +
+                '</div> ' +
+                '<div class="col-sm-6">' +
+                '<div class="form-group"> ' +
+                '<label>Task List</label> ' +
+                '<select id="tasklist" name="tasklist" data-placeholder="Select scope" class="select"> ' +
+                option +
+                '</select> ' +
+                '</div> ' +
+                '</div> ' +
+                '</div> ' +
+                '</form>' +
+                '</div>',
+                buttons: {
+                    success: {
+                        label: "Save",
+                        className: "btn-success",
+                        callback: function () {
+                            var form = $('#add_milestone_form');
+                            $.ajax({
+                                url: JS_BASE_URL + '/planning/updateTask',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: form.serialize(),
+                                success: function (res) {
+                                    var dbt = $('.datatable-task-list').dataTable();
+                                    if (res.status == 'Success') {
+                                        dbmil.api().ajax.reload();
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                }
+            }
+        );
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+        // Single picker
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+        });
+        // Single picker
+        if (startDate !== null) {
+            start_date = startDate;
+            $('#start_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(startDate).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#start_date').val('');
+        }
+        if (endDate != null) {
+            end_date = endDate;
+            $('#end_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(end_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#end_date').val('');
+        }
+    });
+
+    $('.delete-task').on('click', function () {
+        var taskId = $(this).attr('task_id');
+        swal({
+                title: "Are you sure?",
+                text: "Are you sure you want to delete this task?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF5350",
+                confirmButtonText: "Yes, delete it",
+                cancelButtonText: "No, cancel please",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function (isConfirm) {
+                if (isConfirm) {
+                    var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                    var url = baseURL + "/planning/deleteTask/";
+                    var t1 = $('.datatable-task-list').dataTable();
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        async: false,
+                        data: {taskId: taskId},
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.status == 'Success') {
+                                swal({
+                                        title: "Deleted!",
+                                        text: "This task has been deleted",
+                                        confirmButtonColor: "#66BB6A",
+                                        type: "success"
+                                    },
+                                    function (isConfirm) {
+                                        //location.reload();
+                                        t1.api().ajax.reload();
+                                    }
+                                );
+
+                            }
+                        }
+                    });
+
+                }
+                else {
+                    swal({
+                        title: "Cancelled",
+                        text: "cancel and not process anything.",
+                        confirmButtonColor: "#2196F3",
+                        type: "error"
+                    });
+                }
+            });
+    });
+};
+
+
+var CallbackProject = function () {
+    $('.edit_project').on('click', function () {
+
+        var project_id = $(this).attr('project_id');
+        var option = "";
+        var that = this;
+        var id_project = $(this).attr('project_id');
+        var project_name = "", startDate = "", endDate = "", company2 = "", description = "", completion = 0;
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getProjectDetail/' + project_id,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    project_name = res.data[0].project_name;
+                    description = res.data[0].description;
+                    company = res.data[0].company;
+                    startDate = res.data[0].start_date;
+                    endDate = res.data[0].end_date;
+                    customer = res.data[0].customer;
+                    scope = res.data[0].scope;
+                    customer_name = res.data[0].customer;
+                }
+            }
+        });
+        var list_company = "";
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getCompany',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "";
+                        if (company == val.company_name) {
+                            slctd += "selected"
+                        }
+                        list_company += '<option value="' + val.company_name + '" ' + slctd + '>' + val.company_name + '</option>';
+                    });
+                }
+            }
+        });
+        var list_scope = "";
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getProjectScope',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, dt) {
+                        var slctd = "";
+                        if (scope == dt.project_scope) {
+                            slctd += "selected"
+                        }
+                        list_scope += '<option value="' + dt.project_scope + '" ' + slctd + '>' + dt.project_scope + '</option>';
+                    });
+                }
+            }
+        });
+        var list_resource = "";
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getResource',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        list_resource += '<option value="' + val.user_id + '">' + val.fullname + '</option> ';
+                    });
+                }
+            }
+        });
+
+        var list_customer = "";
+        $.ajax({
+            url: JS_BASE_URL + '/planning/all_customer',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "";
+                        if (customer == val.id) {
+                            slctd += "selected"
+                        }
+                        list_customer += '<option value="' + val.id + '" ' + slctd + '>' + val.customer_name + '</option> ';
+                    });
+                }
+            }
+        });
+        bootbox.dialog({
+                title: "Edit Project",
+                message: '<div class="row">' +
+                '<div class="col-md-12">' +
+                '<form action="#" id="edit_project_form">' +
+                '<div class="form-group">' +
+                '<div class="row">' +
+                '<div class="col-sm-12">' +
+                '<label class="text-semibold">What\'s the Project Name?</label>' +
+                '<input type="hidden" name="project_id" value="' + project_id + '" class="form-control">' +
+                '<input type="text" placeholder="Project name" name="project_name" value="' + project_name + '" class="form-control input-lg text-semibold">' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">' +
+                '<li class="active"><a href="#tab_description" data-toggle="tab" aria-expanded="true">Description</a></li>' +
+                '<li class=""><a href="#tab_dates" data-toggle="tab" aria-expanded="false">Dates</a></li>' +
+                '<li class=""><a href="#tab_scope" data-toggle="tab" aria-expanded="false">Scope</a></li>' +
+                '<li class=""><a href="#tab_company" data-toggle="tab" aria-expanded="false">Company</a></li>' +
+                '<li class=""><a href="#tab_customer" data-toggle="tab" aria-expanded="false">Customer</a></li>' +
+                '<li class=""><a href="#tab_resource" data-toggle="tab" aria-expanded="false">Resource</a></li>' +
+                '</ul>' +
+                '<div class="tab-content">' +
+                '<div class="tab-pane fade active in" id="tab_description">' +
+                /*'<div class="form-group">' +
+                '<div class="row">' +
+                '<div class="col-sm-12">' +
+                '<label class="mt-10 text-semibold">Project Completion</label>' +
+                '<div class="input-group col-sm-8">' +
+                '<input type="text" placeholder="Project completion in percent" name = "completion" value = "' + completion + '" class="form-control">' +
+                '<span class="input-group-addon">%</span> ' +
+                '</div>' +
+                '</div>' +
+                '</div>' +*/
+                /*'</div>' +*/
+                '<div class="form-group">' +
+                '<label class="mt-10 text-semibold">Provide a Description (Optional):</label>' +
+                '<textarea rows="4" cols="5" name="project_description" placeholder="Description..." class="form-control">' + description + '</textarea>' +
+                '</div>' +
+                '</div>' +
+                '<div class="tab-pane fade" id="tab_dates">'+
+                '<label class="mt-10"><span class="text-semibold">Project Dates</span> (Optional)<br/><small class="text-muted">Adding a start and end date provides your team a useful way to see the duration of this project which helps with planning your tasks and milestones</small></label>'+
+                '<div class="row">'+
+                '<div class="col-sm-6">'+
+                '<label>Start Date</label>'+
+                '<div class="input-group">'+
+                '<span class="input-group-addon"><i class="icon-calendar22"></i></span> '+
+                '<input type="text" class="form-control daterange-single" id="start_date" name="project_start_date" value="" placeholder="Pick a date"> '+
+                '</div>'+
+                '</div>'+
+                '<div class="col-sm-6">'+
+                '<label>End Date</label>'+
+                '<div class="input-group">'+
+                '<span class="input-group-addon"><i class="icon-calendar22"></i></span>'+
+                '<input type="text" class="form-control daterange-single" id = "end_date" name = "project_end_date" value="" placeholder="Pick a date">'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="tab-pane fade" id="tab_scope">' +
+                '<div class="form-group">' +
+                '<label class="mt-10 text-semibold">Project Scope:</label>' +
+                '<select id="scope" name="scope" data-placeholder="Select project scope" class="select">' +
+                '<option value="">No Scope</option>' +
+                list_scope +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '<div class="tab-pane fade" id="tab_company">' +
+                '<div class="form-group">' +
+                '<label class="mt-10 text-semibold">This Project is for Company:</label>' +
+                '<select id="country" name="project_company" data-placeholder="Select your company" class="select">' +
+                '<option value="">No Company</option>' +
+                list_company +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '<div class="tab-pane fade" id="tab_customer">' +
+                '<div class="form-group">' +
+                '<label class="mt-10 text-semibold">This Project is for Customer:</label>' +
+                '<select id="customer" name="customer" data-placeholder="Select customer" class="select">' +
+                '<option value="">Select</option>' +
+                list_customer +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '<div class="tab-pane fade" id="tab_resource">' +
+                '<div class="form-group">' +
+                '<label class="mt-10 text-semibold">Who should be added to this project?</label>' +
+                '<select data-placeholder="Select person" name="team[]" class="select" multiple="multiple">' +
+                list_resource +
+                '</select>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</form>' +
+                '</div>' +
+                '</div>',
+                buttons: {
+                    success: {
+                        label: "Update Project",
+                        className: "btn-success",
+                        callback: function () {
+                            var editProject = $('#edit_project_form');
+                            var table1 = $('.datatable-projects-list').dataTable();
+                            $.ajax({
+                                url: JS_BASE_URL + '/planning/editProject',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: editProject.serialize(),
+                                success: function (res) {
+                                    if (res.status == 'Success') {
+                                        new PNotify({
+                                            title: 'Success',
+                                            text: 'Data has been saved',
+                                            icon: 'icon-checkmark3',
+                                            addclass: 'bg-success',
+                                            delay: '3000'
+                                        });
+
+                                        table1.api().ajax.reload();
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                }
+            }
+        );
+
+
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+        $("#select").select2("val", company2);
+
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+        });
+
+        console.log(startDate);
+        // Single picker
+        if (startDate !== null) {
+            start_date = startDate;
+            $('#start_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(startDate).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#start_date').val('');
+        }
+        if (endDate != null) {
+            end_date = endDate;
+            $('#end_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(end_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#end_date').val('');
+        }
+
+
+    });
+};
+
+var CallbackUser = function () {
+    $('.edit-user').on('click', function () {
+        var option = "";
+        var that = this;
+        var userId = $(this).attr('user_id');
+        var name = "", email = "", role_id = "";
+        $.ajax({
+            url: JS_BASE_URL + '/administration/userDetail/' + userId,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'success') {
+                    name = res.data['fullname'];
+                    email = res.data['email'];
+                    role = res.data['role_id'];
+                }
+            }
+        });
+        var option2 = "";
+        $.ajax({
+            url: JS_BASE_URL + '/administration/getEmployee',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                $.each(res, function (i, val) {
+                    var selected = "";
+                    if (email == val.email) {
+                        selected += "selected"
+                    }
+                    ;
+                    option2 += '<option value="' + val.employee_id + "-" + val.email + '" ' + selected + '>' + val.email + '</option>';
+                });
+            }
+        });
+        var option = "";
+        $.ajax({
+            url: JS_BASE_URL + '/administration/getRoles/',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                $.each(res.data, function (i, val) {
+                    var selected = "";
+                    if (role == val.id) {
+                        selected += "selected"
+                    }
+                    ;
+                    option += '<option value="' + val.id + '" ' + selected + '>' + val.role_name + '</option>';
+                });
+            }
+        });
+
+        /*var scopes = ["Submarine", "Inland", "Civil Work", "FTTB", "FTTH"];
+         var optionScope = "";
+         $.each(scopes, function(i, val) {
+         var selected = "";
+         if (scope == val) {selected += "selected"};
+         optionScope += '<option value="'+val+'" '+selected+'>'+val+'</option>';
+         });*/
+        bootbox.dialog({
+                title: "Edit User",
+                message: '<div class="row"> ' +
+                '<div class="col-md-12">' +
+                '<form action="#" id = "edit_user_form">' +
+                '<div class="form-group">' +
+                '<div class="row">' +
+                '<div class="col-sm-6">' +
+                '<label>Email</label> ' +
+                '<input type="hidden" name = "user_id" value = "' + userId + '" class="form-control"> ' +
+                '<select id="country" name="email" data-placeholder="Test" class="select">' +
+                option2 +
+                '</select>' +
+                '</div> ' +
+                '<div class="col-sm-6">' +
+                '<label>Name</label> ' +
+                '<input type="text" name = "fullname" value = "' + name + '" class="form-control"> ' +
+                '</div> ' +
+                '</div>' +
+                '</div>' +
+                '<div class="row">' +
+                '<div class="col-sm-12">' +
+                '<div class="form-group"> ' +
+                '<label>Role</label> ' +
+                '<select id="country" name="role" data-placeholder="Test" class="select">' +
+                option +
+                '</select>' +
+                '</div> ' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
+                '</form>' +
+                '</div>' +
+                '</div>',
+                buttons: {
+                    success: {
+                        label: "Save",
+                        className: "btn-success",
+                        callback: function () {
+                            var form = $('#edit_user_form');
+                            $.ajax({
+                                url: JS_BASE_URL + '/administration/editUser',
+                                type: 'POST',
+                                dataType: 'json',
+                                data: form.serialize(),
+                                success: function (res) {
+                                    var dbmil = $('.datatable-user-list').dataTable();
+                                    if (res.status == 'Success') {
+                                        dbmil.api().ajax.reload();
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                }
+            }
+        );
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+        //$("#select").select2("val", company2);
+
+        // Single picker
+        
+
+
+    });
+};
+
+var CallbackResource = function () {
+    $('.edit-resource').on('click', function () {
+        var option = "";
+        var that = this;
+        var resourceId = $(this).attr('res_id');
+        var name = "",
+            email = "",
+            userId = "",
+            joinDate = "",
+            title = "",
+            workLocation = "";
+
+        $.ajax({
+            url: JS_BASE_URL + '/resource/detail/' + resourceId,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    name = res.data.fullname;
+                    email = res.data.email;
+                    userId = res.data.user_id;
+                    joinDate = res.data.join_date;
+                    title = res.data.title;
+                    workLocation = res.data.work_location;
+                }
+            }
+        });
+        var option = "";
+        $.ajax({
+            url: JS_BASE_URL + '/administration/activeUser/',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                //console.log(res);
+
+                $.each(res.data, function (i, val) {
+                    var selected = "";
+                    if (userId == val.user_id) {
+                        selected += "selected"
+                    }
+                    ;
+                    option += '<option value="' + val.user_id + '-' + val.email + '-' + val.fullname + '" ' + selected + '>' + val.email + '</option>';
+                });
+            }
+        });
+
+        bootbox.dialog({
+            title: "Edit Resource",
+            message: '<div class="row"> ' +
+            '<div class="col-md-12">' +
+            '<form action="#" id = "add_user_form">' +
+            '<div class="form-group">' +
+            '<div class="row">' +
+            '<div class="col-sm-12">' +
+            '<label>Name</label> ' +
+            '<input type="hidden" id = "user_id" name = "user_id" class="form-control" value="' + userId + '"> ' +
+            '<input type="text" id = "name" name = "name" class="form-control" disabled = "disabled" value = "' + name + '"> ' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '<div class="form-group">' +
+            '<div class="row">' +
+            '<div class="col-sm-6">' +
+            '<label>Join Date</label> ' +
+            '<input type="text" class="form-control daterange-single" name = "join_date" placeholder="Pick a date" value = "' + joinDate + '">' +
+            '</div>' +
+            '<div class="col-sm-6">' +
+            '<label>Title</label> ' +
+            '<input type="text" id = "title" name = "title" class="form-control" value = "' + title + '"> ' +
+            '</div> ' +
+            '</div> ' +
+            '</div> ' +
+            '<div class="form-group">' +
+            '<div class="row">' +
+            '<div class="col-sm-6">' +
+            '<label>Work Location</label> ' +
+            '<input type="text" id = "work_location" name = "work_location" class="form-control" value = "' + workLocation + '"> ' +
+                /*'<select id="name" name="work_location" data-placeholder="Select a user" class="select">'+
+                 '<option value="" dissabled>Select a user</option>'+
+                 option +
+                 '</select>' +*/
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '</form>' +
+            '</div>' +
+            '</div>',
+            buttons: {
+                success: {
+                    label: "Add User",
+                    className: "btn-success",
+                    callback: function () {
+                        var form = $('#add_user_form');
+                        $.ajax({
+                            url: JS_BASE_URL + '/resource/editResource/' + resourceId,
+                            type: 'POST',
+                            dataType: 'json',
+                            data: form.serialize(),
+                            success: function (res) {
+                                var db = $('.datatable-resource-list').dataTable();
+                                if (res.status == 'Success') {
+                                    db.api().ajax.reload();
+                                }
+                            }
+                        });
+
+                    }
+                }
+            }
+        });
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+        });
+
+        $("#email").change(function () {
+            res = $(this).val().split("-");
+            $("#name").val(res[2]);
+            $("#user_id").val(res[0]);
+        });
+
+
+    });
+};
+
+var CallbackTools = function () {
+    $('.edit-tools').on('click', function () {
+        var toolsId = $(this).attr('tools_id');
+        console.log(toolsId);
+        var detail;
+        $.ajax({
+            url: JS_BASE_URL + '/toolManagement/detail/' + toolsId,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                }
+            }
+        });
+
+        var selected_new = "", selected_rent="";
+        if(detail.new_rent == 'new'){
+            selected_new = 'selected';
+        } else {
+            selected_rent = 'selected';
+        }
+        bootbox.dialog({
+                    title: "Edit Tool Inventory",
+                    message: '<div class="row"> ' +
+                    '<div class="col-md-12">' +
+                    '<form action="#" id = "edit_tool_form">' +
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-12">' +
+                    '<label>Tools Description</label> '+
+                    '<input type="text" class="form-control" name = "description" value="'+detail.description+'">'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-12">' +
+                    '<label>ID Tools</label> '+
+                    '<input type="hidden" class="form-control" name = "id_tool" value="'+detail.id+'">'+
+                    '<input type="text" class="form-control" name = "tools_id" value="'+detail.tools_id+'">'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">' +
+                    '<li class="active"><a href="#a" data-toggle="tab" aria-expanded="true">PO/PR</a></li>' +
+                    ' <li class=""><a href="#b" data-toggle="tab" aria-expanded="false">Detail</a></li>' +
+                    ' <li class=""><a href="#c" data-toggle="tab" aria-expanded="false">Condition</a></li>' +
+                    ' <li class=""><a href="#d" data-toggle="tab" aria-expanded="false">Remarks</a></li>' +
+                    '</ul>' +
+                    '<div class="tab-content">' +
+                    '<div class="tab-pane fade active in" id="a">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>PR Number</label> '+
+                    '<input type="text" class="form-control" name = "pr_number" value="'+detail.pr_number+'">'+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>PO Number</label> '+
+                    '<input type="text" id = "po_number" name = "po_number" class="form-control" value="'+detail.po_number+'"> '+
+                    '</div> '+
+                    '</div> '+
+                    '</div> '+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>PR Date</label> '+
+                    '<input type="text" id = "pr_date" name = "pr_date" class="form-control daterange-single" value=""> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>PO Date</label> '+
+                    '<input type="text" id = "po_date" name = "po_date" class="form-control daterange-single" value=""> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="tab-pane fade" id="b">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>Brand</label> '+
+                    '<input type="text" id = "brand" name = "brand" class="form-control" value="'+detail.brand+'"> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Type</label> '+
+                    '<input type="text" id = "type" name = "type" class="form-control" value="'+detail.type+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>Serial Number</label> '+
+                    '<input type="text" id = "serial_number" name = "serial_number" class="form-control" value="'+detail.serial_number+'"> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Waranty</label> '+
+                    '<input type="text" id = "waranty" name = "waranty" class="form-control" value="'+detail.warranty+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="tab-pane fade" id="c">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>Current Area/Position</label> '+
+                    '<input type="text" id = "current_area" name = "current_area" class="form-control" value="'+detail.position+'"> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Condition</label> '+
+                    '<input type="text" id = "condition" name = "condition" class="form-control" value="'+detail.condition+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>New/Rent</label> '+
+                    '<select id="new" name="new" data-placeholder="" class="select">'+
+                    '<option value="" dissabled>Select</option>'+
+                    '<option value="new" '+selected_new+'>New</option>'+
+                    '<option value="rent" '+selected_rent+'>Rent</option>'+
+                    '</select>' +
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Price</label> '+
+                    '<input type="text" id = "price" name = "price" class="form-control" value="'+detail.price+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="tab-pane fade" id="d">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-12">' +
+                    '<label>Remarks</label> '+
+                    '<textarea rows="4" cols="5" name = "remarks" placeholder="Description..." class="form-control">'+detail.remarks+'</textarea>' +
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</form>' +
+                    '</div>' +
+                    '</div>',
+                    buttons: {
+                        success: {
+                            label: "Update",
+                            className: "btn-success",
+                            callback: function () {
+                                var form = $('#edit_tool_form');
+                                $.ajax({
+                                    url:  JS_BASE_URL +'/toolManagement/update/',
+                                    type : 'POST',
+                                    dataType: 'json',
+                                    data: form.serialize(),
+                                    success: function(res) {
+                                        alertSuccess();
+                                        var dbmil = $('.datatable-tools-list').dataTable();
+                                        if(res.status == 'Success'){
+                                            dbmil.api().ajax.reload();
+                                        }
+                                    }
+                                });
+
+                            }
+                        }
+                    }
+                }
+            );
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+        if(detail.po_date != null){
+            $('#po_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(detail.po_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#po_date').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                format: 'DD-MM-YYYY'
+                },
+                autoUpdateInput :false
+                }, 
+            function(startDate, label){
+                $('#po_date').val(startDate.format('DD-MM-YYYY'));
+            });
+         }
+        if(detail.pr_date != null){
+            $('#pr_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(detail.pr_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#pr_date').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                format: 'DD-MM-YYYY'
+                },
+                autoUpdateInput :false
+                }, function(startDate, label){
+                    $('#pr_date').val(startDate.format('DD-MM-YYYY'));
+                });
+        }
+    });
+
+    $('.detail-tools').on('click', function () {
+        var toolsId = $(this).attr('tools_id');
+        console.log(toolsId);
+        var detail;
+        $.ajax({
+            url: JS_BASE_URL + '/toolManagement/detail/' + toolsId,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                }
+            }
+        });
+
+        var selected_new = "", selected_rent="";
+        if(detail.new_rent == 'new'){
+            selected_new = 'selected';
+        } else {
+            selected_rent = 'selected';
+        }
+        bootbox.dialog({
+                    title: "Edit Tool Inventory",
+                    message: '<div class="row"> ' +
+                    '<div class="col-md-12">' +
+                    '<form action="#" id = "edit_tool_form">' +
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-12">' +
+                    '<label>Tools Description</label> '+
+                    '<input type="text" disabled = "disabled" class="form-control" name = "description" value="'+detail.description+'">'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-12">' +
+                    '<label>ID Tools</label> '+
+                    '<input type="hidden" class="form-control" name = "id_tool" value="'+detail.id+'">'+
+                    '<input type="text" disabled = "disabled" class="form-control" name = "tools_id" value="'+detail.tools_id+'">'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">' +
+                    '<li class="active"><a href="#a" data-toggle="tab" aria-expanded="true">PO/PR</a></li>' +
+                    ' <li class=""><a href="#b" data-toggle="tab" aria-expanded="false">Detail</a></li>' +
+                    ' <li class=""><a href="#c" data-toggle="tab" aria-expanded="false">Condition</a></li>' +
+                    ' <li class=""><a href="#d" data-toggle="tab" aria-expanded="false">Remarks</a></li>' +
+                    '</ul>' +
+                    '<div class="tab-content">' +
+                    '<div class="tab-pane fade active in" id="a">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>PR Number</label> '+
+                    '<input type="text" class="form-control" disabled = "disabled" name = "pr_number" value="'+detail.pr_number+'">'+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>PO Number</label> '+
+                    '<input type="text" id = "po_number" disabled = "disabled" name = "po_number" class="form-control" value="'+detail.po_number+'"> '+
+                    '</div> '+
+                    '</div> '+
+                    '</div> '+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>PR Date</label> '+
+                    '<input type="text" id = "pr_date" disabled = "disabled" name = "pr_date" class="form-control daterange-single" value=""> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>PO Date</label> '+
+                    '<input type="text" id = "po_date" disabled = "disabled" name = "po_date" class="form-control daterange-single" value=""> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="tab-pane fade" id="b">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>Brand</label> '+
+                    '<input type="text" id = "brand" name = "brand" disabled = "disabled" class="form-control" value="'+detail.brand+'"> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Type</label> '+
+                    '<input type="text" id = "type" name = "type" disabled = "disabled" class="form-control" value="'+detail.type+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>Serial Number</label> '+
+                    '<input type="text" id = "serial_number" disabled = "disabled" name = "serial_number" class="form-control" value="'+detail.serial_number+'"> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Waranty</label> '+
+                    '<input type="text" id = "waranty" disabled = "disabled" name = "waranty" class="form-control" value="'+detail.warranty+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="tab-pane fade" id="c">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>Current Area/Position</label> '+
+                    '<input type="text" id = "current_area" disabled = "disabled" name = "current_area" class="form-control" value="'+detail.position+'"> '+
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Condition</label> '+
+                    '<input type="text" id = "condition" disabled = "disabled" name = "condition" class="form-control" value="'+detail.condition+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="form-group">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-6">' +
+                    '<label>New/Rent</label> '+
+                    '<select disabled = "disabled" id="new" name="new" data-placeholder="" class="select">'+
+                    '<option value="" dissabled>Select</option>'+
+                    '<option value="new" '+selected_new+'>New</option>'+
+                    '<option value="rent" '+selected_rent+'>Rent</option>'+
+                    '</select>' +
+                    '</div>'+
+                    '<div class="col-sm-6">' +
+                    '<label>Price</label> '+
+                    '<input type="text" id = "price" disabled = "disabled" name = "price" class="form-control" value="'+detail.price+'"> '+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="tab-pane fade" id="d">' +
+                    '<div class="form-group mt-10">' +
+                    '<div class="row">'+
+                    '<div class="col-sm-12">' +
+                    '<label>Remarks</label> '+
+                    '<textarea rows="4" cols="5" disabled = "disabled" name = "remarks" placeholder="Description..." class="form-control">'+detail.remarks+'</textarea>' +
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</div>'+
+                    '</form>' +
+                    '</div>' +
+                    '</div>'
+                }
+            );
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+        if(detail.po_date != null){
+            $('#po_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(detail.po_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#po_date').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                format: 'DD-MM-YYYY'
+                },
+                autoUpdateInput :false
+                }, 
+            function(startDate, label){
+                $('#po_date').val(startDate.format('DD-MM-YYYY'));
+            });
+         }
+        if(detail.pr_date != null){
+            $('#pr_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(detail.pr_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#pr_date').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                format: 'DD-MM-YYYY'
+                },
+                autoUpdateInput :false
+                }, function(startDate, label){
+                    $('#pr_date').val(startDate.format('DD-MM-YYYY'));
+                });
+        }
+    });
+
+    $('.delete-tools').on('click', function (){
+        var toolsId = $(this).attr('tools_id');
+        // Setup
+        var notice = new PNotify({
+            title: 'Confirmation',
+            text: '<p>Are you sure you want delete this tool?</p>',
+            hide: false,
+            type: 'info',
+            confirm: {
+                confirm: true,
+                buttons: [
+                    {
+                        text: 'Yes',
+                        addClass: 'btn btn-sm btn-primary'
+                    },
+                    {
+                        addClass: 'btn btn-sm btn-link'
+                    }
+                ]
+            },
+            buttons: {
+                closer: false,
+                sticker: false
+            },
+            history: {
+                history: false
+            }
+        })
+
+        // On confirm
+        notice.get().on('pnotify.confirm', function() {
+            $.ajax({
+                url:  JS_BASE_URL +'/toolManagement/delete/',
+                type : 'POST',
+                dataType: 'json',
+                data: {id : toolsId},
+                success: function(res) {
+                    alertSuccess();
+                    var dbmil = $('.datatable-tools-list').dataTable();
+                    if(res.status == 'Success'){
+                        dbmil.api().ajax.reload();
+                    }
+                }
+            });
+        })
+
+        // On cancel
+        notice.get().on('pnotify.cancel', function() {
+            // alert('Oh ok. Chicken, I see.');
+        });
+    });
+};
+
+var CallbackIssueRisk = function () {
+    $('.edit-issue-risk').on('click', function () {
+        var issueRisk = $(this).attr('issue_risk');
+        var detail;
+        $.ajax({
+            url: JS_BASE_URL + '/issueRisk/detail/' + issueRisk,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                }
+            }
+        });
+
+        console.log(detail);
+
+        $('.modal-title').text('Edit Issue/Risk')
+
+        $('#modal_add_risk').modal('show');
+        $("#issue_id").val(detail.id);
+        $("#no_issue").val(detail.issue_no);
+        $("#input_date").val(detail.created_date);
+        // $("#raised_by").val(detail.);
+        $("#issue_risk").val(detail.issue_risk);
+        $("#project_id").val(detail.projects_id);
+        $("#project_scope").val(detail.project_scope);
+        $("#project_manager").val(detail.pm_id);
+        $("#pic").val(detail.pic_id);
+        $("#potential_impact").val(detail.potential_impact);
+        $("#issue_only").val(detail.issue_or_risk);
+        $("#status").val(detail.status);
+        $("#raised_date").val(detail.raised_date);
+        $("#issue_only").val(detail.issue_only);
+        $('#risk_only_probability').val(detail.risk_only_probability);
+        $("#risk_only_impact").val(detail.risk_only_impact);
+        $("#risk_only_significance").val(detail.risk_only_significance);
+        $("#current_response").val(detail.current_response);
+        $("#current_response_date").val(detail.current_response_date);
+        $("#further_action").val(detail.further_action);
+        $("#further_action_date").val(detail.further_action_date);
+        $("#file_attc").html(detail.file_attachment);
+        $("#file_attc").removeClass('hidden');
+        $("#status option[value=closed]").removeAttr('disabled');
+
+        if($("#issue_or_risk").val() === 'risk'){
+            $('.risk').show();
+            $('.issue').hide();
+        } else {
+            $('.risk').hide();
+            $('.issue').show();
+        }
+        $( "#issue_or_risk" ).change(function() {
+            if($(this).val() === 'risk'){
+                $('.risk').fadeIn(300);
+                $('.issue').fadeOut(300);
+            } else {
+                $('.risk').fadeOut(300);
+                $('.issue').fadeIn(300);
+            }
+        });
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+
+        if(detail.further_action_date != null){
+            $('#further_action_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(detail.further_action_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#further_action_date').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                format: 'DD-MM-YYYY'
+                },
+                autoUpdateInput :false
+                }, 
+            function(startDate, label){
+                $('#further_action_date').val(startDate.format('DD-MM-YYYY'));
+            });
+         }
+        if(detail.current_response_date != null){
+            $('#current_response_date').daterangepicker({
+                singleDatePicker: true,
+                startDate: moment(detail.current_response_date).format('DD-MM-YYYY'),
+                locale: {
+                    format: 'DD-MM-YYYY'
+                },
+            });
+        } else {
+            $('#current_response_date').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                format: 'DD-MM-YYYY'
+                },
+                autoUpdateInput :false
+                }, function(startDate, label){
+                    $('#current_response_date').val(startDate.format('DD-MM-YYYY'));
+                });
+        }
+    });
+
+    $('.detail-issue-risk').on('click', function () {
+        var issueRisk = $(this).attr('issue_risk');
+        console.log(issueRisk);
+        var detail;
+        $.ajax({
+            url: JS_BASE_URL + '/issueRisk/detail/' + issueRisk,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                }
+            }
+        });
+
+        var list_project;
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getProjects',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "";
+                        if (detail.projects_id == val.id) {
+                            slctd += "selected"
+                        }
+                        list_project += '<option value="' + val.id + '" ' + slctd + '>' + val.project_name + '</option>';
+                    });
+                }
+            }
+        });
+
+        var selected_issue = "", selected_risk="";
+        if(detail.issue_or_risk == 'issue'){
+            selected_issue = 'selected';
+        } else {
+            selected_risk = 'selected';
+        }
+
+        var selected_open = "", selected_closed="";
+        if(detail.status == 'open'){
+            selected_open = 'selected';
+        } else {
+            selected_closed = 'selected';
+        }
+
+        var sign = "", not_sign="", very_sign = "";
+        if(detail.issue_only == 'Significant'){
+            sign = 'selected';
+        } else if (detail.status == 'Not Significant') {
+            not_sign = 'selected';
+        } else {
+            very_sign = 'selected';
+        }
+
+         var js_base = JS_BASE_URL.replace('index.php', '');
+
+        bootbox.dialog({
+            title: "Detail Issue/Risk",
+            message: '<div class="row"> ' +
+            '<div class="col-md-12"> '+
+            '<form id = "view_risk"> '+
+            '<div class="form-group mt-10"> '+
+            '<div class="row">'+
+            '<div class="col-sm-6"> '+
+            '<label>Date</label> '+
+            '<input type="text" id = "input_date" name = "input_date" class="form-control daterange-single" disabled="">'+
+            '</div>'+
+            '<div class="col-sm-6"> '+
+            '<label>Issue/Risk Register ID</label> '+
+            '<input type = "hidden" id = "issue_id" name = "issue_id"> '+
+            '<input type="text" id = "no_issue" name = "no_issue" class="form-control" placeholder = "Please select project first" disabled="" value = "'+detail.issue_no+'"> '+
+            '</div> '+
+            '</div> '+
+            '</div>'+
+            '<div class="form-group mt-10"> '+
+            '<div class="row">'+
+            '<div class="col-sm-6"> '+
+            '<label>Project</label> '+
+            '<input type="text" id = "no_issue" name = "no_issue" class="form-control" placeholder = "Please select project first" disabled="" value = "'+detail.project_name+'"> '+
+            '</div>'+
+            '<div class="col-sm-6"> '+
+            '<label>Project Scope</label> '+
+             '<input type="text" id = "no_issue" name = "no_issue" class="form-control" placeholder = "Please select project first" disabled="" value = "'+detail.project_scope+'"> '+
+            '</div> '+
+            '</div> '+
+            '</div>'+
+            '<div class="form-group mt-10"> '+
+            '<div class="row">'+
+            '<div class="col-sm-6"> '+
+            '<label>Project Manager</label> '+
+             '<input type="text" id = "no_issue" name = "no_issue" class="form-control" placeholder = "Please select project first" disabled="" value = "'+detail.pm_name+'"> '+
+            '</div>'+
+            '<div class="col-sm-6"> '+
+            '<label>PIC</label> '+
+              '<input type="text" id = "no_issue" name = "no_issue" class="form-control" placeholder = "Please select project first" disabled="" value = "'+detail.pic_name+'"> '+
+            '</div> '+
+            '</div> '+
+            '</div>'+
+            '<div class="form-group mt-10"> '+
+            '<div class="row">'+
+            '<div class="col-sm-6"> '+
+            '<label>Issue/Risk Description</label> '+
+            /*'<textarea rows="4" cols="5" id = "issue_risk" name = "issue_risk" placeholder="Description..." class="form-control" disabled="">'+detail.issue_risk+'</textarea>'+*/
+            '<div class = "col-md-12 well">'+detail.issue_risk+'</div>'+
+            '</div>'+
+            '<div class="col-sm-6"> '+
+            '<label>Raised By</label> '+
+            '<input type="text" disabled class="form-control" name = "raised_by" id = "raised_by" value="'+detail.raised_by+'" disabled="">'+
+            '<label class = "mt-10">Raised Date</label> '+
+            '<input type="text" disabled = "disabled" id = "raised_date" name = "raised_date" class="form-control daterange-single" value="'+detail.raised_date+'"> '+
+            '</div> '+
+            '</div> '+
+            '</div>'+
+            '<div class="form-group mt-10"> '+
+            '<div class="row">'+
+            '<div class="col-sm-6"> '+
+            '<label>Target to Close</label> '+
+            '<input type="text" id = "target_to_close" name = "target_to_close" class="form-control" disabled="" value="'+detail.target_to_close+'"> '+
+            '</div>'+
+            '<div class="col-sm-6"> '+
+            '<label>Potential Impact</label> '+
+            '<input type="text" disabled = "disabled" id = "potential_impact" name = "potential_impact" class="form-control" value="'+detail.potential_impact+'">'+
+            '</div> '+
+            '</div> '+
+            '</div>'+
+            '<div class="form-group mt-10"> '+
+            '<div class="row">'+
+            '<div class="col-sm-6"> '+
+            '<label>Issue or Risk</label> '+
+            '<input type="text" disabled = "disabled" id = "potential_impact" name = "potential_impact" class="form-control" value="'+capt(detail.issue_or_risk)+'">'+
+            '</select> '+
+            '</div>'+
+            '<div class="col-sm-6"> '+
+            '<label>Status</label> '+
+            '<input type="text" disabled = "disabled" id = "potential_impact" name = "potential_impact" class="form-control" value="'+capt(detail.status)+'">'+
+            /*'<select id="issue_or_risk" disabled = "disabled" name="issue_or_risk" data-placeholder="" class="select">'+
+            '<option value="issue" '+selected_issue+'>Issue</option>'+
+            '<option value="risk" '+selected_risk+'>Risk</option>'+
+            '</select>' +*/
+            '</div> '+
+            '</div> '+
+            '</div> '+
+            '<div class="form-group mt-10"> '+
+            '<div class="row">'+
+            '<div class="col-sm-6"> '+
+            '<label>Level of Attention</label> '+
+            '<input type="text" disabled = "disabled" id = "potential_impact" name = "potential_impact" class="form-control" value="'+detail.issue_only+'">'+
+            '</div>'+
+            '<div class="col-sm-6"> '+
+            '<label>Attach Supporting document</label> <br/>'+
+            //mark
+            '<a target = "_blank" href="'+js_base+'/assets/file/issue_risk/'+detail.file_attachment+'" class = "detail-issue-risk">Download</a>'+
+            // '<span>'+detail.file_attachment+'</span>'+
+            '</div> '+
+            '</div> '+
+            '<div class = "risk">'+
+            '<legend class="text-semibold"></i>Risk Only</legend>'+
+            '<div class="form-group mt-10">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Probability</label> '+
+            '<input type="text" disabled = "disabled" id = "risk_only_probability" name = "risk_only_probability" class="form-control" value="'+detail.risk_only_probability+'"> '+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Impact</label> '+
+            '<input type="text" disabled = "disabled" id = "risk_only_impact" name = "risk_only_impact" class="form-control" value="'+detail.risk_only_impact+'"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-12">' +
+            '<label>Significance</label> '+
+            '<input type="text" disabled = "disabled" id = "risk_only_significance" name = "risk_only_significance" class="form-control" value="'+detail.risk_only_significance+'"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<legend class="text-semibold"></i>Response</legend>'+
+            '<div class="form-group mt-10">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Current Response</label> '+
+            '<input type="text" disabled = "disabled" id = "current_response" name = "current_response" class="form-control" value="'+detail.current_response+'"> '+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Current Response Date</label> '+
+            '<input type="text" disabled = "disabled" id = "current_response_date" name = "current_response_date" class="form-control daterange-single"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Further Action</label> '+
+            '<input type="text" disabled = "disabled" id = "further_action" name = "further_action" class="form-control" value="'+detail.further_action+'">'+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Further Action Date</label> '+
+            '<input type="text" disabled = "disabled" id = "further_action_date" name = "further_action_date" class="form-control daterange-single"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '</form>'+
+            '</div>'+
+            '</div>'
+        })
+
+        /*bootbox.dialog({
+            title: "Detail Issue/Risk",
+            message: '<div class="row"> ' +
+            '<div class="col-md-12">' +
+            '<form action="#" id = "add_risk_form">' +
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-12">' +
+            '<label>Project</label> '+
+            '<input type="hidden" class="form-control" name = "issue_id" value="'+detail.id+'">'+
+            '<select id="project_id" disabled = "disabled" name="project_id" data-placeholder="" class="select">'+
+            list_project +
+            '</select>' +
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-12">' +
+            '<label>Issue/Risk</label> '+
+            '<input type="text" class="form-control" name = "issue_risk" id = "issue_risk" disabled = "disabled" value="'+detail.issue_risk+'">'+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group mt-10">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Type of Risk/Issue</label> '+
+            '<input type="text" class="form-control" disabled = "disabled" name = "type_of_issue_risk" value="'+detail.type_of_issue_risk+'">'+
+            '<span class="help-block">Permit, Material, Financial, Document, etc.</span>' +
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Status</label> '+
+            '<select id="status" disabled = "disabled" name="status" data-placeholder="" class="select">'+
+            '<option value="open" '+selected_open+'>Open</option>'+
+            '<option value="closed" '+selected_closed+'>Closed</option>'+
+            '</select>' +
+            '</div> '+
+            '</div> '+
+            '</div> '+
+            '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">' +
+            '<li class="active"><a href="#a" data-toggle="tab" aria-expanded="true">Detail</a></li>' +
+            ' <li class="risk"><a href="#b" data-toggle="tab" aria-expanded="false">Risk</a></li>' +
+            ' <li class=""><a href="#c" data-toggle="tab" aria-expanded="false">Response</a></li>' +
+            '</ul>' +
+            '<div class="tab-content">' +
+            '<div class="tab-pane fade active in" id="a">' +
+            '<div class="form-group mt-10">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Raised Date</label> '+
+            '<input type="text" disabled = "disabled" id = "raised_date" name = "raised_date" class="form-control daterange-single" value="'+detail.raised_date+'"> '+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Issue or Risk</label> '+
+            '<select id="issue_or_risk" disabled = "disabled" name="issue_or_risk" data-placeholder="" class="select">'+
+            '<option value="issue" '+selected_issue+'>Issue</option>'+
+            '<option value="risk" '+selected_risk+'>Risk</option>'+
+            '</select>' +
+            '</div> '+
+            '</div> '+
+            '</div> '+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Potential Impact</label> '+
+            '<input type="text" disabled = "disabled" id = "potential_impact" name = "potential_impact" class="form-control" value="'+detail.potential_impact+'">'+
+            '</div>'+
+            '<div class="col-sm-6 issue">' +
+            '<label>Issue Only</label> '+
+            '<select id="issue_only" disabled = "disabled" name="issue_only" data-placeholder="" class="select">'+
+            '<option value="Not Significant" '+not_sign+'>Not Significant</option>'+
+            '<option value="Significant" '+sign+'>Significant</option>'+
+            '<option value="Very Significant" '+very_sign+'>Very Significant</option>'+
+            '</select>' +
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="tab-pane fade" id="b">' +
+            '<div class="form-group mt-10">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Probability</label> '+
+            '<input type="text" disabled = "disabled" id = "risk_only_probability" name = "risk_only_probability" class="form-control" value="'+detail.risk_only_probability+'"> '+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Impact</label> '+
+            '<input type="text" disabled = "disabled" id = "risk_only_impact" name = "risk_only_impact" class="form-control" value="'+detail.risk_only_impact+'"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-12">' +
+            '<label>Significance</label> '+
+            '<input type="text" disabled = "disabled" id = "risk_only_significance" name = "risk_only_significance" class="form-control" value="'+detail.risk_only_significance+'"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="tab-pane fade" id="c">' +
+            '<div class="form-group mt-10">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Current Response</label> '+
+            '<input type="text" disabled = "disabled" id = "current_response" name = "current_response" class="form-control" value="'+detail.current_response+'"> '+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Current Response Date</label> '+
+            '<input type="text" disabled = "disabled" id = "current_response_date" name = "current_response_date" class="form-control daterange-single"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Further Action</label> '+
+            '<input type="text" disabled = "disabled" id = "further_action" name = "further_action" class="form-control" value="'+detail.further_action+'">'+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Further Action Date</label> '+
+            '<input type="text" disabled = "disabled" id = "further_action_date" name = "further_action_date" class="form-control daterange-single"> '+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '</form>' +
+            '</div>' +
+            '</div>'
+        });*/
+
+        if(detail.issue_or_risk === 'risk'){
+            $('.risk').show();
+            $('.issue').hide();
+        } else {
+            $('.risk').hide();
+            $('.issue').show();
+        }
+        $( "#issue_or_risk" ).change(function() {
+            if($(this).val() === 'risk'){
+                $('.risk').fadeIn(300);
+                $('.issue').fadeOut(300);
+            } else {
+                $('.risk').fadeOut(300);
+                $('.issue').fadeIn(300);
+            }
+        });
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+        });
+        
+    });
+
+    $('.delete-issue-risk').on('click', function (){
+        var issueRisk = $(this).attr('issue_risk');
+        // Setup
+        var notice = new PNotify({
+            title: 'Confirmation',
+            text: '<p>Are you sure you want delete this issue/risk?</p>',
+            hide: false,
+            type: 'info',
+            confirm: {
+                confirm: true,
+                buttons: [
+                    {
+                        text: 'Yes',
+                        addClass: 'btn btn-sm btn-primary'
+                    },
+                    {
+                        addClass: 'btn btn-sm btn-link'
+                    }
+                ]
+            },
+            buttons: {
+                closer: false,
+                sticker: false
+            },
+            history: {
+                history: false
+            }
+        })
+
+        // On confirm
+        notice.get().on('pnotify.confirm', function() {
+            $.ajax({
+                url:  JS_BASE_URL +'/issueRisk/delete/',
+                type : 'POST',
+                dataType: 'json',
+                data: {id : issueRisk},
+                success: function(res) {
+                    var dbmil = $('.datatable-issue-risk-list').dataTable();
+                    if(res.status == 'Success'){
+                        alertSuccess();
+                        dbmil.api().ajax.reload();
+                    }
+                }
+            });
+        })
+
+        // On cancel
+        notice.get().on('pnotify.cancel', function() {
+            // alert('Oh ok. Chicken, I see.');
+        });
+    });
+
+    $('.issue_follow_up').on('click', function (){
+        $('#deleted_follow_up').val('');
+        $('#closing').hide();
+        $('#finalClose').hide();
+        $('#idx').val('');
+        var issueRisk = $(this).attr('issue_risk');
+        var detail;
+        var followUp;
+        $.ajax({
+            url: JS_BASE_URL + '/issueRisk/detail/' + issueRisk,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                    $('#issue_risk_desc').html(detail.issue_risk);
+                    $('#issue_dates').html(detail.raised_date);
+                    $('#name_project').html(detail.project_name);
+                }
+            }
+        });
+        $('#modal_follow_up').modal('show');
+        $("#for_issue").val(detail.id);
+        var row = '';
+        $.ajax({
+            url: JS_BASE_URL + '/issueRisk/followUp/' + issueRisk,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    followUp = res.data;
+                    $('#closing_state').remove();
+                    $('.prepend').remove();
+                    var count =0;
+                    if(followUp !== undefined){
+                        $.each(res.data, function (i, val) {
+                            row +='<tr class = "prepend">';
+                            row += '<td><input type="text" disabled = "disabled" value = "'+val.follow_up_date+'" class="form-control daterange-single"></td><td><input disabled = "disabled" type="text" value = "'+val.follow_up_description+'" class="form-control"></td><td><span class="help-block">'+val.file_attachment+'</span><td><a href="#" class ="dismiss" follow_up = "'+val.id+'"><i class ="icon-trash"></i></span></td></td>';
+                            row +='</td></tr>';
+                            count++;
+                        });
+                        row += '<tr class = "prepend"><td><input type="text" name = "follow_up['+count+'][date]" class="form-control daterange-single"></td><td><input type="text" name = "follow_up['+count+'][description]" class="form-control"> </td><td><input type="file" name = "attachment'+count+'" class="form-control"> </td><td></tr>';
+                        $('#idx').val(count); 
+                        $('#closing').show();
+                        $('#closing').on('click', function() {
+                            $('#closing_state').remove();
+
+                            $('#finalClose').show();
+
+                            var closeddd = '<div id = "closing_state"><br><br><div class="form-group"><div class="row"><div class="col-sm-2"><span>Closed Date</span><input type="text" id = "closing_date" name = "closing_date" class="form-control daterange-single"></div><div class="col-sm-6"><span>Closing Description</span><textarea rows="4" cols="5" name = "closing_desc" placeholder="Description..." class="form-control"></textarea></div><div class="col-sm-3"><span>Attachment</span><input type="file" name="closing_attc" class="form-control"><input type = "hidden" id = "tobe_closed"></div></div></div>';
+
+                            $('#close_date1').append(closeddd);
+
+
+                            $('.daterange-single').daterangepicker({
+                                singleDatePicker: true,
+                                locale: {
+                                    format: 'YYYY-MM-DD'
+                                },
+                            });
+                        });
+
+                        $('#finalClose').on('click', function () {
+                            // alert('test');
+                            var notice = new PNotify({
+                                title: 'Confirmation',
+                                text: '<p>Are you sure you want to close?</p>',
+                                hide: false,
+                                type: 'warning',
+                                confirm: {
+                                    confirm: true,
+                                    buttons: [
+                                        {
+                                            text: 'Yes',
+                                            addClass: 'btn btn-sm btn-primary'
+                                        },
+                                        {
+                                            addClass: 'btn btn-sm btn-link'
+                                        }
+                                    ]
+                                },
+                                buttons: {
+                                    closer: false,
+                                    sticker: false
+                                },
+                                history: {
+                                    history: false
+                                }
+                            })
+
+                            // On confirm
+                            notice.get().on('pnotify.confirm', function() {
+                                $('#follow_up_form').submit();
+                            })
+
+                            // On cancel
+                            notice.get().on('pnotify.cancel', function() {
+                            });
+                        });
+                        $("#follow_up tbody").append(row);
+                        
+                        
+                        $('.daterange-single').daterangepicker({
+                            singleDatePicker: true,
+                            locale: {
+                                format: 'YYYY-MM-DD'
+                            },
+                        });
+                    } 
+                } else {
+                    $('.closing_sate').remove();
+                    $('.prepend').remove();
+                    $('#closing').hide();
+                    $('#finalClose').hide();
+                    var row = '<tr class = "prepend"><td><input type="text" name = "follow_up[0][date]" class="form-control daterange-single"></td><td><input type="text" name = "follow_up[0][description]" class="form-control"> </td><td><input type="file" name = "attachment0" class="form-control"> </td><td></tr>';
+                    $('#idx').val(0);
+                    $("#follow_up tbody").append(row);
+                    $('.daterange-single').daterangepicker({
+                        singleDatePicker: true,
+                        locale: {
+                            format: 'YYYY-MM-DD'
+                        },
+                    });
+                }
+            }
+        });
+       
+    });
+
+    $('.issue_close').on('click', function (){
+        $('#xd').remove();
+        var issueRisk = $(this).attr('issue_risk');
+        var detail;
+        var followUp;
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+        });
+
+        $.ajax({
+            url: JS_BASE_URL + '/issueRisk/detail/' + issueRisk,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                    $('#issue_risk_desc2').html(detail.issue_risk);
+                    $('#issue_dates2').html(detail.raised_date);
+                }
+            }
+        });
+        var row = '';
+        $.ajax({
+            url: JS_BASE_URL + '/issueRisk/followUp/' + issueRisk,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    followUp = res.data;
+                    $('.prepend').remove();
+                    var count =0;
+                    if(followUp !== undefined){
+                        $.each(res.data, function (i, val) {
+                            row +='<tr class = "prepend">';
+                            row += '<td><span>'+val.follow_up_date+'</span></td><td><span>'+val.follow_up_description+'</span></td><td><span>'+val.file_attachment+'</span>';
+                            row +='</tr>';
+                            count++;
+                        });
+                        $("#follow_up2 tbody").append(row);
+                        $('.daterange-single').daterangepicker({
+                            singleDatePicker: true,
+                            locale: {
+                                format: 'YYYY-MM-DD'
+                            },
+                        });
+                    } 
+                } else {
+                    $('.prepend').remove();
+                    var row = '<tr class = "prepend"><td>No Follow Up</td></tr>';
+                    $("#follow_up tbody").append(row);
+                    $('.daterange-single').daterangepicker({
+                        singleDatePicker: true,
+                        locale: {
+                            format: 'YYYY-MM-DD'
+                        },
+                    });
+                }
+            }
+        });
+        var a = '<div id = "xd"><legend class="text-semibold"></i>Closing</legend><div class="form-group"><div class="row"><div class="col-sm-2"><span>Closed Date</span><input type="text" id = "closing_date" name = "closing_date" class="form-control daterange-single"  required = "required"></div><div class="col-sm-6"><span>Closing Description</span><textarea rows="4" cols="5" name = "closing_desc" placeholder="Description..." class="form-control"  required = "required"></textarea></div><div class="col-sm-3"><span>Attachment</span><input type="file" name="closing_attc" class="form-control" required = "required"></div></div></div></div>';
+        $('.closing_issue').append(a);
+
+        $('#issue_close').modal('show');
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'DD-MM-YYYY'
+            },
+        });
+        $('#tobe_closed').val(detail.id);
+
+
+         $('#finalClose2').on('click', function () {
+            // alert('test');
+            var notice = new PNotify({
+                title: 'Confirmation',
+                text: '<p>Are you sure you want to close?</p>',
+                hide: false,
+                type: 'warning',
+                confirm: {
+                    confirm: true,
+                    buttons: [
+                        {
+                            text: 'Yes',
+                            addClass: 'btn btn-sm btn-primary'
+                        },
+                        {
+                            addClass: 'btn btn-sm btn-link'
+                        }
+                    ]
+                },
+                buttons: {
+                    closer: false,
+                    sticker: false
+                },
+                history: {
+                    history: false
+                }
+            })
+
+            // On confirm
+            notice.get().on('pnotify.confirm', function() {
+                $('#close_form').submit();
+            })
+
+            // On cancel
+            notice.get().on('pnotify.cancel', function() {
+            });
+        });
+    });
+};
+
+var CallbackTransmittal = function () {
+    $('.edit-trans').on('click', function () {
+        var transId = $(this).attr('trans_id');
+        var detail;
+        $.ajax({
+            url: JS_BASE_URL + '/toolManagement/detailTransmit/' + transId,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                }
+            }
+        });
+        var list_project;
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getProjects',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "";
+                        if (detail.project_id == val.id) {
+                            slctd += "selected"
+                        }
+                        list_project += '<option value="' + val.id + '" ' + slctd + '>' + val.project_name + '</option>';
+                    });
+                }
+            }
+        });
+
+        var resource;
+        var resource2 = '<option value="">Select PIC</option>';
+        $.ajax({
+            url: JS_BASE_URL + '/resource/all_resource',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "", slctd2 = "";
+                        if (detail.pic_borrowers == val.id) {
+                            slctd += "selected"
+                        }
+                        if (detail.pic_returning == val.id) {
+                            slctd2 += "selected"
+                        }
+                        resource += '<option value="' + val.id + '" ' + slctd + '>' + val.fullname + '</option>';
+                        resource2 += '<option value="' + val.id + '" ' + slctd2 + '>' + val.fullname + '</option>';
+                    });
+                }
+            }
+        });
+
+        var tools;
+        $.ajax({
+            url: JS_BASE_URL + '/toolManagement/all_tools',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "";
+                        if (detail.tools_id == val.id) {
+                            slctd += "selected"
+                        }
+                        tools += '<option value="' + val.id + '" ' + slctd + '>' + val.tools_name + '</option>';
+                    });
+                }
+            }
+        });
+
+        bootbox.dialog({
+                title: "Edit",
+                message: '<div class="row"> ' +
+                '<div class="col-md-12">' +
+                '<form action="#" id = "add_user_form">' +
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Tool</label> '+
+                '<input type="hidden" name = "trans_id" value = "'+detail.id+'">'+
+                '<select id="tools_id" name="tools_id" data-placeholder="" class="select">'+
+                tools +
+                '</select>' +
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Serial Number</label> '+
+                '<input type="text" class="form-control" name = "serial_number" id = "serial_number" value = "'+detail.serial_number+'">'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">' +
+                '<li class="active"><a href="#a" data-toggle="tab" aria-expanded="true">Borrowing</a></li>' +
+                ' <li class=""><a href="#b" data-toggle="tab" aria-expanded="false">Returning</a></li>' +
+                ' <li class=""><a href="#c" data-toggle="tab" aria-expanded="false">Remarks</a></li>' +
+                '</ul>' +
+                '<div class="tab-content">' +
+                '<div class="tab-pane fade active in" id="a">' +
+                '<div class="form-group mt-10">' +
+                '<div class="row">'+
+                '<div class="col-sm-6">' +
+                '<label>Date of Borrowing</label> '+
+                '<input type="text" id = "date_of_borrowing" name = "date_of_borrowing" class="form-control daterange-single" value = "'+detail.date_of_borrowing+'"> '+
+                '</div>'+
+                '<div class="col-sm-6">' +
+                '<label>for Project/Area</label> '+
+                '<select id="project_id" name="project_id" data-placeholder="" class="select">'+
+                list_project +
+                '</select>' +
+                '</div> '+
+                '</div> '+
+                '</div> '+
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-6">' +
+                '<label>PIC</label> '+
+                '<select id="pic_borrowers" name="pic_borrowers" data-placeholder="" class="select">'+
+                resource +
+                '</select>' +
+                '</div>'+
+                '<div class="col-sm-6">' +
+                '<label>Condition</label> '+
+                '<input type="text" id = "conditions_of_borrowing" name = "conditions_of_borrowing" class="form-control" value = "'+detail.conditions_of_borrowing+'"> '+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="tab-pane fade" id="b">' +
+                '<div class="form-group mt-10">' +
+                '<div class="row">'+
+                '<div class="col-sm-6">' +
+                '<label>Date of Returning</label> '+
+                '<input type="text" id = "date_of_returning" name = "date_of_returning" class="form-control daterange-single"> '+
+                '</div>'+
+                '<div class="col-sm-6">' +
+                '<label>PIC</label> '+
+                '<select id="pic_returning" name="pic_returning" data-placeholder="" class="select">'+
+                resource2 +
+                '</select>' +
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Condition</label> '+
+                '<input type="text" id = "conditions_of_returning" name = "conditions_of_returning" class="form-control" value = "'+detail.conditions_of_returning+'"> '+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="tab-pane fade" id="c">' +
+                '<div class="form-group mt-10">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Remarks</label> '+
+                '<textarea rows="4" cols="5" name = "remarks" placeholder="Description..." class="form-control">'+detail.remark_borrowing+'</textarea>' +
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</form>' +
+                '</div>' +
+                '</div>',
+                buttons: {
+                    success: {
+                        label: "Update",
+                        className: "btn-success",
+                        callback: function () {
+                            var form = $('#add_user_form');
+                            $.ajax({
+                                url:  JS_BASE_URL +'/toolManagement/updateTransmit/',
+                                type : 'POST',
+                                dataType: 'json',
+                                data: form.serialize(),
+                                success: function(res) {
+                                    var dbmil = $('.datatable-transmittal-daily-list').dataTable();
+                                    if(res.status == 'Success'){
+                                        alertSuccess();
+                                        dbmil.api().ajax.reload();
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                }
+            }
+        );
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+
+        $('#date_of_borrowing').daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            autoUpdateInput :false
+            }, function(startDate, label){
+            $('#date_of_borrowing').val(startDate.format('DD-MM-YYYY'));
+        });
+        if(detail.date_of_returning == null){
+            $('#date_of_returning').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                format: 'YYYY-MM-DD'
+                },
+                autoUpdateInput :false
+                }, function(startDate, label){
+                $('#date_of_returning').val(startDate.format('DD-MM-YYYY'));
+            });
+        } else {
+            $('#date_of_returning').val(detail.date_of_returning);
+            $('#date_of_returning').daterangepicker({
+                singleDatePicker: true,
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                autoUpdateInput :false
+                }, function(startDate, label){
+                $('#date_of_returning').val(startDate.format('DD-MM-YYYY'));
+            });
+        }
+    });
+
+    $('.detail-trans').on('click', function () {
+        var transId = $(this).attr('trans_id');
+        var detail;
+        $.ajax({
+            url: JS_BASE_URL + '/toolManagement/detailTransmit/' + transId,
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    detail = res.data;
+                }
+            }
+        });
+        var list_project;
+        $.ajax({
+            url: JS_BASE_URL + '/planning/getProjects',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "";
+                        if (detail.project_id == val.id) {
+                            slctd += "selected"
+                        }
+                        list_project += '<option value="' + val.id + '" ' + slctd + '>' + val.project_name + '</option>';
+                    });
+                }
+            }
+        });
+
+        var resource;
+        var resource2 = '<option value="">Select PIC</option>';
+        $.ajax({
+            url: JS_BASE_URL + '/resource/all_resource',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "", slctd2 = "";
+                        if (detail.pic_borrowers == val.id) {
+                            slctd += "selected"
+                        }
+                        if (detail.pic_returning == val.id) {
+                            slctd2 += "selected"
+                        }
+                        resource += '<option value="' + val.id + '" ' + slctd + '>' + val.fullname + '</option>';
+                        resource2 += '<option value="' + val.id + '" ' + slctd2 + '>' + val.fullname + '</option>';
+                    });
+                }
+            }
+        });
+
+        var tools;
+        $.ajax({
+            url: JS_BASE_URL + '/toolManagement/all_tools',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'Success') {
+                    $.each(res.data, function (i, val) {
+                        var slctd = "";
+                        if (detail.tools_id == val.id) {
+                            slctd += "selected"
+                        }
+                        tools += '<option value="' + val.id + '" ' + slctd + '>' + val.tools_name + '</option>';
+                    });
+                }
+            }
+        });
+
+        bootbox.dialog({
+                title: "Detail",
+                message: '<div class="row"> ' +
+                '<div class="col-md-12">' +
+                '<form action="#" id = "add_user_form">' +
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Tool</label> '+
+                '<select id="tools_id" name="tools_id" data-placeholder="" disabled = "disabled" class="select">'+
+                tools +
+                '</select>' +
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Serial Number</label> '+
+                '<input type="text" class="form-control" disabled = "disabled" name = "serial_number" id = "serial_number" value = "'+detail.serial_number+'">'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">' +
+                '<li class="active"><a href="#a" data-toggle="tab" aria-expanded="true">Borrowing</a></li>' +
+                ' <li class=""><a href="#b" data-toggle="tab" aria-expanded="false">Returning</a></li>' +
+                ' <li class=""><a href="#c" data-toggle="tab" aria-expanded="false">Remarks</a></li>' +
+                '</ul>' +
+                '<div class="tab-content">' +
+                '<div class="tab-pane fade active in" id="a">' +
+                '<div class="form-group mt-10">' +
+                '<div class="row">'+
+                '<div class="col-sm-6">' +
+                '<label>Date of Borrowing</label> '+
+                '<input type="text" disabled = "disabled" id = "date_of_borrowing" name = "date_of_borrowing" class="form-control daterange-single" value = "'+detail.date_of_borrowing+'"> '+
+                '</div>'+
+                '<div class="col-sm-6">' +
+                '<label>for Project/Area</label> '+
+                '<select id="project_id" disabled = "disabled" name="project_id" data-placeholder="" class="select">'+
+                list_project +
+                '</select>' +
+                '</div> '+
+                '</div> '+
+                '</div> '+
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-6">' +
+                '<label>PIC</label> '+
+                '<select id="pic_borrowers" disabled = "disabled" name="pic_borrowers" data-placeholder="" class="select">'+
+                resource +
+                '</select>' +
+                '</div>'+
+                '<div class="col-sm-6">' +
+                '<label>Condition</label> '+
+                '<input type="text" disabled = "disabled" id = "conditions_of_borrowing" name = "conditions_of_borrowing" class="form-control" value = "'+detail.conditions_of_borrowing+'"> '+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="tab-pane fade" id="b">' +
+                '<div class="form-group mt-10">' +
+                '<div class="row">'+
+                '<div class="col-sm-6">' +
+                '<label>Date of Returning</label> '+
+                '<input type="text" disabled = "disabled" id = "date_of_returning" name = "date_of_returning" class="form-control daterange-single" value = "'+detail.date_of_returning+'"> '+
+                '</div>'+
+                '<div class="col-sm-6">' +
+                '<label>PIC</label> '+
+                '<select id="pic_returning" disabled = "disabled" name="pic_returning" data-placeholder="" class="select">'+
+                resource2 +
+                '</select>' +
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="form-group">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Condition</label> '+
+                '<input type="text" disabled = "disabled" id = "conditions_of_returning" name = "conditions_of_returning" class="form-control" value = "'+detail.conditions_of_returning+'"> '+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '<div class="tab-pane fade" id="c">' +
+                '<div class="form-group mt-10">' +
+                '<div class="row">'+
+                '<div class="col-sm-12">' +
+                '<label>Remarks</label> '+
+                '<textarea rows="4" cols="5" disabled = "disabled" name = "remarks" placeholder="Description..." class="form-control">'+detail.remark_borrowing+'</textarea>' +
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</div>'+
+                '</form>' +
+                '</div>' +
+                '</div>',
+            }
+        );
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+    });
+
+    $('.delete-trans').on('click', function (){
+        var transId = $(this).attr('trans_id');
+        // Setup
+        var notice = new PNotify({
+            title: 'Confirmation',
+            text: '<p>Are you sure you want this transaction?</p>',
+            hide: false,
+            type: 'info',
+            confirm: {
+                confirm: true,
+                buttons: [
+                    {
+                        text: 'Yes',
+                        addClass: 'btn btn-sm btn-primary'
+                    },
+                    {
+                        addClass: 'btn btn-sm btn-link'
+                    }
+                ]
+            },
+            buttons: {
+                closer: false,
+                sticker: false
+            },
+            history: {
+                history: false
+            }
+        })
+
+        // On confirm
+        notice.get().on('pnotify.confirm', function() {
+            $.ajax({
+                url:  JS_BASE_URL +'/toolManagement/delete_trans/',
+                type : 'POST',
+                dataType: 'json',
+                data: {id : transId},
+                success: function(res) {
+                    alertSuccess();
+                    var dbmil = $('.datatable-transmittal-daily-list').dataTable();
+                    if(res.status == 'Success'){
+                        dbmil.api().ajax.reload();
+                    }
+                }
+            });
+        })
+
+        // On cancel
+        notice.get().on('pnotify.cancel', function() {
+            // alert('Oh ok. Chicken, I see.');
+        });
+    });
+};
+
+var CallbackCustomer = function () {
+    $('.edit-customer').on('click', function () {
+        var customerId = $(this).attr('customer_id');
+        var detail;
+        $.ajax({
+            url: JS_BASE_URL + '/planning/detail_customer/',
+            type: 'POST',
+            data : {id : customerId},
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+
+                if (res.status == 'Success') {
+                    detail = res.data;
+                }
+            }
+        });
+
+        bootbox.dialog({
+            title: "Add Customer",
+            message: '<div class="row"> ' +
+            '<div class="col-md-12">' +
+            '<form action="#" id = "this_form">' +
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-12">' +
+            '<label>Customer Name</label> '+
+            '<input type="hidden" name = "customer_id" value="'+detail.id+'">'+
+            '<input type="text" class="form-control" name = "customer_name" id = "customer_name" value="'+detail.customer_name+'">'+
+            '</select>' +
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-12">' +
+            '<label>Adress</label> '+
+            '<input type="text" class="form-control" name = "customer_address" id = "customer_address" value="'+detail.customer_address+'">'+
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-6">' +
+            '<label>Email</label> '+
+            '<input type="text" class="form-control" name = "customer_email" id = "customer_email" value="'+detail.customer_email+'">'+
+            '</div>'+
+            '<div class="col-sm-6">' +
+            '<label>Phone</label> '+
+            '<input type="text" id = "po_number" name = "customer_phone" id = "customer_phone" class="form-control" value="'+detail.customer_phone+'"> '+
+            '</div> '+
+            '</div> '+
+            '</div> '+
+            '<div class="form-group">' +
+            '<div class="row">'+
+            '<div class="col-sm-12">' +
+            '<label>Other Details</label> '+
+            '<textarea rows="4" cols="5" name = "other_customer_detail" id = "other_customer_detail" class="form-control">'+detail.other_customer_details+'</textarea>' +
+            '</div>'+
+            '</div>'+
+            '</div>'+
+            '</form>' +
+            '</div>' +
+            '</div>',
+            buttons: {
+                success: {
+                    label: "Add",
+                    className: "btn-success",
+                    callback: function () {
+                        var form = $('#this_form');
+                        $.ajax({
+                            url:  JS_BASE_URL +'/planning/update_customer/',
+                            type : 'POST',
+                            dataType: 'json',
+                            data: form.serialize(),
+                            success: function(res) {
+                                var dbmil = $('.datatable-customer-list').dataTable();
+                                if(res.status == 'Success'){
+                                    alertSuccess();
+                                    dbmil.api().ajax.reload();
+                                }
+                            }
+                        });
+
+                    }
+                }
+            }
+        });
+    });
+
+    $('.delete-customer').on('click', function (){
+        var customerId = $(this).attr('customer_id');
+        // Setup
+        var notice = new PNotify({
+            title: 'Confirmation',
+            text: '<p>Are you sure you want delete this tool?</p>',
+            hide: false,
+            type: 'info',
+            confirm: {
+                confirm: true,
+                buttons: [
+                    {
+                        text: 'Yes',
+                        addClass: 'btn btn-sm btn-primary'
+                    },
+                    {
+                        addClass: 'btn btn-sm btn-link'
+                    }
+                ]
+            },
+            buttons: {
+                closer: false,
+                sticker: false
+            },
+            history: {
+                history: false
+            }
+        })
+
+        // On confirm
+        notice.get().on('pnotify.confirm', function() {
+            $.ajax({
+                url:  JS_BASE_URL +'/planning/delete_customer/',
+                type : 'POST',
+                dataType: 'json',
+                data: {id : customerId},
+                success: function(res) {
+                    var dbmil = $('.datatable-customer-list').dataTable();
+                    if(res.status == 'Success'){
+                        alertSuccess();
+                        dbmil.api().ajax.reload();
+                    }
+                }
+            });
+        })
+
+        // On cancel
+        notice.get().on('pnotify.cancel', function() {
+            // alert('Oh ok. Chicken, I see.');
+        });
+    });
+};

@@ -1,0 +1,59 @@
+
+<?php
+
+class Projects_model extends CI_Model {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function getProjectDetailById($id)
+    {
+        $this->db->select('*');
+        $this->db->from('pm_projects');
+        $this->db->where('id', $id);
+        $query = $this->db->get();
+        return $query->row();
+    }
+
+
+
+
+
+
+    public function getSubSegmentByParentId($id)
+    {
+        $this->db->select('*');
+        $this->db->from('mpp_segment');
+        $this->db->where('parent_id',$id);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function getSowBySegmentId($id)
+    {
+        $this->db->select('*');
+        $this->db->from('mpp_sow');
+        $this->db->where('segment_id',$id);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function getAllSegment()
+    {
+        $this->db->select('*');
+        $this->db->from('mpp_segment');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+
+
+
+
+
+
+
+} 

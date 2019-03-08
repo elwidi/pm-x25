@@ -1,0 +1,19 @@
+<div style="position:relative" class="gantt" id="progressTask-Gantt"></div>
+
+<script type="text/javascript">
+    var g = new JSGantt.GanttChart(document.getElementById('progressTask-Gantt'), 'day');
+
+    if (g.getDivId() != null) {
+       // g.setQuarterColWidth(36);
+        g.setCaptionType('Resource');  // Set to Show Caption (None,Caption,Resource,Duration,Complete)
+        g.setShowTaskInfoLink(1); // Show link in tool tip (0/1)
+        g.setDayMajorDateDisplayFormat('dd mon');
+        g.setDateTaskDisplayFormat('dd month yyyy HH:MI');
+        // Use the XML file parser
+        JSGantt.parseXML('<?php echo base_url();?>assets/source/jsGanttImproved/project.xml', g)
+
+        g.Draw();
+    } else {
+        alert("Error, unable to create Gantt Chart");
+    }
+</script>

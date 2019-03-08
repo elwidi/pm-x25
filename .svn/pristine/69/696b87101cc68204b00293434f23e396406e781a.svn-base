@@ -1,0 +1,780 @@
+/* ------------------------------------------------------------------------------
+
+ *  # Form layouts
+ *
+ *  @Kardiwan <kardiwan@gmail.com>
+ *
+ * ---------------------------------------------------------------------------- */
+
+$(function() {
+
+
+    // Select2 select
+    // ------------------------------
+
+    // Basic
+    $('.select').select2();
+
+    $('.select-nosearch').select2({
+       minimumResultsForSearch: Infinity
+    });
+
+    // Single picker
+    $('.daterange-single').daterangepicker({
+        singleDatePicker: true,
+        locale: {
+            format: 'DD-MM-YYYY'
+        },
+    });
+
+
+    //
+    // Select with icons
+    //
+
+    // Format icon
+    function iconFormat(icon) {
+        var originalOption = icon.element;
+        if (!icon.id) { return icon.text; }
+        var $icon = "<i class='icon-" + $(icon.element).data('icon') + "'></i>" + icon.text;
+
+        return $icon;
+    }
+
+    // Initialize with options
+    $(".select-icons").select2({
+        templateResult: iconFormat,
+        minimumResultsForSearch: Infinity,
+        templateSelection: iconFormat,
+        escapeMarkup: function(m) { return m; }
+    });
+
+
+
+    // Styled form components
+    // ------------------------------
+
+    // Checkboxes, radios
+    $(".styled").uniform({ radioClass: 'choice' });
+
+    // File input
+    $(".file-styled").uniform({
+        fileButtonClass: 'action btn bg-primary'
+    });
+
+    // Add date range switcher
+    // ------------------------------
+
+    // Menu
+    var menu = $("#select_date").multiselect({
+        buttonClass: 'btn btn-link text-semibold',
+        enableHTML: true,
+        dropRight: true,
+        onChange: function() { change(), $.uniform.update(); },
+        buttonText: function (options, element) {
+            var selected = '';
+            options.each(function() {
+                selected += $(this).html() + ', ';
+            });
+            return '<span class="status-mark border-warning position-left"></span>' + selected.substr(0, selected.length -2);
+        }
+    });
+
+    // Radios
+    $(".multiselect-container input").uniform({ radioClass: 'choice' });
+
+
+    // Prompt travel request approval - Alert combination
+    /*$('.prompt_travel_req_approval').on('click', function() {
+        swal({
+                title: "Are you sure?",
+                text: "Are you sure you want to approve!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF5350",
+                confirmButtonText: "Yes, approve it!",
+                cancelButtonText: "No, cancel pls!",
+                closeOnConfirm: false,
+                closeOnCancel: false,
+                showLoaderOnConfirm: true
+            },
+            function(isConfirm){
+                if (isConfirm) {
+
+                    setTimeout(function() {
+
+                        var travel_req_id =  $('#travel_req_id').val();
+                        var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                        var url = baseURL + "/selfservice/mss/approveTravelRequest/" + travel_req_id;
+
+                        $.ajax({
+                            type: "GET",
+                            url: url,
+                            async: false,
+                            dataType: "json",
+                            success: function (result) {
+                                if(result.status=='Success')
+                                {
+                                    swal({
+                                        title: "Approved!",
+                                        text: "Your travel request has been approved.",
+                                        confirmButtonColor: "#66BB6A",
+                                        type: "success"
+                                    },
+                                    function(isConfirm){
+                                        location.reload();
+                                    });
+                                }
+                            }
+                        });
+
+                    }, 2000);
+
+                }
+                else {
+                    swal({
+                        title: "Cancelled",
+                        text: "cancel and not process anything.",
+                        confirmButtonColor: "#2196F3",
+                        type: "error"
+                    });
+                }
+            });
+    });*/
+
+    // Prompt Rejected
+    /*$('.prompt_travel_req_reject').on('click', function() {
+        swal({
+                title: "Reject!",
+                text: "Write something that is the reason:",
+                type: "input",
+                showCancelButton: true,
+                confirmButtonColor: "#2196F3",
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            },
+            function(inputValue){
+                if (inputValue === false) return false;
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+
+                var travel_req_id =  $('#travel_req_id').val();
+                var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                var url = baseURL + "/selfservice/mss/rejectTravelRequest/";
+
+                var data = { travel_req_id: travel_req_id, reason_status: inputValue };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    async: false,
+                    dataType: "json",
+                    success: function (result) {
+                        if(result.status=='Success')
+                        {
+                            swal({
+                                title: "Rejected!",
+                                text: "You wrote: " + inputValue,
+                                type: "success",
+                                confirmButtonColor: "#2196F3"
+                            },
+                            function(isConfirm){
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+
+
+            });
+    });*/
+
+    // Prompt Cancelled
+   /* $('.prompt_travel_req_cancel').on('click', function() {
+        swal({
+                title: "Cancel!",
+                text: "Write something that is the reason:",
+                type: "input",
+                showCancelButton: true,
+                confirmButtonColor: "#2196F3",
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            },
+            function(inputValue){
+                if (inputValue === false) return false;
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+
+                var travel_req_id =  $('#travel_req_id').val();
+                var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                var url = baseURL + "/selfservice/mss/cancelTravelRequest/";
+
+                var data = { travel_req_id: travel_req_id, reason_status: inputValue };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    async: false,
+                    dataType: "json",
+                    success: function (result) {
+                        if(result.status=='Success')
+                        {
+                            swal({
+                                title: "Cancelled!",
+                                text: "You wrote: " + inputValue,
+                                type: "success",
+                                confirmButtonColor: "#2196F3"
+                            },
+                            function(isConfirm){
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+
+
+            });
+    });*/
+
+    // Prompt travel claim approval - Alert combination
+    /*$('.prompt_travel_claim_approval').on('click', function() {
+        swal({
+                title: "Are you sure?",
+                text: "Are you sure you want to approve!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF5350",
+                confirmButtonText: "Yes, approve it!",
+                cancelButtonText: "No, cancel pls!",
+                closeOnConfirm: false,
+                closeOnCancel: false,
+                showLoaderOnConfirm: true
+            },
+            function(isConfirm){
+                if (isConfirm) {
+
+                    setTimeout(function() {
+
+                        var travel_req_id =  $('#travel_req_id').val();
+                        var travel_claim_id =  $('#travel_claim_id').val();
+                        var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                        var url = baseURL + "/selfservice/mss/approveTravelClaim/" + travel_req_id + "/" + travel_claim_id;
+
+                        $.ajax({
+                            type: "GET",
+                            url: url,
+                            async: false,
+                            dataType: "json",
+                            success: function (result) {
+                                if(result.status=='Success')
+                                {
+                                    swal({
+                                        title: "Approved!",
+                                        text: "Your travel request has been approved.",
+                                        confirmButtonColor: "#66BB6A",
+                                        type: "success"
+                                    },
+                                    function(isConfirm){
+                                        location.reload();
+                                    });
+                                }
+                            }
+                        });
+
+                    }, 2000);
+
+                }
+                else {
+                    swal({
+                        title: "Cancelled",
+                        text: "cancel and not process anything.",
+                        confirmButtonColor: "#2196F3",
+                        type: "error"
+                    });
+                }
+            });
+    });*/
+
+    // Prompt Rejected
+    /*$('.prompt_travel_claim_reject').on('click', function() {
+        swal({
+                title: "Reject!",
+                text: "Write something that is the reason:",
+                type: "input",
+                showCancelButton: true,
+                confirmButtonColor: "#2196F3",
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            },
+            function(inputValue){
+                if (inputValue === false) return false;
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+
+                var travel_req_id =  $('#travel_req_id').val();
+                var travel_claim_id =  $('#travel_claim_id').val();
+                var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                var url = baseURL + "/selfservice/mss/rejectTravelClaim/";
+
+                var data = { travel_req_id: travel_req_id, travel_claim_id: travel_claim_id, reason_status: inputValue };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    async: false,
+                    dataType: "json",
+                    success: function (result) {
+                        if(result.status=='Success')
+                        {
+                            swal({
+                                title: "Rejected!",
+                                text: "You wrote: " + inputValue,
+                                type: "success",
+                                confirmButtonColor: "#2196F3"
+                            },
+                            function(isConfirm){
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+
+
+            });
+    });
+*/
+    // Prompt Cancelled
+    /*$('.prompt_travel_claim_cancel').on('click', function() {
+        swal({
+                title: "Cancel!",
+                text: "Write something that is the reason:",
+                type: "input",
+                showCancelButton: true,
+                confirmButtonColor: "#2196F3",
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            },
+            function(inputValue){
+                if (inputValue === false) return false;
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+
+                var travel_req_id =  $('#travel_req_id').val();
+                var travel_claim_id =  $('#travel_claim_id').val();
+                var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                var url = baseURL + "/selfservice/mss/cancelTravelClaim/";
+
+                var data = { travel_req_id: travel_req_id, travel_claim_id: travel_claim_id, reason_status: inputValue };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    async: false,
+                    dataType: "json",
+                    success: function (result) {
+                        if(result.status=='Success')
+                        {
+                            swal({
+                                title: "Cancelled!",
+                                text: "You wrote: " + inputValue,
+                                type: "success",
+                                confirmButtonColor: "#2196F3"
+                            },
+                            function(isConfirm){
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+
+
+            });
+    });*/
+    /*$('.emp_requisition_approve').on('click', function() {
+        swal({
+                title: "Are you sure?",
+                text: "Are you sure you want to approve!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#EF5350",
+                confirmButtonText: "Yes, approve it!",
+                cancelButtonText: "No, cancel pls!",
+                closeOnConfirm: false,
+                closeOnCancel: false
+            },
+            function(isConfirm){
+                if (isConfirm) {
+                    var emp_requisition_id =  $('#emp_requisition_id').val();
+                    var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                    var url = baseURL + "/selfservice/mss/approveEmpRequisition/" + emp_requisition_id ;
+
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        async: false,
+                        dataType: "json",
+                        success: function (result) {
+                            if(result.status=='Success')
+                            {
+                                swal({
+                                    title: "Approved!",
+                                    text: "Your employee requisition has been approved.",
+                                    confirmButtonColor: "#66BB6A",
+                                    type: "success"
+                                },
+                                    function(isConfirm){
+                                        location.reload();
+                                    }
+                                );
+                            }
+                        }
+                    });
+                }
+                else {
+                    swal({
+                        title: "Cancelled",
+                        text: "cancel and not process anything.",
+                        confirmButtonColor: "#2196F3",
+                        type: "error"
+                    });
+                }
+            });
+    });*/
+    /*$('.emp_requisition_reject').on('click', function() {
+        swal({
+                title: "Reject!",
+                text: "Write something that is the reason:",
+                type: "input",
+                showCancelButton: true,
+                confirmButtonColor: "#2196F3",
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            },
+            function(inputValue){
+                if (inputValue === false) return false;
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+                var emp_requisition_id =  $('#emp_requisition_id').val();
+                var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+                var url = baseURL + "/selfservice/mss/rejectEmpRequisition/";
+
+                var data = { emp_requisition_id: emp_requisition_id, reason_status: inputValue };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: data,
+                    async: false,
+                    dataType: "json",
+                    success: function (result) {
+                        if(result.status=='Success')
+                        {
+                            swal({
+                                title: "Rejected!",
+                                text: "You wrote: " + inputValue,
+                                type: "success",
+                                confirmButtonColor: "#2196F3"
+                            },
+                            function(isConfirm){
+                                location.reload();
+                            }
+                            );
+                        }
+                    }
+                });
+            });
+    });
+    $('.emp_requisition_cancel').on('click', function() {
+        swal({
+            title: "Cancel!",
+            text: "Write something that is the reason:",
+            type: "input",
+            showCancelButton: true,
+            confirmButtonColor: "#2196F3",
+            closeOnConfirm: false,
+            animation: "slide-from-top",
+            inputPlaceholder: "Write something"
+        },
+        function(inputValue){
+            if (inputValue === false) return false;
+            if (inputValue === "") {
+                swal.showInputError("You need to write something!");
+                return false
+            }
+
+            var emp_requisition_id =  $('#emp_requisition_id').val();
+            var baseURL = window.location.protocol + '//' + window.location.hostname + '';
+            var url = baseURL + "/selfservice/mss/cancelEmpRequisition/";
+
+            var data = { emp_requisition_id: emp_requisition_id, reason_status: inputValue };
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                async: false,
+                dataType: "json",
+                success: function (result) {
+                    if(result.status=='Success')
+                    {
+                        swal({
+                            title: "Cancelled!",
+                            text: "You wrote: " + inputValue,
+                            type: "success",
+                            confirmButtonColor: "#2196F3"
+                        },
+                        function(isConfirm){
+                            location.reload();
+                        });
+                    }
+                }
+            });
+        });
+    });*/
+
+    // Custom bootbox dialog with form
+    $('#add_project_form').on('click', function() {
+        var option = "";
+        var that = this;
+        $.ajax({
+            url:  JS_BASE_URL +'/projects/getUsers',
+            type : 'GET',
+            dataType: 'json',
+            async: false,
+            success: function(res) {
+                if(res.status == 'Success'){
+                    $.each(res.data, function(i, val) {
+                        option += '<option value="'+val.id+'">'+val.name+'</option> ';
+                    });
+                }
+            }
+        });
+        var company = "";
+        $.ajax({
+            url:  JS_BASE_URL +'/projects/getCompany',
+            type : 'GET',
+            dataType: 'json',
+            async: false,
+            success: function(res) {
+                if(res.status == 'Success'){
+                    $.each(res.data, function(i, val) {
+                        company += '<option value="'+val.id+'">'+val.company_name+'</option> ';
+                    });
+                }
+            }
+        });
+        bootbox.dialog({
+                title: "Add Project",
+                message: '<div class="row">  ' +
+                            '<div class="col-md-12">' +
+                            '<form action="#" id = "new_project_form">' +
+                            '<div class="form-group">' +
+                            '<div class="row">' +
+                            '<div class="col-sm-12">' +
+                            '<label>What\'s the Project Name?</label>' +
+                            '<input type="text" placeholder="Project name" name = "project_name" class="form-control">' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '<ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">'+
+                            '<li class="active"><a href="#ds" data-toggle="tab" aria-expanded="true">Description</a></li>'+
+                            '<li class=""><a href="#dt" data-toggle="tab" aria-expanded="false">Dates</a></li>'+
+                            '<li class=""><a href="#cp" data-toggle="tab" aria-expanded="false">Company</a></li>'+
+                            '<li class=""><a href="#us" data-toggle="tab" aria-expanded="false">People</a></li>'+
+                            '</ul>'+
+                            '<div class="tab-content">'+
+                            '<div class="tab-pane fade active in" id="ds">'+
+                            '<div class="form-group"> '+
+                            '<label class = "mt-10">Provide a Description (Optional):</label> '+
+                            '<textarea rows="4" cols="5" name = "project_description" placeholder="Description..." class="form-control"></textarea>'+
+                            '</div>'+
+                            '</div>'+
+                            '<div class="tab-pane fade" id="dt">'+
+                            '<label class = "mt-10">Project Dates (Optional)<br/><small class="text-muted">Adding a start and end date provides your team a useful way to see the duration of this project which helps with planning your tasks and milestones</small></label>'+
+                            '<div class="row"> '+
+                            '<div class="col-sm-6"> '+
+                            '<label>Start Date</label> '+
+                            '<div class="input-group"> '+
+                            '<span class="input-group-addon"><i class="icon-calendar22"></i></span> '+
+                            '<input type="text" class="form-control daterange-single" name = "project_start_date" value="" placeholder="Pick a date"> '+
+                            '</div> '+
+                            '</div> '+
+                            '<div class="col-sm-6"> '+
+                            '<label>End Date</label> '+
+                            '<div class="input-group"> '+
+                            '<span class="input-group-addon"><i class="icon-calendar22"></i></span> '+
+                            '<input type="text" class="form-control daterange-single" name = "project_end_date" value="" placeholder="Pick a date"> '+
+                            '</div> '+
+                            '</div> '+
+                            '</div> '+
+                            '</div>'+
+                            '<div class="tab-pane fade" id="cp">'+
+                            '<div class="form-group"> '+
+                            '<label class = "mt-10">This Project is for Company:</label> '+
+                            '<select id="country" name="project_company" data-placeholder="Select your company" class="select company"> '+
+                            '<option value="">No Company</option>'+
+                            company +
+                            '</select> '+
+                            '</div> '+
+                            '</div>'+
+                            '<div class="tab-pane fade" id="us">'+
+                            '<div class="form-group">'+
+                            '<label class = "mt-10">Who should be added to this project?</label>'+
+                            '<select data-placeholder="Select person" name = "team[]" class="select company" multiple = "multiple">'+
+                            option +
+                            '</select>'+
+                            '</div>'+
+                            '</div>'+
+                            '</div>'+
+                            '</form>' +
+                            '</div>' +
+                            '</div>',
+                buttons: {
+                    success: {
+                        label: "Add Project",
+                        className: "btn-success",
+                        callback: function () {
+                            var formProject = $('#new_project_form');
+                            $.ajax({
+                                url:  JS_BASE_URL +'/projects/saveProject',
+                                type : 'POST',
+                                dataType: 'json',
+                                data : formProject.serialize(),
+                                success: function(res) {
+                                    if(res.status == 'Success'){
+                                        window.location.replace(JS_BASE_URL +'/projects/all')
+                                    }
+                                }
+                            });
+
+                        }
+                    }
+                }
+            }
+        );
+
+        $('.select').parents('.bootbox').removeAttr('tabindex');
+        $('.select').select2();
+
+        // Single picker
+        $(".daterange-single").val('');
+        $('.daterange-single').daterangepicker({
+            singleDatePicker: true,
+            locale: {
+                format: 'DD-MM-YYYY'
+            }
+            // autoUpdateInput : false
+        });
+    });
+
+
+
+    $(".tree-default").fancytree({
+        init: function(event, data) {
+            $('.has-tooltip .fancytree-title').tooltip();
+        }
+    });
+    var base_url = JS_BASE_URL.replace('index.php','');
+    var cur_url = document.URL;
+    var cur_url = cur_url.split("/"),
+        id_project = cur_url[cur_url.length-1];
+    //console.log(last_element);
+    $(".tree-table").fancytree({
+        extensions: ["filter","table"],
+        quicksearch: true,
+        //checkbox: true,
+        //source : https://github.com/mar10/fancytree/blob/master/demo/sample-ext-filter.html
+        /*filter: {
+            autoApply: true,   // Re-apply last filter if lazy data is loaded
+            autoExpand: false, // Expand all branches that contain matches while filtered
+            counter: true,     // Show a badge with number of matching child nodes near parent icons
+            fuzzy: false,      // Match single characters in order, e.g. 'fb' will match 'FooBar'
+            hideExpandedCounter: true,  // Hide counter badge if parent is expanded
+            hideExpanders: false,       // Hide expanders if all child nodes are hidden by filter
+            highlight: true,   // Highlight matches by wrapping inside <mark> tags
+            leavesOnly: false, // Match end nodes only
+            nodata: true,      // Display a 'no data' status node if result is empty
+            mode: "dimm"       // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+        },*/
+        table: {
+            indentation: 20,      // indent 20px per node level
+            nodeColumnIdx: 1,     // render the node title into the 2nd column
+            //checkboxColumnIdx: 0  // render the checkboxes into the 1st column
+        },
+        source: {
+            url: base_url+"/projects/projectTaskList/"+id_project
+        },
+        lazyLoad: function(event, data) {
+            data.result = {url: "ajax-sub2.json"}
+        },
+        renderColumns: function(event, data) {
+            var node = data.node,
+            $tdList = $(node.tr).find(">td");
+            //console.log(node.data);
+            // (index #0 is rendered by fancytree by adding the checkbox)
+            $tdList.eq(0).text(node.getIndexHier()).addClass("alignRight");
+
+            // (index #2 is rendered by fancytree)
+            $tdList.eq(2).text(node.data.due_date);
+
+            // Style checkboxes
+            $(".styled").uniform({radioClass: 'choice'});
+        }
+    });
+
+    var tree = $("#tree").fancytree("getTree");
+
+    //$("input[name=search]").keyup(function(e){
+    //    var n,
+    //        tree = $.ui.fancytree.getTree(),
+    //        args = "autoApply autoExpand fuzzy hideExpanders highlight leavesOnly nodata".split(" "),
+    //        opts = {},
+    //        filterFunc = $("#branchMode").is(":checked") ? tree.filterBranches : tree.filterNodes,
+    //        match = $(this).val();
+    //    $.each(args, function(i, o) {
+    //        opts[o] = $("#" + o).is(":checked");
+    //    });
+    //    opts.mode = $("#hideMode").is(":checked") ? "hide" : "dimm";
+    //    if(e && e.which === $.ui.keyCode.ESCAPE || $.trim(match) === ""){
+    //        $("button#btnResetSearch").click();
+    //        return;
+    //    }
+    //    if($("#regex").is(":checked")) {
+    //        // Pass function to perform match
+    //        n = filterFunc.call(tree, function(node) {
+    //            return new RegExp(match, "i").test(node.title);
+    //        }, opts);
+    //    } else {
+    //        // Pass a string to perform case insensitive matching
+    //        n = filterFunc.call(tree, match, opts);
+    //    }
+    //    $("button#btnResetSearch").attr("disabled", false);
+    //    $("span#matches").text("(" + n + " matches)");
+    //}).focus();
+
+    $("button#btnResetSearch").click(function(e){
+        tree = $.ui.fancytree.getTree(),
+        $("input[name=search]").val("");
+        $("span#matches").text("");
+        tree.clearFilter();
+    }).attr("disabled", true);
+});

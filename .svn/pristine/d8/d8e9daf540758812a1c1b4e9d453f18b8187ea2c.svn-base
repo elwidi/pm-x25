@@ -1,0 +1,58 @@
+
+<?php
+
+class Resource_model extends CI_Model {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function setUserId()
+    {
+        $cookie = base64_decode($_COOKIE['SSOID']);
+        $crop = explode('+', $cookie);
+        return $crop[0];
+    }
+
+    public function saveNewResource(){
+//        var_dump($this->input->post(null, true)); exit;
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        $this->db->trans_begin();
+        // var_dump($this->input->post(null, true)); exit();
+        // $employee_id = $this->setUserId();
+
+        $data = array(
+            'user_id' => $this->input->post('user_id'),
+            'title' => $this->input->post('title'),
+            'join_date' => date("Y-m-d",strtotime($this->input->post('join_date'))),
+            'work_location' => $this->input->post('work_location'),
+            'created_date' => date('Y-m-d H:i:s'),
+            'created_by' => $this->setUserId()
+        );
+        $this->db->insert('pm_resources', $data);
+
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        if ($this->db->trans_status() === FALSE)
+        {
+            $this->db->trans_rollback();
+        }
+        else
+        {
+            $this->db->trans_commit();
+        }
+
+        return true;
+    }
+
+
+
+} 

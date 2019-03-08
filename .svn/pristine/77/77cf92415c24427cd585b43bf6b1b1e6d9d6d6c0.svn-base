@@ -1,0 +1,517 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+include dirname(__FILE__).DIRECTORY_SEPARATOR.'SsoClient/ClientAPI.php';
+
+class Planning extends CI_Controller {
+
+	/**
+	 * Index Page for this controller.
+	 *
+	 * Maps to the following URL
+	 * 		http://example.com/index.php/welcome
+	 *	- or -
+	 * 		http://example.com/index.php/welcome/index
+	 *	- or -
+	 * Since this controller is set as the default controller in
+	 * config/routes.php, it's displayed at http://example.com/
+	 *
+	 * So any other public methods not prefixed with an underscore will
+	 * map to /index.php/welcome/<method_name>
+	 * @see https://codeigniter.com/user_guide/general/urls.html
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->model('Planning_model', 'm_planning');
+
+		//TODO: create an object and call a class method
+		$ClientApi = new ClientAPI();
+		$ClientApi->doCurl();
+	}
+
+	public function index()
+	{
+		// Get Apps Config
+		$data = $this->apps->info();
+		$data['page_title'] = '<span class="text-semibold">Home</span> - Dashboard <small>Hello, ' . $data["obj_fullname"] .'!</small>';
+		//$data['page_title'] = '<span class="text-semibold">Home</span> - Dashboard <small>Hello, Kardiwan!</small>';
+
+		$this->load->view('planning/dashboard_view', $data);
+		//$this->all();
+	}
+
+	public function allProject()
+	{
+		//phpinfo();
+		// Get Apps Config
+		$data = $this->apps->info();
+
+		$data['page_title'] = '<span class="text-semibold">Planning</span> - Project List';
+
+		$this->load->view('planning/list_projects_view', $data);
+	}
+
+	public function id($id)
+	{
+		// Get Apps Config
+		$data = $this->apps->info();
+
+		// Get project detail
+		$project = $this->m_planning->getProjectDetailById($id);
+
+		$data['project'] = $project;
+
+		$task_list = $this->m_planning->getTasklistByProjectId($id);
+
+		foreach ($task_list as $key => $value) {
+			$task = $this->m_planning->getTaskByProjectTaskListId($value->id);
+			$task_list[$key]->task = $task;
+		}
+
+		$data['general_task'] = $this->m_planning->getTaskInGeneral($id);
+
+		$data['task_list'] = $task_list;
+
+		// var_dump($data['task_list']); exit();
+
+		$data['milestones'] = $this->m_planning->getMilestoneByProject($id);
+
+		$data['user'] = array_chunk($this->m_planning->getUserByProject($id), 4);
+
+		$data['page_title'] = '<span class="text-semibold"></span>' . $project->project_name . ' <small>' . $project->company . '</small>';
+
+		$data['project_id'] = $id;
+
+
+		$this->load->view('planning/projects_detail_view', $data);
+	}
+
+	public function dataTableProjectList()
+	{
+		$this->load->library('Datatable', array('model' => 'Project_list_dt', 'rowIdCol' => 'id'));
+
+		$jsonArray = $this->datatable->datatableJson(array(
+			//'a.delivery_date' => 'date',
+			//'a.unit_price' => 'currency'
+		));
+
+		$this->output->set_header("Pragma: no-cache");
+		$this->output->set_header("Cache-Control: no-store, no-cache");
+		$this->output->set_content_type('application/json')->set_output(json_encode($jsonArray));
+	}
+
+	public function dataTableMilestone()
+	{
+		$this->load->library('Datatable', array('model' => 'Milestone_dt', 'rowIdCol' => 'a.id'));
+
+		$jsonArray = $this->datatable->datatableJson(array(
+			//'a.delivery_date' => 'date',
+			//'a.unit_price' => 'currency'
+		));
+
+		$this->output->set_header("Pragma: no-cache");
+		$this->output->set_header("Cache-Control: no-store, no-cache");
+		$this->output->set_content_type('application/json')->set_output(json_encode($jsonArray));
+	}
+
+	public function dataTableTaskList()
+	{
+		$this->load->library('Datatable', array('model' => 'Task_list_dt', 'rowIdCol' => 'a.id'));
+
+		$jsonArray = $this->datatable->datatableJson(array(
+			//'a.delivery_date' => 'date',
+			//'a.unit_price' => 'currency'
+		));
+
+		$this->output->set_header("Pragma: no-cache");
+		$this->output->set_header("Cache-Control: no-store, no-cache");
+		$this->output->set_content_type('application/json')->set_output(json_encode($jsonArray));
+	}
+
+	public function dataTablePeople()
+	{
+		$this->load->library('Datatable', array('model' => 'People_dt', 'rowIdCol' => 'a.id'));
+
+		$jsonArray = $this->datatable->datatableJson(array(
+			//'a.delivery_date' => 'date',
+			//'a.unit_price' => 'currency'
+		));
+
+		$this->output->set_header("Pragma: no-cache");
+		$this->output->set_header("Cache-Control: no-store, no-cache");
+		$this->output->set_content_type('application/json')->set_output(json_encode($jsonArray));
+	}
+
+	public function saveProject()
+	{
+		if ($this->m_planning->saveProject()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function getUsers()
+	{
+		$users = $this->m_planning->getAllUser();
+		if (!empty($users)) {
+			$data = array('status' => 'Success', 'data' => $users);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function getTaskList()
+	{
+		$project_id = $this->input->post('project_id');
+		$task_list = $this->m_planning->getAllTaskList($project_id);
+		if (!empty($task_list)) {
+			$data = array('status' => 'Success', 'data' => $task_list);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function saveTask()
+	{
+		if ($this->m_planning->saveTask()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function saveTaskList()
+	{
+		// var_dump($this->input->post(null, true)); exit();
+		if ($this->m_planning->saveTaskList()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function saveMilestone()
+	{
+		if ($this->m_planning->saveMilestone()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function editMilestone()
+	{
+		if ($this->m_planning->saveEditMilestone()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function attachTaskList()
+	{
+		if ($this->m_planning->attachTaskList()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function getPeopleNotInProject($project_id)
+	{
+		$users = $this->m_planning->getPeopleOutsideProject($project_id);
+		if (!empty($users)) {
+			$data = array('status' => 'Success', 'data' => $users);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function getPeopleInProject($project_id)
+	{
+		$users = $this->m_planning->getPeopleInProject($project_id);
+		if (!empty($users)) {
+			$data = array('status' => 'Success', 'data' => $users);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function addUser()
+	{
+		if ($this->m_planning->saveUser()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function updateAssignee()
+	{
+		if ($this->m_planning->updateAssignee()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function getCompany()
+	{
+		$company = $this->m_planning->getAllCompany();
+		if (!empty($company)) {
+			$data = array('status' => 'Success', 'data' => $company);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function projectTaskList($id)
+	{
+		$task_list = $this->m_planning->getTasklistByProjectId($id);
+
+		$test = array();
+
+		$u = 1;
+		if(!isset($_POST['page']) || $_POST['page'] == 0){
+			$general['title'] = "General Task";
+			$general['key'] = $u;
+			$general['due_date'] = " ";
+			$general['folder'] = true;
+			$general['expanded'] = true;
+			$general['task_id'] = " ";
+			$x['progress'] = " ";
+			$general_task = $this->m_planning->getTaskInGeneral($id);
+			$g_children = array();
+			if(!empty($general_task)){
+				foreach ($general_task as $key => $value) {
+					$g['key'] = $u.".".$key;
+					$g['title'] = $value->tasks_name;
+					$g['id'] = $value->id;
+					$g['children'] = $this->percobaan($value->id);
+					$x['progress'] = $value->progress;
+					$due_date = date('d-m-Y', strtotime($value->due_date));
+					if(empty($value->due_date)){
+						$due_date = "-";
+					}
+					$g['due_date'] = $due_date;
+					$g_children[] = $g;
+				}
+
+				$general['children'] = $g_children;
+				$test[] = $general;
+			}
+		}
+
+
+		foreach ($task_list as $key => $value) {
+			$a['title'] = $value->task_list_name;
+			$a['key'] = $u+$key+1;
+			$a['due_date'] = " ";
+			$a['folder'] = true;
+			$a['expanded'] = true;
+			$a['id'] = " ";
+			$a['progress'] = "";
+			$task = $this->m_planning->getTaskByProjectTaskListId($value->id);
+
+			$children = array();
+			foreach ($task as $key => $value) {
+				$x['key'] = $u.".".$key;
+				$x['progress'] = $value->progress;
+				$x['title'] = $value->tasks_name;
+				$x['expanded'] = true;
+				$x['id'] = $value->id;
+				$due_date = date('d-m-Y', strtotime($value->due_date));
+				if(empty($value->due_date)){
+					$due_date = "-";
+				}
+				$x['due_date'] = $due_date;
+				$x['children'] = $this->percobaan($value->id);
+				$children[] = $x;
+			}
+
+			$a['children'] = $children;
+
+			$test[] = $a;
+		}
+
+
+		if (!empty($_POST['searchvalue'])){
+			$child2 = array();
+			$task2 = $this->m_planning->searchTaskByProjectId($id);
+			if(!empty($task2)){
+				foreach ($task2 as $key => $value) {
+					if(!empty($test)){
+						$match = 0;
+						foreach($test as $idx => $value2){
+							if($value2['title'] == $value->task_list_name){
+								$match += 1;
+								$children2 = array();
+								$d['key'] = $u.".".$key;
+								$d['title'] = $value->tasks_name;
+								$d['due_date'] = date('d-m-Y', strtotime($value->due_date));
+								$d['id'] = $value->id;
+								$d['progress'] = $value->progress;
+
+								$test[$idx]['children'][] = $d;
+							} else {
+								if($match == 0){
+									$s = array();
+									$children2 = array();
+									$s['title'] = $value->task_list_name;
+									$s['key'] = $key+1;
+									$s['due_date'] = " ";
+									$s['folder'] = true;
+									$s['expanded'] = true;
+									$d['key'] = $u.".".$key;
+									$d['title'] = $value->tasks_name;
+									$d['id'] = $value->id;
+									$d['progress'] = $value->progress;
+
+									$due_date = date('d-m-Y', strtotime($value->due_date));
+									if(empty($value->due_date)){
+										$due_date = "-";
+									}
+									$d['due_date'] = $due_date;
+									$children2[] = $d;
+									$s['children'] = $children2;
+									$test[] = $s;
+								}
+							}
+						}
+					} else {
+						$s = array();
+						$children2 = array();
+						$s['title'] = $value->task_list_name;
+						$s['key'] = $key+1;
+						$s['due_date'] = " ";
+						$s['folder'] = true;
+						$s['expanded'] = true;
+						$d['key'] = $u.".".$key;
+						$d['title'] = $value->tasks_name;
+						$d['id'] = $value->id;
+						$d['progress'] = $value->progress;
+
+						$due_date = date('d-m-Y', strtotime($value->due_date));
+						if(empty($value->due_date)){
+							$due_date = "-";
+						}
+						$d['due_date'] = $due_date;
+						$children2[] = $d;
+						$s['children'] = $children2;
+						$test[] = $s;
+					}
+
+				}
+			}
+		}
+		echo json_encode($test);
+	}
+
+	public function getProjectDetail($project_id)
+	{
+		$users = $this->m_planning->getProjectById($project_id);
+		if (!empty($users)) {
+			$data = array('status' => 'Success', 'data' => $users);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function getMilestoneDetail($milestone_id)
+	{
+		$users = $this->m_planning->getMilestoneById($milestone_id);
+		if (!empty($users)) {
+			$data = array('status' => 'Success', 'data' => $users);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function editProject(){
+		if ($this->m_planning->saveEditProject()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function percobaan($task_id){
+		$a = $this->m_planning->getAllSubtask($task_id);
+		return $a;
+	}
+
+	public function saveProgress(){
+		if ($this->m_planning->saveProgress()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+
+	}
+
+	/*public function editProject(){
+		if ($this->m_planning->saveEditProject()) {
+			$data = array('status' => 'Success');
+		} else {
+			$data = array('status' => 'Failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}*/
+
+
+}

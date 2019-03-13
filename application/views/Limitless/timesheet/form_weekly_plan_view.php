@@ -19,7 +19,7 @@
                 <div class="col-md-12">
                     <form action="/index.php/timesheet/addWeeklyPlan/" method="post" class="form-horizontal">
                         <div class="form-group">
-                            <label class="col-lg-2 control-label">Project</label>
+                            <label class="col-lg-2 control-label">It isnt project anymore</label>
 
                             <div class="col-lg-4">
                                 <!-- <input type="text" class="form-control" name = "area"> -->

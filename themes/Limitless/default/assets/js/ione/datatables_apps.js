@@ -89,7 +89,10 @@ $(function () {
             },
             {
                 render: function (data, type, row) {
-                    return '<div class = "display-inline-block text-default letter-icon-title">' + Number(data).toFixed(2) + '%</div>';
+                    if(row.completion == ""){
+                        row.completion = "0.00";
+                    }
+                    return '<div class = "display-inline-block text-default letter-icon-title">' + row.completion + '%</div>';
                 },
                 orderable: false,
                 targets: 4
@@ -445,6 +448,64 @@ $(function () {
         ],
         fnDrawCallback: function () {
             resourceProjectCB();
+        }
+
+    });
+
+    $('.datatable-project-vendor-list').dataTable({
+        saveState : true,
+        processing: true,
+        serverSide: true,
+        ajax: {
+            "url": JS_BASE_URL + "/planning/datatable_vendor_project/" + project_id,
+            "type": "POST"
+        },
+        columnDefs: [
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default"> ' + row.vendor_name + '</span>';
+                },
+                orderable: true,
+                targets: 0
+            },
+            {
+                render: function (data, type, row) {
+
+                    return '<span class="text-size-small text-default">' + row.scopes + '</span>';
+                },
+                orderable: true,
+                targets: 1
+            },
+            {
+                render: function (data, type, row) {
+                    var action_menu = '<ul class="icons-list pull-right">' +
+                        '<li class="dropdown">' +
+                        '<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>' +
+                        '<ul class="dropdown-menu dropdown-menu-right">' +
+                        '<li><a href="#" pv_id = "'+row.id+'" class = "edit_pv" ><i class="icon-pencil"></i>Edit</a></li>' +
+                        '<li><a href="#" pv_id = "'+row.id+'" class = "delete_pv" ><i class="icon-trash"></i>Delete </a></li>' +
+                        '</ul>' +
+                        '</li>' +
+                        '</ul>';
+                    return action_menu;
+
+                    // return '<span class="text-size-small text-default pull-right"><i class = "icon-chevron-down"></i></span>';
+                },
+                orderable: false,
+                targets: 2
+            }
+        ],
+        // dom: '<"datatable-scroll"t><"datatable-footer"ip>',
+        order: [0, "desc"],
+        columns: [
+            {data: "a.id"},
+            {data: "b.fullname"},
+            {data: "b.email"},
+        ],
+        fnDrawCallback: function () {
+            // resourceProjectCB();
+            projectVendorCB();
         }
 
     });
@@ -1435,6 +1496,7 @@ $(function () {
             {
                 render: function (data, type, row) {
                     return '<span class="text-size-small text-default"> ' + row.no + '</span>';
+                    // return '<a href="#" class = "detail-tools" tools_id = "' + row.id + '">'+row.description+'</a>';
                 },
                 orderable: false,
                 targets: 0
@@ -4989,3 +5051,34 @@ var CallBackRules = function () {
         });
     });
 };
+
+
+var projectVendorCB = function() {
+    $('.edit_pv').click(function(e){
+        var vendorId = $(this).attr('pv_id');
+        $('#project_vendor_id').val('');
+        $("#vendor_id").val('').trigger("change");
+        $("#scope_id").val('').trigger("change");
+
+        $.ajax({
+            url: JS_BASE_URL + '/planning/project_vendor_detail/',
+            type: 'POST',
+            data : {vendor : vendorId},
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if (res.status == 'success'){
+                    detail = res.data;
+                    console.log(detail.id)
+                    $("#project_vendor_id").val(detail.id);
+                    $("#vendor_id").val(detail.vendor_id).trigger("change");
+                    detail.scopes = detail.scopes.split(",");
+                    $("#scope_id").val(detail.scopes).trigger("change");
+                }
+            }
+        });
+        $('#modal_add_vendor').modal('show');
+    });
+
+};
+

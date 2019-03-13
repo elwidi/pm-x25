@@ -178,19 +178,19 @@
                                     // ['Baseline', 30, 20, 50, 40, 60, 50],
                                     res.data.plan,
                                     res.data.actual,
-                                    res.data.cum_baseline,
-                                    res.data.cum_actual
+                                    /*res.data.cum_baseline,
+                                    res.data.cum_actual*/
                                 ],
-                                type: 'bar',
-                                types: {
+                                type: 'line',
+                                /*types: {
                                     'Cum. Baseline': 'line',
                                     'Cum. Actual': 'line',
-                                },
+                                },*/
                                 axes: {
                                     'Baseline': 'y',
-                                    'Actual': 'y',
-                                    'Cum. Baseline' :'y2',
-                                    'Cum. Actual' :'y2'
+                                    'Actual': 'y'
+                                    /*'Cum. Baseline' :'y2',
+                                    'Cum. Actual' :'y2'*/
                                 }
                             },
                             bar: {
@@ -204,9 +204,9 @@
                                 pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
                             },
                             axis: {
-                                y2: {
+                                /*y2: {
                                     show: true
-                                },
+                                },*/
                                 x: {
                                     type: 'category',
                                     categories: res.data.date,
@@ -240,10 +240,10 @@
                                     // ['Cum. Actual', 200, 130, 90, 240, 130, 220],
                                 ],
                                 type: 'bar',
-                                types: {
+                                /*types: {
                                     'Cum. Baseline': 'line',
                                     'Cum. Actual': 'line',
-                                },
+                                },*/
                                 axes: {
                                     'Baseline': 'y',
                                     'Actual': 'y2'
@@ -265,7 +265,7 @@
                                 },
                                 x: {
                                     type: 'category',
-                                    categories: ['2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26']
+                                    // categories: ['2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26']
                                 }
                             },
                             grid: {

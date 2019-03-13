@@ -70,6 +70,10 @@ class Planning extends CI_Controller {
 
 		$data['area'] = $this->m_planning->workLocation();
 
+		$data['scope'] = $this->m_planning->getAllProjectScope();
+
+		$data['vendor'] = $this->m_planning->allVendor();
+
 		$task_list = $this->m_planning->getTasklistByProjectId($id);
 
 		foreach ($task_list as $key => $value) {
@@ -89,6 +93,8 @@ class Planning extends CI_Controller {
 		$data['project_milestone'] = $this->m_planning->getMileStone($id);
 
 		$data['milestones'] = $this->m_planning->getMileStone($id);
+
+		$data['km_cable'] = $this->m_planning->getMileStoneDetailByProjectId($id,'10');
 
 		$data['uom'] = $this->m_planning->milestone_uom();
 
@@ -127,14 +133,16 @@ class Planning extends CI_Controller {
         }
         $mths = array();
         $mths[] = array(
+        	'full' => date('Y-m-d', strtotime($project->start_date)),
         	'month' => date('M', strtotime($project->start_date)),
         	'year' => date('Y', strtotime($project->start_date))
         );
         for ($i=0; $i < $months-1; $i++) { 
 			$last = end($mths);
 			$mth = array();
-			$mth['month'] = date('M', strtotime("+1 month", strtotime($last['month'])));
-			$mth['year'] = date('Y', strtotime("+1 month", strtotime($last['month'])));
+			$mth['full'] = date('Y-m-d', strtotime("+1 month", strtotime($last['full'])));
+			$mth['month'] = date('M', strtotime("+1 month", strtotime($last['full'])));
+			$mth['year'] = date('Y', strtotime("+1 month", strtotime($last['full'])));
 			$mths[] = $mth;
 		}
 
@@ -927,7 +935,7 @@ class Planning extends CI_Controller {
     	$id = $this->input->post('project_id');
     	if($this->m_planning->savePlan()){
 			$this->session->set_flashdata('message', 'Daily Progress has been saved');
-			redirect('planning/id/'.$id);
+			redirect('planning/id/'.$id."?tab=milestone");
 		}
     }
 
@@ -984,6 +992,60 @@ class Planning extends CI_Controller {
     	exit();
     }
 
+    public function datatable_vendor_project($id){
+        $list = $this->m_planning->get_datatable_project_vendor($id);
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $mta) {
+            $no++;
+            $row = array();
+            $row['no'] = $no;
+            foreach ($mta as $key => $value) {
+                if (empty($value)){
+                    $value = "";
+                }
+                $row[$key] = $value;
+
+            }
+            $data[] = $row;
+
+
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->m_planning->count_all_project_vendor($id),
+            "recordsFiltered" => $this->m_planning->count_filtered_resource_allocation($id),
+            "data" => $data,
+        );
+        echo json_encode($output); exit;
+    }
+
+
+    public function save_project_vendor(){
+        if($this->m_planning->saveProjectVendor()){
+            $data = array('status' => 'success');
+        } else {
+            $data = array('status' => 'failed');
+        }
+
+        echo json_encode($data);
+        exit();
+    }
+
+
+    public function project_vendor_detail(){
+    	$id = $this->input->post('vendor');
+    	$project_vendor = $this->m_planning->projectVendorDetail($id);
+    	if(!empty($project_vendor)){
+    		$data = array('status' => 'success', 'data' => $project_vendor);
+    	} else {
+    		$data = array('status' => 'failed');
+    	}
+
+    	echo json_encode($data);
+    	exit();
+    }
 
 
     /*public function generate(){

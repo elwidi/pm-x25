@@ -156,14 +156,14 @@ class Report_model extends CI_Model {
         foreach ($f as $key => $value) {
             $ch[$key]['plan'][] = 'Baseline';
             $ch[$key]['actual'][] = 'Actual';
-            $ch[$key]['cum_baseline'][] = 'Cum. Baseline';
-            $ch[$key]['cum_actual'][] = 'Cum. Actual';
+            // $ch[$key]['cum_baseline'][] = 'Cum. Baseline';
+            // $ch[$key]['cum_actual'][] = 'Cum. Actual';
             foreach ($value as $i => $d) {
                 // var_dump($value); exit();
                 $ch[$key]['date'][] = $d->month;
                 $ch[$key]['plan'][] = $d->plan;
                 $ch[$key]['actual'][] = $d->actual;
-                if(count($ch[$key]['cum_baseline']) == 1){
+                /*if(count($ch[$key]['cum_baseline']) == 1){
                     $ch[$key]['cum_baseline'][] = $d->plan;
                 } else {
                     $ch[$key]['cum_baseline'][] = end($ch[$key]['cum_baseline'])+$d->plan;
@@ -176,7 +176,7 @@ class Report_model extends CI_Model {
                         $ch['cum_actual'][] = end($ch['cum_actual'])+$d->actual;
                     }
                     // $ch[$key]['cum_actual'][] = end($ch[$key]['cum_actual'])+$d->actual;
-                }
+                }*/
             }
             
         }

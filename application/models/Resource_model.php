@@ -551,6 +551,7 @@ class Resource_model extends CI_Model {
         }
 
     }
+
     function get_datatable_resource_allocation($id)
     {
         $this->_get_datatable_resource_allocation_query($id);
@@ -618,98 +619,50 @@ class Resource_model extends CI_Model {
             'join_date_to_project' => date('Y-m-d', strtotime($this->input->post('resource_join_date')))
         );
 
-        $ex = $this->getResLoc($this->input->post('project_id'), $this->input->post('position_id'));
-        $userIds = $this->input->post('user_id');
+        $this->db->where('id', $resource_id);
+        $this->db->update('pm_resource_allocation',$data);
+
+        $ex = $this->getResLoc($resource_id);
+        $area = $this->input->post('resource_area');
         $exIds = array();
         if(!empty($ex)){
             foreach ($ex as $key => $value) {
-                $exIds[] = $value->user_id;
+                $exIds[] = $value->area_id;
             }
 
-            $added = array_diff($userIds, $exIds);
-            $deleted = array_diff($exIds, $userIds);
-
-            $area = $this->input->post('area');
-            if(!empty($area)){
-                $area = implode(",", $area);
-            }
+            $added = array_diff($area, $exIds);
+            $deleted = array_diff($exIds, $area);
 
             if(!empty($added)){
                 foreach ($added as $k => $v) {
                     $data = array(
-                        'user_id' => $v,
-                        'project_id' => $this->input->post('project_id'),
-                        'position_id' => $this->input->post('position_id'),
-                        'area_id' => $area,
-                        'join_date_to_project' => date('Y-m-d H:i:s')
+                        'resource_allocation_id' => $resource_id,
+                        'area_id' => $v
                     );
-                    $this->db->insert('pm_resource_allocation', $data);
+                    $this->db->insert('pm_resource_location', $data);
                 }
 
             }
 
             if(!empty($deleted)){
                 foreach ($deleted as $i => $d) {
-                    $data = array('inactive_date' => date('Y-m-d'));
-                    $this->db->where('project_id', $this->input->post('project_id'));
-                    $this->db->where('position_id', $this->input->post('position_id'));
-                    $this->db->where('user_id', $d);
-                    $this->db->update('pm_resource_allocation',$data);
+                    $this->db->where('resource_allocation_id', $resource_id);
+                    $this->db->where('area_id', $d);
+                    $this->db->delete('pm_resource_location');
                 }
             }
         } else {
-            foreach ($userIds as $key => $value) {
+            foreach ($area as $key => $value) {
                 $data = array(
-                    'user_id' => $value,
-                    'project_id' => $this->input->post('project_id'),
-                    'position_id' => $this->input->post('position_id'),
-                    'area' => $this->input->post('area'),
-                    'join_date_to_project' => date('Y-m-d H:i:s')
+                    'resource_allocation_id' => $resource_id,
+                    'area_id' => $value
                 );
-                $this->db->insert('pm_resource_allocation', $data); 
+                $this->db->insert('pm_resource_location', $data);
             }
         }
 
 
-        $this->db->where('id', $resource_id);
-        $this->db->update('pm_resource_allocation',$data);
-
-
-        foreach ($ex as $key => $value) {
-                $exIds[] = $value->user_id;
-            }
-
-            $added = array_diff($userIds, $exIds);
-            $deleted = array_diff($exIds, $userIds);
-
-            $area = $this->input->post('area');
-            if(!empty($area)){
-                $area = implode(",", $area);
-            }
-
-            if(!empty($added)){
-                foreach ($added as $k => $v) {
-                    $data = array(
-                        'user_id' => $v,
-                        'project_id' => $this->input->post('project_id'),
-                        'position_id' => $this->input->post('position_id'),
-                        'area_id' => $area,
-                        'join_date_to_project' => date('Y-m-d H:i:s')
-                    );
-                    $this->db->insert('pm_resource_allocation', $data);
-                }
-
-            }
-
-            if(!empty($deleted)){
-                foreach ($deleted as $i => $d) {
-                    $data = array('inactive_date' => date('Y-m-d'));
-                    $this->db->where('project_id', $this->input->post('project_id'));
-                    $this->db->where('position_id', $this->input->post('position_id'));
-                    $this->db->where('user_id', $d);
-                    $this->db->update('pm_resource_allocation',$data);
-                }
-            }
+        
 
         /**
          * ===================================================

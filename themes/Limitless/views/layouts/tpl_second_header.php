@@ -30,6 +30,7 @@
             <ul class="dropdown-menu width-200">
                 <li class="dropdown-header">Implementation</li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/dailyProgress">Input Daily Progress Report</a></li>
+                <li><a href="<?php echo base_url();?>index.php/timesheet/formWeeklyPlan">Input Weekly Plan</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/progressTask">Progress Task</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/">Submarine</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/">Inland / OSP</a></li>
@@ -57,7 +58,9 @@
                 <li><a href="<?php echo base_url();?>index.php/dailyProgressReport/summaryProgressReport">Summary Progress Report</a></li>
                 <li><a href="<?php echo base_url();?>index.php/dailyProgressReport/progressPerProject">Progress per Project</a></li>
                 <li><a href="<?php echo base_url();?>index.php/dailyProgressReport/progressNational">Progress National</a></li>
-            
+                <li><a href="<?php echo base_url();?>index.php/timesheet/weeklyActivity">Daily Report Plan</a></li>
+                <li><a href="#">Summary Weekly Plan</a></li>
+
           <li class="dropdown-header">Timesheet</li>
                 <li class="dropdown-submenu dropdown-submenu-hover">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Weekly Work Plan</a>

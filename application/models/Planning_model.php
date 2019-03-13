@@ -892,7 +892,6 @@ class Planning_model extends CI_Model {
                
             }
         }
-
         $i = 0;
         $condition = '(';
         if($_POST['columns'][6]['search']['value']){
@@ -1222,6 +1221,16 @@ class Planning_model extends CI_Model {
         return $c;
     }
 
+    public function getMileStoneDetailByProjectId($project_id,$milestone_id){
+        $this->db->select('a.*, b.milestone_name');
+        $this->db->from('pm_project_milestone a');
+        $this->db->join('pm_milestone_definition b','a.milestone_id = b.id');
+        $this->db->where('a.project_id',$project_id);
+        $this->db->where('a.milestone_id',$milestone_id);
+        $query = $this->db->get();
+        return $query->row();
+    }
+
     
     public function getMilestoneProject($id){
         $this->db->select("milestone_id, uom");
@@ -1366,6 +1375,13 @@ class Planning_model extends CI_Model {
         return $query->row();
     }
 
+    public function allVendor(){
+        $this->db->select('*');
+        $this->db->from('pm_vendor');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
     public function deleteVendor($id)
     {
         $this->db->delete('pm_vendor', array('id' => $id)); 
@@ -1397,6 +1413,7 @@ class Planning_model extends CI_Model {
                         'date' => date('Y-m-d',strtotime($date)),
                         'created_date' => date('Y-m-d H:i:s')
                     );
+                    
                     $this->db->insert('pm_project_chart', $data);
                 } else {
                     $data = array(
@@ -1409,7 +1426,7 @@ class Planning_model extends CI_Model {
                 
             }
         }
-        
+
         /**
          * ===================================================
          * Transactions with databases
@@ -1429,11 +1446,12 @@ class Planning_model extends CI_Model {
 
     public function getProjectPlanning($id_project){
         $project = $this->getProjectDetailById($id_project);
+        $start_date = date('Y-m-01',strtotime($project->start_date));
         $this->db->select('*');
         $this->db->from('pm_project_chart');
         $this->db->where('project_id', $id_project);
         $this->db->where('month is NOT NULL');
-        $this->db->where('date >=',$project->start_date);
+        $this->db->where('date >=',$start_date);
         $this->db->where('date <=',$project->end_date);
         $query = $this->db->get();
 
@@ -1465,6 +1483,177 @@ class Planning_model extends CI_Model {
         $query = $this->db->get();
 
         return $query->result();
+    }
+
+
+    private function _get_datatable_project_vendor_query($id)
+    {
+        $column_select = array("a.*", "b.vendor_name", "GROUP_CONCAT(d.project_scope, '') AS scopes");
+        $column_search = array("b.vendor_name");
+        // $column_order = array("b.fullname", "c.position_title", "a.join_date_to_project");
+        $this->db->select($column_select);
+        $this->db->from('pm_project_vendor a');
+        $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
+        $this->db->join('pm_project_vendor_scope c', 'a.id = c.project_vendor_id','left');
+        $this->db->join('pm_project_scope d', 'd.id = c.scope_id','left');
+        $this->db->where('project_id', $id);
+        $i = 0;
+        $condition = '(';
+        foreach ($column_search as $item) // loop column
+        {
+            if($_POST['search']['value']) {
+                if($i===0) // first loop
+                {
+                    $condition .= $item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                else
+                {
+                    $condition .= " OR ".$item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                $i++;
+            
+            }
+        }
+
+        if($_POST['search']['value']){
+            $condition .= " OR scopes LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+            $condition .= ")";
+            $this->db->having($condition);
+        }
+
+        $this->db->group_by('a.id');
+
+        /*if(isset($_POST['order'])) // here order processing
+        {
+            $this->db->order_by($column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        }*/
+
+    }
+    function get_datatable_project_vendor($id)
+    {
+        $this->_get_datatable_project_vendor_query($id);
+        if($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    function count_filtered_resource_allocation($id)
+    {
+        $this->_get_datatable_project_vendor_query($id);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    public function count_all_project_vendor($id)
+    {
+        $this->db->from("pm_project_vendor");
+        $this->db->where('project_id', $id);
+        return $this->db->count_all_results();
+    }
+
+    public function getVendorScope($id){
+        $this->db->select('*');
+        $this->db->from('pm_project_vendor_scope');
+        $this->db->where('project_vendor_id', $id);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function saveProjectVendor(){
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        $this->db->trans_begin();
+
+        $project_vendor_id = $this->input->post('project_vendor_id');
+        $scope_id = $this->input->post('scope_id');
+        if(!empty($project_vendor_id)){
+
+            $d = array(
+                'vendor_id' => $this->input->post('vendor_id'),
+                'project_id' => $this->input->post('project_id'),
+            );
+
+            $this->db->where('id', $project_vendor_id);
+            $this->db->update('pm_project_vendor', $d);
+
+            $ex = $this->getVendorScope($project_vendor_id);
+            $exIds = array();
+            if(!empty($ex)){
+                foreach ($ex as $key => $value) {
+                    $exIds[] = $value->scope_id;
+                }
+
+                $added = array_diff($scope_id, $exIds);
+                $deleted = array_diff($exIds, $scope_id);
+
+                if(!empty($added)){
+                    foreach ($added as $k => $v) {
+                        $data = array(
+                            'project_vendor_id' => $project_vendor_id,
+                            'scope_id' => $v
+                        );
+                        $this->db->insert('pm_project_vendor_scope', $data);
+                    }
+
+                }
+
+                if(!empty($deleted)){
+                    foreach ($deleted as $i => $d) {
+                        $this->db->where('project_vendor_id', $project_vendor_id);
+                        $this->db->where('scope_id', $d);
+                        $this->db->delete('pm_project_vendor_scope');
+                    }
+                }
+            }
+        } else {
+            $data = array(
+                'vendor_id' => $this->input->post('vendor_id'),
+                'project_id' => $this->input->post('project_id'),
+            );
+            $this->db->insert('pm_project_vendor', $data);
+            $project_vendor_id = $this->db->insert_id();
+
+            if(!empty($scope_id)){
+                foreach ($scope_id as $key => $value) {
+                    $e = array(
+                        'project_vendor_id' => $project_vendor_id,
+                        'scope_id' => $value
+                    );
+                    $this->db->insert('pm_project_vendor_scope', $e);
+                }
+            }
+
+            
+        }   
+        
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        if ($this->db->trans_status() === FALSE)
+        {
+            $this->db->trans_rollback();
+        }
+        else
+        {
+            $this->db->trans_commit();
+        }
+
+        return true;
+    }
+
+    public function projectVendorDetail($id){
+        $this->db->select("a.*, GROUP_CONCAT(b.scope_id, '') AS scopes");
+        $this->db->from('pm_project_vendor a');
+        $this->db->join('pm_project_vendor_scope b','a.id = b.project_vendor_id');
+        $this->db->where('a.id', $id);
+        $query = $this->db->get();
+        return $query->row();
     }
 
 }

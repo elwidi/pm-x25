@@ -7,11 +7,13 @@
         <li class="<?php echo ($active_tab == '')?  "active": "" ?>"><a href="#project-overview" data-toggle="tab" aria-expanded="true"><i
                     class="icon-menu7 position-left"></i> Overview</a></li>
         <li class=""><a href="#project-tasks" data-toggle="tab" aria-expanded="false"><i
-                    class="icon-stack4 position-left"></i> Tasks</a></li>
+                    class="icon-stack4 position-left"></i> Tasks and Assignment</a></li>
         <li class="<?php echo ($active_tab == 'milestone')?  "active": ""?>"><a href="#project-milestones" data-toggle="tab" aria-expanded="false"><i
                     class="icon-flag8 position-left"></i> Milestones</a></li>
         <li class="<?php echo ($active_tab == "team")?  "active": ""?>"><a href="#project-people" data-toggle="tab" aria-expanded="false"><i
                     class="icon-people position-left"></i> Project Team</a></li>
+        <li class="<?php echo ($active_tab == "vendor")?  "active": ""?>"><a href="#project-vendor" data-toggle="tab" aria-expanded="false"><i
+                    class="icon-grid6 position-left"></i> Vendor</a></li>
 
     </ul>
 
@@ -75,7 +77,14 @@
                             <div class="form-group">
                                 <label class="col-lg-2 control-label text-semibold">Km Cable:</label>
                                 <div class="col-lg-9">
-                                    <div class="form-control-static"></div>
+                                    <?php if(!empty($km_cable)) {
+                                            $e =$km_cable->qty;
+                                            $f =$km_cable->uom;
+                                        } else {
+                                            $e = '';
+                                            $f = '';
+                                        }?>
+                                    <div class="form-control-static"><?php echo $e?> <?php echo $f?></div>
                                 </div>
                             </div>
                         </div>
@@ -203,7 +212,7 @@
 
         <div class="tab-pane fade" id="project-tasks">
             <div class="panel-body" style="padding-top: 0">
-                <h4>Tasks</h4>
+                <h4>Tasks and Assignment</h4>
 
                 <div class="heading-elements">
                     <div class="btn-group">
@@ -347,6 +356,30 @@
                     <th>Position</th>
                     <th>Join date to Project</th>
                     <th>City</th>
+                    <th><i class = "icon-chevron-down pull-right"></i></th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tab-pane fade <?php echo ($active_tab == 'vendor')? "active in" : ""?>" id="project-vendor">
+            <div class="panel-body" style="padding-top: 0">
+                <h4>Project Vendor</h4>
+
+                <div class="heading-elements">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success btn-labeled btn-labeled-left add_vendor"><b><i class="icon-plus3"></i></b>Add Vendor</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table text-nowrap datatable-project-vendor-list">
+                <thead>
+                <tr> 
+                    <th>Vendor</th>
+                    <th>Scope</th>
                     <th><i class = "icon-chevron-down pull-right"></i></th>
                 </tr>
                 </thead>
@@ -625,6 +658,57 @@
 </div>
 
 
+<div id="modal_add_vendor" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Vendor</h5>
+            </div>
+
+            <div class="modal-body ">
+                <div class="col-lg-12">
+                    <form method = "POST"  action = "" id = "vendor_form" enctype="multipart/form-data" class = "form-validate-jquery">
+                    <div class="form-group">
+                       <div class="row">
+                            <div class="col-sm-12">
+                                 <label>Vendor</label>
+                                 <input type = "hidden" name = "project_id" value = "<?php echo $project_id?>"/> 
+                                 <input type = "hidden" name = "project_vendor_id" id = "project_vendor_id" value = ""/> 
+                                 <select id="vendor_id" name="vendor_id" data-placeholder="Select vendor" class="select">
+                                    <option value = ""></option>
+                                    <?php foreach ($vendor as $k => $v) { ?>
+                                    <option value="<?php echo $v->id?>"><?php echo $v->vendor_name ?></option>
+                                    <?php }?>
+                                 </select>
+                            </div> 
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Scope</label>
+                                <select id="scope_id" name="scope_id[]" data-placeholder="Select Scope" class="select" required="required" multiple>
+                                    <option value = ""></option>
+                                    <?php foreach ($scope as $value) { ?>
+                                        <option value="<?php echo $value->id?>"><?php echo $value->project_scope ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button type="submit" name = "submit_form" value = "true" class="btn btn-primary">Save</button>
+            </div>
+            </form> 
+        </div>
+    </div>
+</div>
+
 
 <script type="text/javascript">
     $(function () {
@@ -647,19 +731,19 @@
                                 // ['Baseline', 30, 20, 50, 40, 60, 50],
                                 res.data.plan,
                                 res.data.actual,
-                                res.data.cum_baseline,
-                                res.data.cum_actual
+                               /* res.data.cum_baseline,
+                                res.data.cum_actual*/
                             ],
-                            type: 'bar',
-                            types: {
+                            type: 'line',
+                            /*types: {
                                 'Cum. Baseline': 'line',
                                 'Cum. Actual': 'line',
-                            },
+                            },*/
                             axes: {
                                 'Baseline': 'y',
-                                'Actual': 'y',
-                                'Cum. Baseline' :'y2',
-                                'Cum. Actual' :'y2'
+                                'Actual': 'y'
+                               /* 'Cum. Baseline' :'y2',
+                                'Cum. Actual' :'y2'*/
                             }
                         },
                         bar: {
@@ -673,9 +757,9 @@
                             pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
                         },
                         axis: {
-                            y2: {
+                           /* y2: {
                                 show: true
-                            },
+                            },*/
                             x: {
                                 type: 'category',
                                 categories: res.data.date,
@@ -1291,6 +1375,36 @@
                 // alert('Oh ok. Chicken, I see.');
             });
         });
+
+
+        $('.add_vendor').on('click', function () {
+            $('#project_vendor_id').val('');
+            $("#vendor_id").val('').trigger("change");
+            $("#scope_id").val('').trigger("change");
+            $('#modal_add_vendor').modal('show');
+            
+        });
+
+        $('#vendor_form').submit(function(e){
+            e.preventDefault();
+            var form = $(this);
+            $.ajax({
+                url: JS_BASE_URL + '/planning/save_project_vendor/',
+                type: 'POST',
+                dataType: 'json',
+                data: form.serialize(),
+                async: false,
+                success: function (res) {
+                    if (res.status == 'success') {
+                        var table1 = $('.datatable-project-vendor-list').dataTable();
+                        alertSuccess();
+                        $('#modal_add_vendor').modal('toggle');
+                        table1.api().ajax.reload();
+                    }
+                }
+            });
+        });
+
 
         CallbackProject();
         // $('.add_user').on('click', function () {

@@ -152,14 +152,14 @@
                             // ['Cum. Actual', 200, 130, 90, 240, 130, 220],
                         ],
                         type: 'bar',
-                        types: {
+                        /*types: {
                             'Cum. Baseline': 'line',
                             'Cum. Actual': 'line',
-                        },
-                        axes: {
+                        },*/
+                        /*axes: {
                             'Baseline': 'y',
                             'Actual': 'y2'
-                        }
+                        }*/
                     },
                     bar: {
                         width: {
@@ -172,9 +172,9 @@
                         pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
                     },
                     axis: {
-                        y2: {
+                        /*y2: {
                             show: true
-                        },
+                        },*/
                         x: {
                             type: 'category',
                             categories: ['2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26']
@@ -186,9 +186,7 @@
                         }
                     }
                 });
-                // console.log(index);
                 e++;
-                // console.log($(this).attr('id'));
             });
 
             $.ajax({
@@ -213,7 +211,7 @@
                                     /*value.cum_baseline,
                                     value.cum_actual*/
                                 ],
-                                type: 'bar',
+                                type: 'line',
                                 /*types: {
                                     'Cum. Baseline': 'line',
                                     'Cum. Actual': 'line',

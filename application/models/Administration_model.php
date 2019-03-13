@@ -718,14 +718,18 @@ class Administration_model extends CI_Model
 
         $permission = array_diff($permission, $removed);
 
-        $this->db->from('pm_permission');
-        $this->db->where_in('id_permission', $permission);
-        $query = $this->db->get();
-        $userPermission = $query->result();
         $up = array();
 
-        foreach ($userPermission as $key => $value) {
-            $up[$value->name] = '1';
+
+        if(!empty($permission)){
+            $this->db->from('pm_permission');
+            $this->db->where_in('id_permission', $permission);
+            $query = $this->db->get();
+            $userPermission = $query->result();
+
+            foreach ($userPermission as $key => $value) {
+                $up[$value->name] = '1';
+            }
         }
 
         return $up;

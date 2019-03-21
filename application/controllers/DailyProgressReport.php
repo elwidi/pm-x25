@@ -36,7 +36,7 @@ class DailyProgressReport extends CI_Controller {
 		// Get Apps Config
 		$data = $this->apps->info();
 
-		$projects = $this->m_plan->getProjectsByStatus('On Progress');
+		$projects = $this->m_plan->getSummaryProjectsByStatus('On Progress');
 		foreach ($projects as $key => $value) {
 			$projects[$key]->km = $this->m_report->getCableScope(10,$value->id);
 			$projects[$key]->hdpe = $this->m_report->getCableScope(8,$value->id);

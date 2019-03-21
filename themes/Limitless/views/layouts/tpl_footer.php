@@ -4,7 +4,7 @@
 
 <div class="navbar-collapse collapse" id="footer">
     <div class="navbar-text">
-        &copy; 2018. <a href="#" class="navbar-link">Project Management</a> by <a href="#" class="navbar-link" target="_blank">IT Development</a>
+        &copy; 2018. <a href="#" class="navbar-link">Project Management</a> by IT Development & Project Planner.
     </div>
 
     <div class="navbar-right">

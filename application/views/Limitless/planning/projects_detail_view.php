@@ -14,6 +14,16 @@
                     class="icon-people position-left"></i> Project Team</a></li>
         <li class="<?php echo ($active_tab == "vendor")?  "active": ""?>"><a href="#project-vendor" data-toggle="tab" aria-expanded="false"><i
                     class="icon-grid6 position-left"></i> Vendor</a></li>
+        <li class="<?php echo ($active_tab == "project-charter")?  "active": ""?>"><a href="#project-charter" data-toggle="tab" aria-expanded="false"><i
+                    class="icon-clipboard2 position-left"></i> Approved Project Charter</a></li>
+        <li class="<?php echo ($active_tab == "pip")?  "active": ""?>"><a href="#pip" data-toggle="tab" aria-expanded="false"><i
+                    class="icon-list-unordered position-left"></i> PIP</a></li>
+        <li class="<?php echo ($active_tab == "kmz")?  "active": ""?>"><a href="#kmz" data-toggle="tab" aria-expanded="false"><i
+                    class="icon-statistics position-left"></i> KMZ</a></li>
+        <li class="<?php echo ($active_tab == "boq")?  "active": ""?>"><a href="#boq" data-toggle="tab" aria-expanded="false"><i
+                    class="icon-clipboard2 position-left"></i> BOQ</a></li>
+        <li class="<?php echo ($active_tab == "segment")?  "active": ""?>"><a href="#segment" data-toggle="tab" aria-expanded="false"><i
+                    class="icon-git-branch position-left"></i> Segment</a></li>
 
     </ul>
 
@@ -39,44 +49,120 @@
                 <div class="col-md-12">
                     <form class="form-horizontal" action="#">
                         <div class="panel-body">
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label text-semibold">Project Name:</label>
-                                <div class="col-lg-9">
+
+                            <!--
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label text-semibold">Project Name:</label>
+                                <div class="col-lg-3">
+                                    <div class="form-control-plaintext"><?php echo $project->project_name?></div>
+                                </div>
+                                <label class="col-lg-3 col-form-label text-semibold">Plan Start:</label>
+                                <div class="col-lg-3">
+                                    <div class="form-control-plaintext"><?php //echo $project->project_name?></div>
+                                </div>
+                                <label class="col-lg-3 col-form-label text-semibold">Vendor Information:</label>
+                                <div class="col-lg-3">
+                                    <div class="form-control-plaintext"><?php //echo $project->project_name?></div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-3 col-form-label text-semibold">Project Company:</label>
+                                <div class="col-lg-3">
+                                    <div class="form-control-plaintext"><?php echo $project->company?></div>
+                                </div>
+                                <label class="col-lg-3 col-form-label text-semibold">Plan Finish:</label>
+                                <div class="col-lg-3">
+                                    <div class="form-control-plaintext"><?php //echo $project->project_name?></div>
+                                </div>
+                                <label class="col-lg-3 col-form-label text-semibold">Scope of Work:</label>
+                                <div class="col-lg-3">
+                                    <div class="form-control-plaintext"><?php //echo $project->project_name?></div>
+                                </div>
+                            </div>
+
+                            <br/>
+                            <br/>
+                            <br/>
+                            -->
+
+                            <div class="form-group mb-5">
+                                <label class="col-lg-1 control-label text-semibold">Project Name:</label>
+                                <div class="col-lg-2">
                                     <div class="form-control-static"><?php echo $project->project_name?></div>
                                 </div>
+                                <label class="col-lg-1 control-label text-semibold">Plan Start:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php echo date('d-M-Y', strtotime($project->start_date));?></div>
+                                </div>
+                                <label class="col-lg-2 control-label text-semibold">Vendor Information:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label text-semibold">Project Company:</label>
-                                <div class="col-lg-9">
+                            <div class="form-group mb-5">
+                                <label class="col-lg-1 control-label text-semibold">Project Company:</label>
+                                <div class="col-lg-2">
                                     <div class="form-control-static"><?php echo $project->company?></div>
                                 </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label text-semibold">Customer:</label>
-                                <div class="col-lg-9">
-                                    <div class="form-control-static"><?php echo $project->customer_name?></div>
+                                <label class="col-lg-1 control-label text-semibold">Plan Finish:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php echo date('d-M-Y', strtotime($project->end_date));?></div>
+                                </div>
+                                <label class="col-lg-1 control-label text-semibold">Scope of Work:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label text-semibold">Leader:</label>
-                                <div class="col-lg-9">
+                            <div class="form-group mb-5">
+                                <label class="col-lg-1 control-label text-semibold">Customer:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php echo $project->customer?></div>
+                                </div>
+                                <label class="col-lg-1 control-label text-semibold"></label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                </div>
+                                <label class="col-lg-1 control-label text-semibold">Area Project:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php echo ucwords(strtolower(str_replace(',',', ',$project->cities)));?></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-5">
+                                <label class="col-lg-1 control-label text-semibold">Leader:</label>
+                                <div class="col-lg-2">
                                     <div class="form-control-static"><?php echo $project->leader?></div>
                                 </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label text-semibold">Completion:</label>
-                                <div class="col-lg-9">
-                                    <div class="form-control-static"><?php echo $project->completion."%"?></div>
+                                <label class="col-lg-1 control-label text-semibold"> </label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                </div>
+                                <label class="col-lg-2 control-label text-semibold"></label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label text-semibold">Km Cable:</label>
-                                <div class="col-lg-9">
+                            <div class="form-group mb-5">
+                                <label class="col-lg-1 control-label text-semibold">Completion:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php echo $project->completion."%"?></div>
+                                </div>
+                                <label class="col-lg-2 control-label text-semibold"> </label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                </div>
+                                <label class="col-lg-2 control-label text-semibold"></label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-5">
+                                <label class="col-lg-1 control-label text-semibold">Km Cable:</label>
+                                <div class="col-lg-2">
                                     <?php if(!empty($km_cable)) {
                                             $e =$km_cable->qty;
                                             $f =$km_cable->uom;
@@ -85,6 +171,14 @@
                                             $f = '';
                                         }?>
                                     <div class="form-control-static"><?php echo $e?> <?php echo $f?></div>
+                                </div>
+                                <label class="col-lg-1 control-label text-semibold"> </label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                </div>
+                                <label class="col-lg-2 control-label text-semibold"></label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
                                 </div>
                             </div>
                         </div>
@@ -211,6 +305,7 @@
         </div>-->
 
         <div class="tab-pane fade" id="project-tasks">
+
             <div class="panel-body" style="padding-top: 0">
                 <h4>Tasks and Assignment</h4>
 
@@ -224,6 +319,56 @@
                     </div>
                 </div>
             </div>
+
+
+            <table class="table table-xlg text-nowrap">
+                <tbody>
+                <tr>
+                    <td class="col-md-3">
+                        <ul class="list-inline text-center">
+                            <li>
+                                <a href="#" class="btn border-indigo-400 text-indigo-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom legitRipple"><i class="icon-task"></i></a>
+                            </li>
+                            <li class="text-left">
+                                <div class="text-semibold">Total Issue & Risk</div>
+                                <div class="text-muted"><?php echo number_format($total_issue);?> Issue / Risk</div>
+                            </li>
+                        </ul>
+                    </td>
+
+                    <td class="col-md-3">
+                        <ul class="list-inline text-center">
+                            <li>
+                                <a href="#" class="btn border-warning-400 text-warning-400 btn-flat btn-rounded btn-icon btn-xs valign-text-bottom legitRipple"><i class="icon-target2"></i></a>
+                            </li>
+                            <li class="text-left">
+                                <div class="text-semibold">Total Open Issue & Risk</div>
+                                <div class="text-muted"><?php echo number_format($open_issue);?> Issue / Risk</div>
+                            </li>
+                        </ul>
+                    </td>
+
+                    <td class="col-md-3">
+                        <ul class="list-inline text-center">
+                            <li>
+                                <a href="#" class="btn border-success text-success btn-flat btn-rounded btn-icon btn-xs valign-text-bottom legitRipple"><i class="icon-clipboard3"></i></a>
+                            </li>
+                            <li class="text-left">
+                                <div class="text-semibold">Total Close Issue & Risk</div>
+                                <div class="text-muted"><?php echo number_format($close_issue);?> Issue / Risk</div>
+                            </li>
+                        </ul>
+                    </td>
+
+                    <td class="col-md-3">
+
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+
+
 
             <table class="table text-nowrap datatable-task-list">
                 <thead>
@@ -291,8 +436,8 @@
                                 <tr class="" id="mil_<?php echo $v->id?>">
                                     <td><?php echo $v->milestone_name?></td>
                                     <td class="text-center"><?php echo $v->uom?></td>
-                                    <td class="text-center"><?php echo number_format($v->qty);?></td>
-                                    <td class="text-center"><?php echo number_format($v->daily_baseline);?></td>
+                                    <td class="text-center"><?php if($v->qty >= 1000)  { echo number_format($v->qty);} else {echo $v->qty;}?></td>
+                                    <td class="text-center"><?php if($v->daily_baseline >= 1000)  { echo number_format($v->daily_baseline);} else {echo $v->daily_baseline;}?></td>
                                 </tr>
                                 <?php } } ?>
                             </tbody>
@@ -322,7 +467,7 @@
                                     <th class="text-center">
                                         <input type="hidden" name="plan[<?php echo $key?>][date]" value = "<?php echo strtolower($mth['month'])."_".$mth['year']?>">
                                         <input type="hidden" name="plan[<?php echo $key?>][id]" id = "id_<?php echo strtolower($mth['month'])."_".$mth['year']?>">
-                                        <input type="number" step = "0.01" id = "plan_<?php echo strtolower($mth['month'])."_".$mth['year']?>" class = "form-control" name="plan[<?php echo $key?>][plan]">
+                                        <input type="number" step = "0.001" id = "plan_<?php echo strtolower($mth['month'])."_".$mth['year']?>" class = "form-control" name="plan[<?php echo $key?>][plan]">
                                     </th>
                                 <? } ?>
                             </tbody>
@@ -388,7 +533,56 @@
             </table>
         </div>
 
+        <div class="tab-pane fade <?php echo ($active_tab == 'project-charter')? "active in" : ""?>" id="project-charter">
+            <div class="panel-body" style="padding-top: 0">
+                <h4>Approve Project Charter</h4>
+
+        </div>
+
+
+
     </div>
+
+        <div class="tab-pane fade <?php echo ($active_tab == 'pip')? "active in" : ""?>" id="pip">
+            <div class="panel-body" style="padding-top: 0">
+                <h4>Project Implementation Plan</h4>
+
+            </div>
+
+
+
+        </div>
+
+        <div class="tab-pane fade <?php echo ($active_tab == 'kmz')? "active in" : ""?>" id="kmz">
+            <div class="panel-body" style="padding-top: 0">
+                <h4>KMZ</h4>
+
+            </div>
+
+
+
+        </div>
+
+        <div class="tab-pane fade <?php echo ($active_tab == 'boq')? "active in" : ""?>" id="boq">
+            <div class="panel-body" style="padding-top: 0">
+                <h4>BOQ</h4>
+
+            </div>
+
+
+
+        </div>
+
+        <div class="tab-pane fade <?php echo ($active_tab == 'segment')? "active in" : ""?>" id="segment">
+            <div class="panel-body" style="padding-top: 0">
+                <h4>Segment</h4>
+
+            </div>
+
+
+
+        </div>
+
 </div>
 
 <div id="modal_edit_value" class="modal fade">
@@ -439,8 +633,8 @@
                                             <?php }?>
                                         </select>
                                     </td>
-                                    <td> <input type="text" class = "form-control" name = value[<?php echo $v->id?>][qty] value = "<?php echo $v->qty?>"></td>
-                                    <td><input type="text" class = "form-control" name = value[<?php echo $v->id?>][baseline] value = "<?php echo $v->daily_baseline?>"></td>
+                                    <td> <input type="number" step = "0.001" class = "form-control" name = value[<?php echo $v->id?>][qty] value = "<?php echo $v->qty?>"></td>
+                                    <td><input type="number" step = "0.001" class = "form-control" name = value[<?php echo $v->id?>][baseline] value = "<?php echo $v->daily_baseline?>"></td>
                                     <td><a href = "#" class = "delete_milestone" mls_id = "<?php echo $v->id?>"><i class = 'icon-trash-alt'></i></a></td>
                                 </tr>
                                 <?php } } ?>

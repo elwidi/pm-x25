@@ -3,6 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 include dirname(__FILE__).DIRECTORY_SEPARATOR.'SsoClient/ClientAPI.php';
 
+ini_set('max_input_vars', 3000);
+
 class Timesheet extends CI_Controller {
 
 	/**
@@ -67,6 +69,21 @@ class Timesheet extends CI_Controller {
 		$this->load->view('timesheet/form_weekly_plan_view', $data);
 	}
 
+
+	public function dailyWeeklyPlan()
+	{
+		// Get Apps Config
+		$data = $this->apps->info();
+		$data['page_title'] = '<span class="text-semibold">Weekly Work Plan</span>';
+		$data['projects'] = $this->m_planning->getAllProject();
+		$data['users'] = $this->m_admin->getActiveUser();
+		$data['coordinator'] = $this->m_admin->usersInRole(5);
+		$data['work_location'] = $this->m_admin->getWorkLocation();
+		$data['parameters'] = $this->m_timesheet->getParameter();
+
+		$this->load->view('timesheet/form_weekly_plan_view3', $data);
+	}
+
 	public function tempat_test(){
 		$parameters = $this->m_timesheet->getParameter();
 		foreach ($parameters as $key => $value) {
@@ -127,6 +144,12 @@ class Timesheet extends CI_Controller {
 		}
 	}
 
+	public function save_plan(){
+		if($this->m_timesheet->save_plan()){
+			redirect('timesheet/weeklyActivity');
+		}
+	}
+
 	public function getPlanAct(){
 		$plan_act = $this->m_timesheet->getPlan();
 		if(empty($plan_act)){
@@ -140,6 +163,17 @@ class Timesheet extends CI_Controller {
 
 	public function getPersonPlan(){
 		$plan_act = $this->m_timesheet->userChildArea();
+		if(empty($plan_act)){
+			$data = array("status" => "failed");
+		} else {
+			$data = array("status" => "success", "data" => $plan_act);
+		}
+		echo json_encode($data);
+		exit();
+	}
+
+	public function load_daily_plan(){
+		$plan_act = $this->m_timesheet->user_team_area();
 		if(empty($plan_act)){
 			$data = array("status" => "failed");
 		} else {

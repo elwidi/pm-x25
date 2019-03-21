@@ -5,6 +5,8 @@
 <div class="navbar-collapse collapse" id="navbar-second-toggle">
     <ul class="nav navbar-nav">
 
+        <li class="<?php if($this->uri->segment(1)=='home'){ echo 'active'; } ?>"><a href="<?php echo base_url();?>index.php/home"><i class="icon-home4 position-left"></i> Home</a></li>
+
         <li class="dropdown <?php if($this->uri->segment(1)=='planning'){ echo 'active'; } ?>">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <i class="icon-design position-left"></i> Planning <span class="caret"></span>
@@ -21,7 +23,9 @@
             </ul>
         </li>
 
+        <!--
         <li class="<?php if($this->uri->segment(1)=='survey'){ echo 'active'; } ?>"><a href="<?php echo base_url();?>index.php/survey"><i class="icon-clipboard2 position-left"></i> Survey</a></li>
+        -->
 
         <li class="dropdown <?php if($this->uri->segment(1)=='implementation'){ echo 'active'; } ?>">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -30,8 +34,9 @@
             <ul class="dropdown-menu width-200">
                 <li class="dropdown-header">Implementation</li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/dailyProgress">Input Daily Progress Report</a></li>
-                <li><a href="<?php echo base_url();?>index.php/timesheet/formWeeklyPlan">Input Weekly Plan</a></li>
+                <li><a href="<?php echo base_url();?>index.php/timesheet/dailyWeeklyPlan">Input Weekly Plan</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/progressTask">Progress Task</a></li>
+                <!--
                 <li><a href="<?php echo base_url();?>index.php/implementation/">Submarine</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/">Inland / OSP</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/">FTTH</a></li>
@@ -41,12 +46,23 @@
                 <li><a href="<?php echo base_url();?>index.php/implementation/">Backbone</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/">ISP/IP</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/">Site structure</a></li>
+                -->
                 <li class="dropdown-header">Configuration</li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/daily_activity_rules">Daily Activity Rules and Scoring</a></li>
             </ul>
         </li>
 
-        <li class="<?php if($this->uri->segment(1)=='acceptance'){ echo 'active'; } ?>"><a href="<?php echo base_url();?>index.php/acceptance"><i class="icon-share4 position-left"></i> Acceptance</a></li>
+        <li class="dropdown <?php if($this->uri->segment(1)=='acceptance'){ echo 'active'; } ?>">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="icon-share4 position-left"></i> Acceptance <span class="caret"></span>
+            </a>
+
+            <ul class="dropdown-menu width-200">
+                <li class="dropdown-header">Document Center</li>
+                <li><a href="<?php echo base_url();?>index.php/acceptance">Document Center</a></li>
+            </ul>
+        </li>
+
 
         <li class="dropdown <?php if($this->uri->segment(1)=='report'){ echo 'active'; } ?>">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -88,7 +104,7 @@
 
         <li class="dropdown <?php if($this->uri->segment(1)=='administration'){ echo 'active'; } ?>">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <i class="icon-history position-left"></i> Project Log <span class="caret"></span>
+                <i class="icon-history position-left"></i> Issue & Risk <span class="caret"></span>
             </a>
 
             <ul class="dropdown-menu width-200">

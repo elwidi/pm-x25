@@ -8,6 +8,7 @@
                     <option value="On Progress">On Progress</option>
                     <option value="Complete">Complete</option>
                     <option value="Cancel">Cancel</option>
+                    <option value="Early Stage">Early Stage</option>
                 </select>
             <!-- </?Sdiv> -->
         </div>

@@ -681,6 +681,35 @@ class IssueRisk_model extends CI_Model {
         return $query->result();
     }
 
+    public function getTotalIssueRiskByProjectId($id)
+    {
+        $this->db->select('*');
+        $this->db->from('pm_issue_risk_register');
+        $this->db->where('projects_id', $id);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    public function getTotalOpenIssueRiskByProjectId($id)
+    {
+        $this->db->select('*');
+        $this->db->from('pm_issue_risk_register');
+        $this->db->where('projects_id', $id);
+        $this->db->where('status', 'OPEN');
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    public function getTotalCloseIssueRiskByProjectId($id)
+    {
+        $this->db->select('*');
+        $this->db->from('pm_issue_risk_register');
+        $this->db->where('projects_id', $id);
+        $this->db->where('status', 'CLOSE');
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
     public function getAllPersonInCharge()
     {
         $this->db->select('*');

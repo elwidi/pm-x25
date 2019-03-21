@@ -19,7 +19,7 @@
                 <div class="col-md-12">
                     <form action="/index.php/timesheet/addWeeklyPlan/" method="post" class="form-horizontal">
                         <div class="form-group">
-                            <label class="col-lg-2 control-label">It isnt project anymore</label>
+                            <label class="col-lg-2 control-label">Project</label>
 
                             <div class="col-lg-4">
                                 <!-- <input type="text" class="form-control" name = "area"> -->
@@ -259,7 +259,11 @@
                                     $.each(val, function (f, g) {
                                         row += "<tr>";
                                         row += "<td>" + g.fullname + "</td>";
-                                        plan = g.existing_plan.length;
+                                        if(typeof g.existing_plan !== 'undefined'){
+                                            plan = g.existing_plan.length;
+                                        } else {
+                                            plan = 0;
+                                        }
                                         if (plan == 0) {
                                             $.each(h_total, function (i, val) {
                                                 // console.log(a);

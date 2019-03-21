@@ -72,6 +72,12 @@ class Planning_model extends CI_Model {
         return $query->result();
     }
 
+    public function getSummaryProjectsByStatus($status)
+    {
+        $query = $this->db->query('SELECT * FROM pm_projects WHERE status LIKE "%'.$status.'%" ORDER BY completion DESC');
+        return $query->result();
+    }
+
     public function getTaskByProjectId($id)
     {
         $this->db->select('*');
@@ -907,6 +913,10 @@ class Planning_model extends CI_Model {
             if($status == 'Cancel'){
                 $this->db->where('a.status', 'Cancel');
             }
+
+            if($status == 'Early Stage'){
+                $this->db->where('a.status', 'Early Stage');
+            }
         }
 
         $i = 0;
@@ -1247,10 +1257,18 @@ class Planning_model extends CI_Model {
         return $query->result();
     }
 
-    public function listStatus(){
+    /*public function listStatus(){
         $this->db->distinct();
         $this->db->select('status');
         $this->db->from('pm_projects');
+        $query = $this->db->get();
+        return $query->result();
+    }*/
+
+    public function listStatus(){
+        $this->db->select('*');
+        $this->db->select('status');
+        $this->db->from('pm_project_status');
         $query = $this->db->get();
         return $query->result();
     }
@@ -1413,7 +1431,7 @@ class Planning_model extends CI_Model {
                         'date' => date('Y-m-d',strtotime($date)),
                         'created_date' => date('Y-m-d H:i:s')
                     );
-                    
+
                     $this->db->insert('pm_project_chart', $data);
                 } else {
                     $data = array(
@@ -1654,6 +1672,33 @@ class Planning_model extends CI_Model {
         $this->db->where('a.id', $id);
         $query = $this->db->get();
         return $query->row();
+    }
+    public function projectSegmen($id){
+        $this->db->select('*');
+        $this->db->from('pm_project_segment');
+        $this->db->where('project_id', $id);
+        $query = $this->db->get();
+        return $query->result();
+
+    }
+
+    public function segmenSpan($ids){
+        $this->db->select('a.*, b.segment_name');
+        $this->db->from('pm_project_segment_span a');
+        $this->db->join('pm_project_segment b', 'a.segment_id = b.id');
+        $this->db->where_in('a.segment_id', $ids);
+        $query = $this->db->get();
+
+        return $query->result();
+    }
+
+    public function projectVendor($id){
+        $this->db->select("a.*, b.*");
+        $this->db->from('pm_project_vendor a');
+        $this->db->join('pm_vendor b','a.vendor_id = b.id');
+        $this->db->where('a.project_id', $id);
+        $query = $this->db->get();
+        return $query->result();
     }
 
 }

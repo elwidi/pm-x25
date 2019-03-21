@@ -54,7 +54,7 @@ class Implementation extends CI_Controller {
 	{
 		// Get Apps Config
 		$data = $this->apps->info();
-		$data['page_title'] = '<span class="text-semibold">Weekly Work Plan</span>';
+		$data['page_title'] = '<span class="text-semibold">Daily Progress Report</span>';
 		$data['projects'] = $this->m_planning->getAllProject();
 		$data['pic'] = $this->m_admin->getActiveUser();
 		$data['work_location'] = $this->m_admin->getWorkLocation();

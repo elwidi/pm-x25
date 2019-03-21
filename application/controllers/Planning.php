@@ -24,6 +24,7 @@ class Planning extends CI_Controller {
 	{
 		parent::__construct();
 		$this->load->model('Planning_model', 'm_planning');
+		$this->load->model('IssueRisk_model', 'm_issue');
 		$this->load->model('Administration_model', 'm_admin');
 
 		//TODO: create an object and call a class method
@@ -107,6 +108,10 @@ class Planning extends CI_Controller {
 		$data['page_title'] = '<span class="text-semibold"></span>' . $project->project_name . ' <small>' . $project->company . '</small>';
 
 		$data['project_id'] = $id;
+
+		$data['total_issue'] = $this->m_issue->getTotalIssueRiskByProjectId($id);
+		$data['open_issue'] = $this->m_issue->getTotalOpenIssueRiskByProjectId($id);
+		$data['close_issue'] = $this->m_issue->getTotalCloseIssueRiskByProjectId($id);
 
 		$data['active_tab'] = "";
 		if(!empty($_GET)){
@@ -1047,6 +1052,47 @@ class Planning extends CI_Controller {
     	exit();
     }
 
+    public function project_segmen()
+	{
+		$project_id = $this->input->post('project_id');
+		$segmen = $this->m_planning->projectSegmen($project_id);
+		if (!empty($segmen)) {
+			$data = array('status' => 'Success', 'data' => $segmen);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function segmen_span()
+	{
+		$segmen_ids = $this->input->post('ids');
+		$spans = $this->m_planning->segmenSpan($segmen_ids);
+		if (!empty($spans)) {
+			$data = array('status' => 'Success', 'data' => $spans);
+		} else {
+			$data = array('status' => 'Failed', 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function project_vendor()
+	{
+		$project_id = $this->input->post('project_id');
+		$vendor = $this->m_planning->projectVendor($project_id);
+		if (!empty($vendor)) {
+			$data = array('status' => 200, 'data' => $vendor);
+		} else {
+			$data = array('status' => 400, 'data' => '');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
 
     /*public function generate(){
     	$r = $this->m_planning->generateProjectId();

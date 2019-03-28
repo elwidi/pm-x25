@@ -112,6 +112,7 @@
                     <br/>
 
                 </div>
+                
             </div>
         </div>
         <div class="col-md-2">
@@ -190,74 +191,183 @@
             });
 
             $.ajax({
-                url: JS_BASE_URL + '/dailyProgressReport/get_charts2/',
+                url: JS_BASE_URL + '/dailyProgressReport/national_progress_chart/',
                 type: 'GET',
                 dataType: 'json',
                 async: false,
                 success: function (res) {
                     if(res.status == 'Success'){
-                        console.log(res.data);
                         $.each(res.data, function(key,value){
+                            console.log(value);
+                            var chart_date = [];
+                            var daily = [];
+                            mth = 0;
+                            dates = value.date2;
+                            daily.push('daily');
+                            $.each(dates, function(key, val){
+                                daily.push(val);
+                                mth++;
+                            })
+                            if(mth < 3) mth = 3;
+                            chart_date.push('dates');
+                            $.each(value.date, function(key, val){
+                                chart_date.push(val);
+                            });
+
                             var chartId = '#c3-axis-labels-'+key;
                             axis_additional[e] = c3.generate({
-                            bindto: chartId,
-                            size: { height: 300, width : 700},
-                            data: {
-                                columns: [
-                                    // ['x','2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26'],
-                                    // ['Baseline', 30, 20, 50, 40, 60, 50],
-                                    value.plan,
-                                    value.actual,
-                                    /*value.cum_baseline,
-                                    value.cum_actual*/
-                                ],
-                                type: 'line',
-                                /*types: {
-                                    'Cum. Baseline': 'line',
-                                    'Cum. Actual': 'line',
-                                },*/
-                                axes: {
-                                    'Baseline': 'y',
-                                    'Actual': 'y',
-                                    /*'Cum. Baseline' :'y2',
-                                    'Cum. Actual' :'y2'*/
-                                }
-                            },
-                            bar: {
-                                width: {
-                                    ratio: 0.1 // this makes bar width 50% of length between ticks
-                                }
-                                // or
-                                //width: 100 // this makes bar width 100px
-                            },
-                            color: {
-                                pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
-                            },
-                            axis: {
-                                y2: {
-                                    show: true
-                                },
-                                x: {
-                                    type: 'category',
-                                    categories: value.date,
-                                    /*tick: {
-                                        rotate: 45,
-                                        multiline: false
+                                bindto: chartId,
+                                size: { height: 300, width : 700},
+                                data: {
+                                    xs: {
+                                        'Actual': 'daily',
+                                        'Plan': 'dates',
                                     },
-                                    height: 130*/
+                                    columns: [
+                                        chart_date,
+                                        daily,
+                                        value.plan,
+                                        value.d_actual
+                                    ],
+                                    type: 'spline',
+                                },
+                                color: {
+                                    pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
+                                },
+                                axis: {
+                                    x: {
+                                        type: 'timeseries',
+                                        tick: {
+                                            culling: {
+                                                max: 1
+                                            },
+                                            format: function (chart_date) {
+                                                if(chart_date.getDate() == 1){
+                                                    return monthName(chart_date.getMonth()); 
+                                                } else {
+                                                    return "";
+                                                }
+                                            },
+                                            rotate: 45,
+                                            multiline: false
+                                        },
+                                    }
+                                },
+                                tooltip: {
+                                    format: {
+                                        title: function (d) { 
+
+                                            var a = d.toString().substring(4); 
+                                            var e = a.substring(0, 11);
+                                            return e;
+
+                                        },
+                                        /*value: function (value, ratio, id) {
+                                            var format = id === 'Baseline' ? d3.format(',') : d3.format('.');
+                                            return format(value);
+                                        }*/
+                                    }
                                 }
-                            },
-                            grid: {
-                                y: {
-                                    show: true
-                                }
-                            }
-                        });
+                            });
                         });
                     }
 
                 }
             });
+
+            function toDate(string) {
+              var from = string.split("-");
+              return new Date(from[2], from[1] - 1, from[0]);
+            }
+
+            function monthName(index) {
+                var month = [
+                    'Januari',
+                    'Februari',
+                    'Maret',
+                    'April',
+                    'Mei',
+                    'Juni',
+                    'Juli',
+                    'Agustus',
+                    'September',
+                    'Oktober',
+                    'November',
+                    'Desember'
+                ];
+
+                return month[index];
+            }
+
+            // $.ajax({
+            //     url: JS_BASE_URL + '/dailyProgressReport/get_charts2/',
+            //     type: 'GET',
+            //     dataType: 'json',
+            //     async: false,
+            //     success: function (res) {
+            //         if(res.status == 'Success'){
+            //             console.log(res.data);
+            //             $.each(res.data, function(key,value){
+            //                 var chartId = '#c3-axis-labels-'+key;
+            //                 axis_additional[e] = c3.generate({
+            //                 bindto: chartId,
+            //                 size: { height: 300, width : 700},
+            //                 data: {
+            //                     columns: [
+            //                         // ['x','2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26'],
+            //                         // ['Baseline', 30, 20, 50, 40, 60, 50],
+            //                         value.plan,
+            //                         value.actual,
+            //                         /*value.cum_baseline,
+            //                         value.cum_actual*/
+            //                     ],
+            //                     type: 'line',
+            //                     /*types: {
+            //                         'Cum. Baseline': 'line',
+            //                         'Cum. Actual': 'line',
+            //                     },*/
+            //                     axes: {
+            //                         'Baseline': 'y',
+            //                         'Actual': 'y',
+            //                         'Cum. Baseline' :'y2',
+            //                         'Cum. Actual' :'y2'
+            //                     }
+            //                 },
+            //                 bar: {
+            //                     width: {
+            //                         ratio: 0.1 // this makes bar width 50% of length between ticks
+            //                     }
+            //                     // or
+            //                     //width: 100 // this makes bar width 100px
+            //                 },
+            //                 color: {
+            //                     pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
+            //                 },
+            //                 axis: {
+            //                     y2: {
+            //                         show: true
+            //                     },
+            //                     x: {
+            //                         type: 'category',
+            //                         categories: value.date,
+            //                         /*tick: {
+            //                             rotate: 45,
+            //                             multiline: false
+            //                         },
+            //                         height: 130*/
+            //                     }
+            //                 },
+            //                 grid: {
+            //                     y: {
+            //                         show: true
+            //                     }
+            //                 }
+            //             });
+            //             });
+            //         }
+
+            //     }
+            // });
            
             
 

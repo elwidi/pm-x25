@@ -788,7 +788,12 @@
                 }
             });
         });
-       var dbissue = $('.datatable-issue-risk-list').dataTable();
+        var dbissue = $('.datatable-issue-risk-list').dataTable();
+
+        dbissue.api().columns(6)
+               .search( 'Open' )
+               .draw();
+
        $('#status_issue').on( 'change', function () {
 //           if ( that.search() !== this.value ) {
            dbissue.api()

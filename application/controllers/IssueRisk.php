@@ -225,7 +225,7 @@ class IssueRisk extends CI_Controller {
         $output = array(
             "draw" => $_POST['draw'],
             "recordsTotal" => $this->m_risk->count_filtered_issueRisk(),
-            "recordsFiltered" => $this->m_risk->count_all_issueRisk(),
+            "recordsFiltered" => $this->m_risk->count_filtered_issueRisk(), //count_all_issueRisk
             "data" => $data,
         );
         echo json_encode($output); exit;

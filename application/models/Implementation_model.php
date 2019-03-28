@@ -83,6 +83,16 @@ class Implementation_model extends CI_Model {
         return $query->result();
     }
 
+    public function getPlanId($id){
+        $this->db->select('id');
+        $this->db->from('pm_project_chart');
+        $this->db->where('project_id', $this->input->post('project_id'));
+        $this->db->where('month', date('M'));
+        $this->db->where('year', date('Y'));
+        $query = $this->db->get();
+        return $query->row();
+    }
+
     public function saveDailyProgress(){
         /**
          * ===================================================
@@ -92,6 +102,8 @@ class Implementation_model extends CI_Model {
         $this->db->trans_begin();
         $milestones = $this->input->post('milestone');
         $charts = $this->input->post('chart');
+
+        $plan_id = $this->getPlanId($this->input->post('project_id'));
 
         foreach ($milestones as $key => $value) {
             if(empty($value['percent'])){
@@ -160,10 +172,18 @@ class Implementation_model extends CI_Model {
         );
 
         // var_dump($e); exit();
-
+        $this->db->where('project_id', $this->input->post('project_id'));
         $this->db->where('month', date('M'));
         $this->db->where('year', date('Y'));
         $this->db->update('pm_project_chart', $actual);
+
+        $actual_detail = array(
+            'plan_id' => $plan_id->id,
+            'actual' => $this->input->post('completion'),
+            'date' => date('Y-m-d'),
+            'created_date' => date('Y-m-d H:i:s')
+        );
+        $this->db->insert('pm_project_chart_detail', $actual_detail);
 
         /**
          * ===================================================

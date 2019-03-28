@@ -15,7 +15,6 @@ class Timesheet_model extends CI_Model {
     }
 
     public function savePlan(){
-        // var_dump($this->input->post()); exit();
         /**
          * ===================================================
          * Transactions with databases
@@ -35,6 +34,7 @@ class Timesheet_model extends CI_Model {
 
         $p = $this->input->post('p');
         foreach ($p as $index => $area) {
+            $index = str_replace("_", " ", $index);
             foreach ($area as $key => $pl) {
                 foreach ($pl['planning'] as $key => $x) {
                     if(!empty($x['desc'])){

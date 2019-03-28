@@ -109,6 +109,13 @@ class Planning extends CI_Controller {
 
 		$data['project_id'] = $id;
 
+		//For Tab Overview
+		$data['project'] = $project;
+		$data['km_cable'] = $this->m_planning->getMileStoneDetailByProjectId($id,'10');
+		$data['scope_of_work'] = $this->m_planning->getMileStone($id);
+		$data['vendor_info'] = $this->m_planning->getAllVendorByProjectId($id);
+
+		//For Tab Tab and Assignment
 		$data['total_issue'] = $this->m_issue->getTotalIssueRiskByProjectId($id);
 		$data['open_issue'] = $this->m_issue->getTotalOpenIssueRiskByProjectId($id);
 		$data['close_issue'] = $this->m_issue->getTotalCloseIssueRiskByProjectId($id);
@@ -1097,6 +1104,324 @@ class Planning extends CI_Controller {
     /*public function generate(){
     	$r = $this->m_planning->generateProjectId();
     	var_dump($r); exit;
-    }*/
+	}*/
+	
+	// Dendy 20-03-2019
+	public function setUserId()
+    {
+        $cookie = base64_decode($_COOKIE['SSOID']);
+        $crop = explode('+', $cookie);
+        return $crop[0];
+	}
+
+	// Dendy 20-03-2019	
+	public function upload_project_charter(){
+		$filename = explode('.', $_FILES["project_charter_file"]['name']);
+		$filename_encript = str_replace('-', '_', $filename[0]);
+		$filename_encript = $filename_encript.'_'.time();
+		$config['file_name'] = $filename_encript;
+		$config['upload_path']          = './assets/file/planning/';
+		$config['allowed_types']        = 'pdf';
+		// $config['max_size']             = 5120;
+		
+		$this->load->library('upload', $config);
+		
+		if (!$this->upload->do_upload('project_charter_file')) {
+			$data = array('status' => $this->upload->display_errors());
+		} else {
+			$data = array('status' => 'success');
+
+			$upload_data = $this->upload->data();
+			$file_type = explode(".", $upload_data['file_ext']);
+
+			$save_data = array(
+				'project_id' => $this->input->post('project_id'),
+				'filename' => $_FILES["project_charter_file"]['name'],
+				'filename_encrypt' => $upload_data['file_name'],
+				'document_type' => $file_type[1],
+				'path' => $upload_data['file_path'],
+				'created_by' => $this->setUserId(),
+				'created_date' => date('Y-m-d H:i:s')
+			);
+
+			$this->m_planning->saveUploadProjectCharter($save_data);
+		}
+
+		echo json_encode($data);
+	}
+
+	// Dendy 20-03-2019
+	public function datatable_project_charter($id){
+        $list = $this->m_planning->get_datatable_project_charter($id);
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $mta) {
+            $no++;
+            $row = array();
+            $row['no'] = $no;
+            foreach ($mta as $key => $value) {
+                if (empty($value)){
+                    $value = "";
+                }
+                $row[$key] = $value;
+
+            }
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->m_planning->count_all_project_charter($id),
+            "recordsFiltered" => $this->m_planning->count_filtered_project_charter($id),
+            "data" => $data,
+        );
+        echo json_encode($output); exit;
+	}
+
+    // Dendy 21-03-2019
+	public function delete_project_charter()
+    {
+		$id = $this->input->post('id');
+		$project_charter = $this->m_planning->projectCharterDetail($id);
+    	if(!empty($project_charter)){
+			if ($this->m_planning->deleteProjectCharter($id) && unlink($project_charter->path.$project_charter->filename_encrypt)) {
+				$data = array('status' => 'Success');
+			} else {
+				$data = array('status' => 'Failed');
+			}
+    	} else {
+			$data = array('status' => 'Failed');
+		}
+
+        echo json_encode($data);
+        exit();
+	}
+	
+	// Dendy 22-03-2019
+	public function expExcel(){
+        require_once("assets/source/Excel_Reader/PHPExcel.php");
+		$objPHPExcel = new PHPExcel();
+        $objPHPExcel->setActiveSheetIndex(0)
+                                    ->setCellValue('B1', 'Report Project List')
+                                    ->setCellValue('C1', date('d M Y'));
+
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A3', 'No');
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('B3', 'Project ID');
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('C3', 'Project Name');
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('D3', 'Status');
+        $objPHPExcel->setActiveSheetIndex(0)->setCellValue('E3', 'Completion');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('F3', 'Category');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('G3', 'Issue Risk Desc');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('H3', 'Project Manager');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I3', 'PIC');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('J3', 'Raised by');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('K3', 'Raised Date');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('L3', 'Target to Close');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('M3', 'Potential Impact');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('N3', 'Issue or Risk');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('O3', 'Level Of Attention');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('P3', 'Status');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q3', 'Current Response');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('R3', 'Current Response Date');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('S3', 'Further Action');
+        // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('T3', 'Further Action Date');
+
+		$data = $this->m_planning->projectListExcel();
+		// echo "<pre>";
+		// print_r($data);die;
+
+        $row = 4;
+        $no = 1;
+
+        foreach ($data as $key => $value) {
+            // $raised_date = '';
+            // if($value->raised_date!=''){
+            //     $raised_date = date('d-M-Y',strtotime($value->raised_date));
+            // }
+
+            // $target_to_close = '';
+            // if($value->target_to_close!=''){
+            //     $target_to_close = date('d-M-Y',strtotime($value->target_to_close));
+            // }
+            // $target_to_close = '';
+            // if($value->target_to_close!=''){
+            //     $target_to_close = date('d-M-Y',strtotime($value->target_to_close));
+            // }
+
+            // $aging = 0;
+            // if($raised_date!='' && $target_to_close!=''){
+            //     $raise_date = strtotime($value->raised_date);
+            //     $due_date = strtotime($value->target_to_close);
+            //     $datediff = $due_date - $raise_date;
+            //     $aging =  round($datediff / (60 * 60 * 24));
+            // }
+
+            // $created_date = date('d-M-Y', strtotime($value->created_date));
+
+            // $current_response_date = '';
+            // if($value->current_response_date!=''){
+            //     $current_response_date = date('d-M-Y',strtotime($value->current_response_date));
+            // }
+
+            // $further_action_date = '';
+            // if($value->further_action_date!=''){
+            //     $further_action_date = date('d-M-Y',strtotime($value->further_action_date));
+            // }
+
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'. $row, $no);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('B'. $row, $value->project_id);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('C'. $row, $value->project_name);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('D'. $row, $value->status);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('E'. $row, $value->completion);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('F'. $row, $value->type_of_issue_risk);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('G'. $row, $value->issue_risk);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('H'. $row, $value->pm_name);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I'. $row, $value->pic_name);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('J'. $row, $value->raised_by);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('K'. $row, $raised_date);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('L'. $row, $target_to_close);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('M'. $row, $value->potential_impact);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('N'. $row, $value->issue_or_risk);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('O'. $row, $value->issue_only);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('P'. $row, $value->status);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q'. $row, $value->current_response);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('R'. $row, $current_response_date);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('S'. $row, $value->further_action);
+            // $objPHPExcel->setActiveSheetIndex(0)->setCellValue('T'. $row, $further_action_date);
+
+            $row++;
+            $no++;
+
+           /* $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'. $row, $no);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('B'. $row, $value->issue_no);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('C'. $row, $value->issue_risk);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('D'. $row, $value->project_name);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('E'. $row, $value->type_of_issue_risk);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('F'. $row, date('d-M-Y', strtotime($value->raised_date)));
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('G'. $row, $value->status);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('H'. $row, $target_to_close);
+            $objPHPExcel->setActiveSheetIndex(0)->setCellValue('I'. $row, $aging." days");
+            $row++;
+            $no++;*/
+        }
+
+        foreach(range('A','T') as $columnID) {
+            $objPHPExcel->getActiveSheet()->getColumnDimension($columnID)
+                ->setAutoSize(true);
+        }
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+        header("Cache-Control: no-store, no-cache, must-revalidate");
+        header("Cache-Control: post-check=0, pre-check=0", false);
+        header("Pragma: no-cache");
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename=" Report Project List '.date('d M Y').'.xlsx"');
+        ob_get_clean();
+        $objWriter->save("php://output");
+    }
+
+	// Dendy 25-03-2019
+	public function delete_project_vendor()
+    {
+		$id = $this->input->post('id');
+		$project_vendor = $this->m_planning->projectVendorDeleteDetail($id);
+    	if(!empty($project_vendor)){
+			if ($this->m_planning->deleteProjectVendor($id)) {
+				$data = array('status' => 'Success');
+			} else {
+				$data = array('status' => 'Failed');
+			}
+    	} else {
+			$data = array('status' => 'Failed');
+		}
+
+        echo json_encode($data);
+        exit();
+	}
+
+	// Dendy 26-03-2019
+	public function datatable_project_kmz($id){
+        $list = $this->m_planning->get_datatable_project_kmz($id);
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $mta) {
+            $no++;
+            $row = array();
+            $row['no'] = $no;
+            foreach ($mta as $key => $value) {
+                if (empty($value)){
+                    $value = "";
+                }
+                $row[$key] = $value;
+
+            }
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->m_planning->count_all_project_kmz($id),
+            "recordsFiltered" => $this->m_planning->count_filtered_project_kmz($id),
+            "data" => $data,
+        );
+        echo json_encode($output); exit;
+	}
+
+	// Dendy 26-03-2019
+	public function delete_project_kmz()
+    {
+		$id = $this->input->post('id');
+		$project_kmz = $this->m_planning->projectKMZDetail($id);
+    	if(!empty($project_kmz)){
+			if ($this->m_planning->deleteProjectCharter($id) && unlink($project_kmz->path.$project_kmz->filename_encrypt)) {
+				$data = array('status' => 'Success');
+			} else {
+				$data = array('status' => 'Failed');
+			}
+    	} else {
+			$data = array('status' => 'Failed');
+		}
+
+        echo json_encode($data);
+        exit();
+	}
+
+	// Dendy 26-03-2019	
+	public function upload_project_kmz(){
+		$filename = explode('.', $_FILES["project_kmz_file"]['name']);
+		$filename_encript = str_replace('-', '_', $filename[0]);
+		$filename_encript = 'KMZ_'.$filename_encript.'_'.time();
+		$config['file_name'] = $filename_encript;
+		$config['upload_path']          = './assets/file/planning/';
+		$config['allowed_types']        = 'kmz';
+		// $config['max_size']             = 0;
+		
+		$this->load->library('upload', $config);
+		
+		if (!$this->upload->do_upload('project_kmz_file')) {
+			$data = array('status' => $this->upload->display_errors());
+		} else {
+			$data = array('status' => 'success');
+
+			$upload_data = $this->upload->data();
+			$file_type = explode(".", $upload_data['file_ext']);
+
+			$save_data = array(
+				'project_id' => $this->input->post('project_id'),
+				'filename' => $_FILES["project_kmz_file"]['name'],
+				'filename_encrypt' => $upload_data['file_name'],
+				'document_type' => 'kmz',
+				'path' => $upload_data['file_path'],
+				'created_by' => $this->setUserId(),
+				'created_date' => date('Y-m-d H:i:s')
+			);
+
+			$this->m_planning->saveUploadProjectCharter($save_data);
+		}
+
+		echo json_encode($data);
+	}
 
 }

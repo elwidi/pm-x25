@@ -41,6 +41,15 @@ class Implementation extends CI_Controller {
 		$this->load->view('implementation/implementation_view', $data);
 	}
 
+	public function progressTracking()
+	{
+		// Get Apps Config
+		$data = $this->apps->info();
+		$data['page_title'] = '<span class="text-semibold">Implementation</span> - Progress Tracking';
+
+		$this->load->view('implementation/progress_tracking_view', $data);
+	}
+
 	public function progressTask()
 	{
 		// Get Apps Config

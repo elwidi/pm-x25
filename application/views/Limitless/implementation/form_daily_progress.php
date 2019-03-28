@@ -154,6 +154,7 @@
         $(".ymmd").change(function() {
             $('.tmpl').remove();
             $('.embed').remove();
+            $('.dstr').remove();
             $('#remark').val("");
             // var e = $(this).val();
             var project_id = $('#project').val(),
@@ -273,7 +274,7 @@
                                 success: function (res) {
                                     // console.log(res);
                                     var header;
-                                    header = "<tr>";
+                                    header = "<tr class = 'dstr'>";
                                     header += "<td>Month</td>";
 
                                     $.each(res, function (i, val) {
@@ -282,7 +283,7 @@
                                     header += "</tr>";
 
                                     var plan;
-                                    plan = "<tr>";
+                                    plan = "<tr class = 'dstr'>";
                                     plan += "<td>Plan</td>";
 
                                     $.each(res, function (i, val) {
@@ -291,7 +292,7 @@
                                     });
                                     plan += "</tr>";
 
-                                    plan += "<tr>";
+                                    plan += "<tr class = 'dstr'>";
                                     plan += "<td>Actual</td>";
 
                                     $.each(res, function (i, val) {

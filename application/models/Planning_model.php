@@ -1400,6 +1400,15 @@ class Planning_model extends CI_Model {
         return $query->result();
     }
 
+    public function getAllVendorByProjectId($id){
+        $this->db->select('*');
+        $this->db->from('pm_vendor a');
+        $this->db->join('pm_project_vendor b','a.id = b.vendor_id');
+        $this->db->where('b.project_id',$id);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
     public function deleteVendor($id)
     {
         $this->db->delete('pm_vendor', array('id' => $id)); 
@@ -1431,12 +1440,15 @@ class Planning_model extends CI_Model {
                         'date' => date('Y-m-d',strtotime($date)),
                         'created_date' => date('Y-m-d H:i:s')
                     );
-
+                    // var_dump($data);
                     $this->db->insert('pm_project_chart', $data);
                 } else {
                     $data = array(
                         'plan' => $value['plan']
                     );
+                    /*var_dump($value['id']);
+                    var_dump($data); */
+
 
                     $this->db->where('id', $value['id']);
                     $this->db->update('pm_project_chart', $data);
@@ -1506,7 +1518,7 @@ class Planning_model extends CI_Model {
 
     private function _get_datatable_project_vendor_query($id)
     {
-        $column_select = array("a.*", "b.vendor_name", "GROUP_CONCAT(d.project_scope, '') AS scopes");
+        $column_select = array("a.*", "b.vendor_name", "GROUP_CONCAT(DISTINCT(d.project_scope), '') AS scopes", "GROUP_CONCAT(DISTINCT(f.location), '') AS location");
         $column_search = array("b.vendor_name");
         // $column_order = array("b.fullname", "c.position_title", "a.join_date_to_project");
         $this->db->select($column_select);
@@ -1514,6 +1526,8 @@ class Planning_model extends CI_Model {
         $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
         $this->db->join('pm_project_vendor_scope c', 'a.id = c.project_vendor_id','left');
         $this->db->join('pm_project_scope d', 'd.id = c.scope_id','left');
+        $this->db->join('pm_project_vendor_area e', 'a.id = e.project_vendor_id','left');
+        $this->db->join('pm_work_location f', 'f.location_id = e.area_id','left');
         $this->db->where('project_id', $id);
         $i = 0;
         $condition = '(';
@@ -1578,6 +1592,15 @@ class Planning_model extends CI_Model {
         return $query->result();
     }
 
+    // Dendy 25-03-2019
+    public function getVendorArea($id){
+        $this->db->select('*');
+        $this->db->from('pm_project_vendor_area');
+        $this->db->where('project_vendor_id', $id);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
     public function saveProjectVendor(){
         /**
          * ===================================================
@@ -1588,6 +1611,7 @@ class Planning_model extends CI_Model {
 
         $project_vendor_id = $this->input->post('project_vendor_id');
         $scope_id = $this->input->post('scope_id');
+        $area_id = $this->input->post('area_id');
         if(!empty($project_vendor_id)){
 
             $d = array(
@@ -1627,6 +1651,35 @@ class Planning_model extends CI_Model {
                     }
                 }
             }
+            $exA = $this->getVendorArea($project_vendor_id);
+            $exAIds = array();
+            if(!empty($exA)){
+                foreach ($exA as $key => $value) {
+                    $exAIds[] = $value->area_id;
+                }
+
+                $addedA = array_diff($area_id, $exAIds);
+                $deletedA = array_diff($exAIds, $area_id);
+
+                if(!empty($addedA)){
+                    foreach ($addedA as $k => $v) {
+                        $data = array(
+                            'project_vendor_id' => $project_vendor_id,
+                            'area_id' => $v
+                        );
+                        $this->db->insert('pm_project_vendor_area', $data);
+                    }
+
+                }
+
+                if(!empty($deletedA)){
+                    foreach ($deletedA as $i => $d) {
+                        $this->db->where('project_vendor_id', $project_vendor_id);
+                        $this->db->where('area_id', $d);
+                        $this->db->delete('pm_project_vendor_area');
+                    }
+                }
+            }
         } else {
             $data = array(
                 'vendor_id' => $this->input->post('vendor_id'),
@@ -1645,7 +1698,15 @@ class Planning_model extends CI_Model {
                 }
             }
 
-            
+            if(!empty($area_id)){
+                foreach ($area_id as $key => $value) {
+                    $e = array(
+                        'project_vendor_id' => $project_vendor_id,
+                        'area_id' => $value
+                    );
+                    $this->db->insert('pm_project_vendor_area', $e);
+                }
+            } 
         }   
         
         /**
@@ -1666,9 +1727,10 @@ class Planning_model extends CI_Model {
     }
 
     public function projectVendorDetail($id){
-        $this->db->select("a.*, GROUP_CONCAT(b.scope_id, '') AS scopes");
+        $this->db->select("a.*, GROUP_CONCAT(b.scope_id, '') AS scopes, GROUP_CONCAT(c.area_id, '') AS areas");
         $this->db->from('pm_project_vendor a');
         $this->db->join('pm_project_vendor_scope b','a.id = b.project_vendor_id');
+        $this->db->join('pm_project_vendor_area c','a.id = c.project_vendor_id');
         $this->db->where('a.id', $id);
         $query = $this->db->get();
         return $query->row();
@@ -1699,6 +1761,250 @@ class Planning_model extends CI_Model {
         $this->db->where('a.project_id', $id);
         $query = $this->db->get();
         return $query->result();
+    }
+
+    // Dendy 20-03-2019
+    public function saveUploadProjectCharter($data)
+    {
+        $this->db->insert('pm_project_file', $data);
+    } 
+
+    // Dendy 21-03-2019
+    private function _get_datatable_project_charter_query($id)
+    {
+        // $column_select = array("a.*", "b.vendor_name", "GROUP_CONCAT(d.project_scope, '') AS scopes");
+        $column_search = array("filename");
+        // $column_order = array("b.fullname", "c.position_title", "a.join_date_to_project");
+        $this->db->select('*');
+        $this->db->from('pm_project_file');
+        // $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
+        // $this->db->join('pm_project_vendor_scope c', 'a.id = c.project_vendor_id','left');
+        // $this->db->join('pm_project_scope d', 'd.id = c.scope_id','left');
+        $this->db->where('project_id', $id);
+        $i = 0;
+        $condition = '(';
+        foreach ($column_search as $item) // loop column
+        {
+            if($_POST['search']['value']) {
+                if($i===0) // first loop
+                {
+                    $condition .= $item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                else
+                {
+                    $condition .= " OR ".$item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                $i++;
+            
+            }
+        }
+
+        if($_POST['search']['value']){
+            // $condition .= " OR scopes LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+            $condition .= ")";
+            $this->db->having($condition);
+        }
+
+        $this->db->group_by('id');
+
+        /*if(isset($_POST['order'])) // here order processing
+        {
+            $this->db->order_by($column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        }*/
+    }
+
+    // Dendy 21-03-2019
+    function get_datatable_project_charter($id)
+    {
+        $this->_get_datatable_project_charter_query($id);
+        if($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    // Dendy 21-03-2019
+    public function count_all_project_charter($id)
+    {
+        $this->db->from("pm_project_file");
+        $this->db->where('project_id', $id);
+        return $this->db->count_all_results();
+    }
+
+    // Dendy 21-03-2019
+    function count_filtered_project_charter($id)
+    {
+        $this->_get_datatable_project_charter_query($id);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    // Dendy 21-03-2019
+    public function deleteProjectCharter($id)
+    {
+        $this->db->delete('pm_project_file', array('id' => $id)); 
+        return true;
+    }
+
+    // Dendy 21-03-2019
+    public function projectCharterDetail($id){
+        $this->db->select("*");
+        $this->db->from('pm_project_file');
+        $this->db->where('id', $id);
+        $query = $this->db->get();
+        return $query->row();
+    }
+
+    // Dendy 22-03-2019
+    public function projectListExcel()
+    {
+        $roles = $this->apps->info();
+        $role = $roles['userRole'][0];
+
+        $column_select = array("a.*");
+        // $column_search = array("project_name", "customer","scope");
+        // $column_order = array("b.fullname", "a.title","a.join_date","a.work_location");
+        $this->db->select($column_select);
+        $this->db->from('pm_projects a');
+
+        if ($role !== 1) {
+            if($roles['allProject'] == 'false'){
+                $projectIds = "";
+                if(!empty($roles['projects'])){
+                     foreach ($roles['projects'] as $i => $v){
+                        $projectIds .= $v->id.",";
+                    }
+                    $projectIds = "id IN (".substr($projectIds,0,-1).")";
+                    $this->db->where($projectIds);
+                } else {
+                    $this->db->like('pic_id', "|".$roles['userRole'][2]."|");
+                }
+               
+            }
+        }
+
+        $this->db->order_by('status', 'DESC');
+        $this->db->order_by('project_id', 'DESC');
+
+        /*if(isset($_POST['order'])) // here order processing
+        {
+            $this->db->order_by($column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        }*/
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    // Dendy 25-03-2019
+    public function projectVendorDeleteDetail($id){
+        $this->db->select("*");
+        $this->db->from('pm_project_vendor');
+        $this->db->where('id', $id);
+        $query = $this->db->get();
+        return $query->row();
+    }
+
+    // Dendy 25-03-2019
+    public function deleteProjectVendor($id)
+    {
+        $this->db->trans_begin();
+
+        $this->db->delete('pm_project_vendor', array('id' => $id)); 
+        $this->db->delete('pm_project_vendor_scope', array('project_vendor_id' => $id)); 
+        $this->db->delete('pm_project_vendor_area', array('project_vendor_id' => $id)); 
+        
+        if ($this->db->trans_status() === FALSE)
+        {
+            $this->db->trans_rollback();
+        }
+        else
+        {
+            $this->db->trans_commit();
+        }
+
+        return true;
+    }
+
+    // Dendy 26-03-2019
+    private function _get_datatable_project_kmz_query($id)
+    {
+        // $column_select = array("a.*", "b.vendor_name", "GROUP_CONCAT(d.project_scope, '') AS scopes");
+        $column_search = array("filename");
+        // $column_order = array("b.fullname", "c.position_title", "a.join_date_to_project");
+        $this->db->select('*');
+        $this->db->from('pm_project_file');
+        // $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
+        // $this->db->join('pm_project_vendor_scope c', 'a.id = c.project_vendor_id','left');
+        // $this->db->join('pm_project_scope d', 'd.id = c.scope_id','left');
+        $this->db->where('document_type', 'kmz');
+        $this->db->where('project_id', $id);
+        $i = 0;
+        $condition = '(';
+        foreach ($column_search as $item) // loop column
+        {
+            if($_POST['search']['value']) {
+                if($i===0) // first loop
+                {
+                    $condition .= $item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                else
+                {
+                    $condition .= " OR ".$item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                $i++;
+            
+            }
+        }
+
+        if($_POST['search']['value']){
+            // $condition .= " OR scopes LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+            $condition .= ")";
+            $this->db->having($condition);
+        }
+
+        $this->db->group_by('id');
+
+        /*if(isset($_POST['order'])) // here order processing
+        {
+            $this->db->order_by($column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        }*/
+    }
+
+    // Dendy 26-03-2019
+    function get_datatable_project_kmz($id)
+    {
+        $this->_get_datatable_project_kmz_query($id);
+        if($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    // Dendy 26-03-2019
+    public function count_all_project_kmz($id)
+    {
+        $this->db->from("pm_project_file");
+        $this->db->where('document_type', 'kmz');
+        $this->db->where('project_id', $id);
+        return $this->db->count_all_results();
+    }
+
+    // Dendy 26-03-2019
+    function count_filtered_project_kmz($id)
+    {
+        $this->_get_datatable_project_kmz_query($id);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    // Dendy 26-03-2019
+    public function projectKMZDetail($id){
+        $this->db->select("*");
+        $this->db->from('pm_project_file');
+        $this->db->where('document_type', 'kmz');
+        $this->db->where('id', $id);
+        $query = $this->db->get();
+        return $query->row();
     }
 
 }

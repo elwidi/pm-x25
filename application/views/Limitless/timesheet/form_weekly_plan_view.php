@@ -253,6 +253,7 @@
                                     tablename = "#table_" + index.toLowerCase();
                                     var exist = $(tablename).length;
                                     var row = "";
+                                    index = index.replace(/ /g, "_");
                                     area = index.toLowerCase();
                                     var a = 0;
                                     

@@ -2,7 +2,7 @@
 <div class="panel panel-flat">
     <div class="panel-heading">
         <h5 class="panel-title">Projects list<a class="heading-elements-toggle"><i class="icon-more"></i></a></h5>
-        <div class="heading-elements">
+        <div class="heading-elements" style="right: 130px;">
             <!-- <div class="col-sm-2"> -->
                 <select id="status_project" class="form-control select">
                     <option value="On Progress">On Progress</option>
@@ -12,6 +12,7 @@
                 </select>
             <!-- </?Sdiv> -->
         </div>
+        <a class = "btn pull-right btn-default" href = "<?php echo base_url();?>Planning/expExcel" style="margin-top: -33px;">Export Excel</a>
     </div>
 
     <div class="table-responsive">

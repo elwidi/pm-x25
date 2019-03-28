@@ -96,7 +96,12 @@
                                 </div>
                                 <label class="col-lg-2 control-label text-semibold">Vendor Information:</label>
                                 <div class="col-lg-2">
-                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                    <div class="form-control-static">
+                                        <?php foreach($vendor_info as $key => $value) {
+                                            echo $value->vendor_name . '<br/> ';
+                                        }
+                                        ?>
+                                    </div>
                                 </div>
                             </div>
 
@@ -109,7 +114,7 @@
                                 <div class="col-lg-2">
                                     <div class="form-control-static"><?php echo date('d-M-Y', strtotime($project->end_date));?></div>
                                 </div>
-                                <label class="col-lg-1 control-label text-semibold">Scope of Work:</label>
+                                <label class="col-lg-1 control-label text-semibold"></label>
                                 <div class="col-lg-2">
                                     <div class="form-control-static"><?php //echo $project->project_name?></div>
                                 </div>
@@ -120,13 +125,18 @@
                                 <div class="col-lg-2">
                                     <div class="form-control-static"><?php echo $project->customer?></div>
                                 </div>
+                                <label class="col-lg-1 control-label text-semibold">Scope of Work:</label>
+                                <div class="col-lg-2">
+                                    <div class="form-control-static">
+                                            <?php foreach($scope_of_work as $key => $value) {
+                                                echo $value->group_name . ', ';
+                                            }
+                                            ?>
+                                    </div>
+                                </div>
                                 <label class="col-lg-1 control-label text-semibold"></label>
                                 <div class="col-lg-2">
-                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
-                                </div>
-                                <label class="col-lg-1 control-label text-semibold">Area Project:</label>
-                                <div class="col-lg-2">
-                                    <div class="form-control-static"><?php echo ucwords(strtolower(str_replace(',',', ',$project->cities)));?></div>
+                                    <div class="form-control-static"></div>
                                 </div>
                             </div>
 
@@ -135,9 +145,9 @@
                                 <div class="col-lg-2">
                                     <div class="form-control-static"><?php echo $project->leader?></div>
                                 </div>
-                                <label class="col-lg-1 control-label text-semibold"> </label>
+                                <label class="col-lg-1 control-label text-semibold">Area Project:</label>
                                 <div class="col-lg-2">
-                                    <div class="form-control-static"><?php //echo $project->project_name?></div>
+                                    <div class="form-control-static"><?php echo ucwords(strtolower(str_replace(',',', ',$project->cities)));?></div>
                                 </div>
                                 <label class="col-lg-2 control-label text-semibold"></label>
                                 <div class="col-lg-2">
@@ -163,8 +173,15 @@
                             <div class="form-group mb-5">
                                 <label class="col-lg-1 control-label text-semibold">Km Cable:</label>
                                 <div class="col-lg-2">
-                                    <?php if(!empty($km_cable)) {
-                                            $e =$km_cable->qty;
+                                    <?php if(!empty($km_cable))
+                                        {
+                                            if($km_cable->qty >= 1000)  {
+                                                $e = number_format($km_cable->qty, 2);
+                                            } else {
+                                                $e =$km_cable->qty;
+                                            }
+
+                                            //$e =$km_cable->qty;
                                             $f =$km_cable->uom;
                                         } else {
                                             $e = '';
@@ -436,8 +453,8 @@
                                 <tr class="" id="mil_<?php echo $v->id?>">
                                     <td><?php echo $v->milestone_name?></td>
                                     <td class="text-center"><?php echo $v->uom?></td>
-                                    <td class="text-center"><?php if($v->qty >= 1000)  { echo number_format($v->qty);} else {echo $v->qty;}?></td>
-                                    <td class="text-center"><?php if($v->daily_baseline >= 1000)  { echo number_format($v->daily_baseline);} else {echo $v->daily_baseline;}?></td>
+                                    <td class="text-center"><?php if($v->qty >= 1000)  { echo number_format($v->qty, 2);} else {echo $v->qty;}?></td>
+                                    <td class="text-center"><?php if($v->daily_baseline >= 1000)  { echo number_format($v->daily_baseline, 2);} else {echo $v->daily_baseline;}?></td>
                                 </tr>
                                 <?php } } ?>
                             </tbody>
@@ -525,6 +542,7 @@
                 <tr> 
                     <th>Vendor</th>
                     <th>Scope</th>
+                    <th>Area Vendor</th>
                     <th><i class = "icon-chevron-down pull-right"></i></th>
                 </tr>
                 </thead>
@@ -537,11 +555,27 @@
             <div class="panel-body" style="padding-top: 0">
                 <h4>Approve Project Charter</h4>
 
+                <!-- Start Dendy 20-03-2019 -->
+                <div class="heading-elements">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success btn-labeled btn-labeled-left upload-project-charter"><b><i class="icon-plus3"></i></b>Upload PDF File</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table text-nowrap datatable-project-charter-list">
+                <thead>
+                <tr> 
+                    <th>No</th>
+                    <th>Filename</th>
+                    <th><i class = "icon-chevron-down pull-right"></i></th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <!-- End Dendy 20-03-2019 -->
         </div>
-
-
-
-    </div>
 
         <div class="tab-pane fade <?php echo ($active_tab == 'pip')? "active in" : ""?>" id="pip">
             <div class="panel-body" style="padding-top: 0">
@@ -557,10 +591,26 @@
             <div class="panel-body" style="padding-top: 0">
                 <h4>KMZ</h4>
 
+                <!-- Start Dendy 26-03-2019 -->
+                <div class="heading-elements">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success btn-labeled btn-labeled-left upload-project-kmz"><b><i class="icon-plus3"></i></b>Upload KMZ File</button>
+                    </div>
+                </div>
             </div>
 
-
-
+            <table class="table text-nowrap datatable-project-kmz-list">
+                <thead>
+                <tr> 
+                    <th>No</th>
+                    <th>Filename</th>
+                    <th><i class = "icon-chevron-down pull-right"></i></th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <!-- End Dendy 26-03-2019 -->
         </div>
 
         <div class="tab-pane fade <?php echo ($active_tab == 'boq')? "active in" : ""?>" id="boq">
@@ -891,6 +941,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Area Vendor</label>
+                                <select id="area_id" name="area_id[]" data-placeholder="Select Area" class="select" required="required" multiple>
+                                    <option value = ""></option>
+                                    <?php foreach ($area as $value) { ?>
+                                        <option value="<?php echo $value->location_id?>"><?php echo $value->location ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -903,75 +966,155 @@
     </div>
 </div>
 
+<!-- Start Dendy 20-03-2019 -->
+<div id="modal_upload_project_charter" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Project Charter</h5>
+            </div>
+
+            <div class="modal-body ">
+                <div class="col-lg-12">
+                    <form method="POST"  action="" id="project_charter_form" enctype="multipart/form-data" class = "form-validate-jquery">
+                    <div class="form-group">
+                       <div class="row">
+                            <div class="col-sm-12">
+                                 <label>File Project Charter</label>    
+                                 <input type = "hidden" name = "project_id" value = "<?php echo $project_id?>"/> 
+                                 <input type="file" name="project_charter_file" class="file-styled" size="20"/>                                  
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button type="submit" name = "submit_form" value = "true" class="btn btn-primary">Save</button>
+            </div>
+            </form> 
+        </div>
+    </div>
+</div>
+<!-- End 20-03-2019 -->
+
+<!-- Start Dendy 26-03-2019 -->
+<div id="modal_upload_project_kmz" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Project Charter</h5>
+            </div>
+
+            <div class="modal-body ">
+                <div class="col-lg-12">
+                    <form method="POST"  action="" id="project_kmz_form" enctype="multipart/form-data" class = "form-validate-jquery">
+                    <div class="form-group">
+                       <div class="row">
+                            <div class="col-sm-12">
+                                 <label>File Project KMZ</label>    
+                                 <input type = "hidden" name = "project_id" value = "<?php echo $project_id?>"/> 
+                                 <input type="file" name="project_kmz_file" class="file-styled" size="20" />                                  
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button type="submit" name = "submit_form" value = "true" class="btn btn-primary">Save</button>
+            </div>
+            </form> 
+        </div>
+    </div>
+</div>
+<!-- End 26-03-2019 -->
+
 
 <script type="text/javascript">
     $(function () {
         $.ajax({
-            url: JS_BASE_URL + '/dailyProgressReport/get_charts/',
+            url: JS_BASE_URL + '/dailyProgressReport/daily_project_chart/',
             type: 'POST',
             data : {project_id : <?php echo $project->id?>},
             dataType: 'json',
             async: false,
             success: function (res) {
+                console.log(res);
                 if(res.status == 'Success'){
+                    var chart_date = [];
+                    var daily = [];
+                    mth = 0;
+                    dates = res.data.date2;
+                    daily.push('daily');
+                    $.each(dates, function(key, val){
+                        daily.push(val);
+                        mth++;
+                    })
+                    if(mth < 3) mth = 3;
+                    chart_date.push('dates');
+                    $.each(res.data.date, function(key, val){
+                        chart_date.push(val);
+                    });
+
                     // $.each(res.data, function(key,value){
                     var chartId = '#c3-axis';
                     var axis_additional = c3.generate({
                         bindto: chartId,
                         size: { height: 300, width : 1000},
                         data: {
+                            xs: {
+                                'Daily': 'daily',
+                                'Baseline': 'dates',
+                            },
                             columns: [
-                                // ['x','2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26'],
-                                // ['Baseline', 30, 20, 50, 40, 60, 50],
+                                chart_date,
+                                daily,
                                 res.data.plan,
-                                res.data.actual,
-                               /* res.data.cum_baseline,
-                                res.data.cum_actual*/
+                                res.data.d_actual
                             ],
-                            type: 'line',
-                            /*types: {
-                                'Cum. Baseline': 'line',
-                                'Cum. Actual': 'line',
-                            },*/
-                            axes: {
-                                'Baseline': 'y',
-                                'Actual': 'y'
-                               /* 'Cum. Baseline' :'y2',
-                                'Cum. Actual' :'y2'*/
-                            }
+                            type: 'spline',
                         },
                         bar: {
                             width: {
                                 ratio: 0.1 // this makes bar width 50% of length between ticks
                             }
-                            // or
-                            //width: 100 // this makes bar width 100px
                         },
                         color: {
                             pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
                         },
                         axis: {
-                           /* y2: {
-                                show: true
-                            },*/
                             x: {
-                                type: 'category',
-                                categories: res.data.date,
-                                /*tick: {
-                                    rotate: 45,
-                                    multiline: false
+                                type: 'timeseries',
+                                tick: {
+                                    culling: {
+                                        max: 1
+                                    },
+                                    format: function (chart_date) {
+                                        if(chart_date.getDate() == 1){
+                                            return monthName(chart_date.getMonth()); 
+                                        } else {
+                                            return "";
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        tooltip: {
+                            format: {
+                                title: function (d) { 
+
+                                    var a = d.toString().substring(4); 
+                                    var e = a.substring(0, 11);
+                                    return e;
+
                                 },
-                                height: 130*/
                             }
-                        },
-                        grid: {
-                            y: {
-                                show: true
-                            }
-                        },
-                        /*legend: {
-                            show: false
-                        }*/
+                        }
                     });
                 } else {
                     var chartId = '#c3-axis';
@@ -1025,6 +1168,149 @@
 
             }
         });
+
+        function toDate(string) {
+          var from = string.split("-");
+          return new Date(from[2], from[1] - 1, from[0]);
+        }
+
+        function monthName(index) {
+            var month = [
+                'Januari',
+                'Februari',
+                'Maret',
+                'April',
+                'Mei',
+                'Juni',
+                'Juli',
+                'Agustus',
+                'September',
+                'Oktober',
+                'November',
+                'Desember'
+            ];
+
+            return month[index];
+        }
+        /*$.ajax({
+            url: JS_BASE_URL + '/dailyProgressReport/get_charts/',
+            type: 'POST',
+            data : {project_id : <?php echo $project->id?>},
+            dataType: 'json',
+            async: false,
+            success: function (res) {
+                if(res.status == 'Success'){
+                    // $.each(res.data, function(key,value){
+                    var chartId = '#c3-axis';
+                    var axis_additional = c3.generate({
+                        bindto: chartId,
+                        size: { height: 300, width : 1000},
+                        data: {
+                            columns: [
+                                // ['x','2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26'],
+                                // ['Baseline', 30, 20, 50, 40, 60, 50],
+                                res.data.plan,
+                                res.data.actual,
+                                // res.data.cum_baseline,
+                                // res.data.cum_actual
+                            ],
+                            type: 'line',
+                            // types: {
+                            //     'Cum. Baseline': 'line',
+                            //     'Cum. Actual': 'line',
+                            // },
+                            axes: {
+                                'Baseline': 'y',
+                                'Actual': 'y'
+                                // 'Cum. Baseline' :'y2',
+                                // 'Cum. Actual' :'y2'
+                            }
+                        },
+                        bar: {
+                            width: {
+                                ratio: 0.1 // this makes bar width 50% of length between ticks
+                            }
+                            // or
+                            //width: 100 // this makes bar width 100px
+                        },
+                        color: {
+                            pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
+                        },
+                        axis: {
+                            // y2: {
+                            //     show: true
+                            // },
+                            x: {
+                                type: 'category',
+                                categories: res.data.date,
+                                // tick: {
+                                //     rotate: 45,
+                                //     multiline: false
+                                // },
+                                // height: 130
+                            }
+                        },
+                        grid: {
+                            y: {
+                                show: true
+                            }
+                        },
+                        // legend: {
+                        //     show: false
+                        // }
+                    });
+                } else {
+                    var chartId = '#c3-axis';
+                    axis_additional = c3.generate({
+                        // x: 'x',
+                        bindto: chartId,
+                        size: { height: 300, width : 600},
+                        data: {
+                            columns: [
+                                // ['Baseline', 30, 20, 50, 40, 60, 50],
+                                // ['Actual', 200, 130, 90, 240, 130, 220],
+                                // ['Cum. Baseline', 300, 200, 160, 400, 250, 250],
+                                // ['Cum. Actual', 200, 130, 90, 240, 130, 220],
+                            ],
+                            type: 'bar',
+                            types: {
+                                'Cum. Baseline': 'line',
+                                'Cum. Actual': 'line',
+                            },
+                            axes: {
+                                'Baseline': 'y',
+                                'Actual': 'y2'
+                            }
+                        },
+                        bar: {
+                            width: {
+                                ratio: 0.1 // this makes bar width 50% of length between ticks
+                            }
+                            // or
+                            //width: 100 // this makes bar width 100px
+                        },
+                        color: {
+                            pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
+                        },
+                        axis: {
+                            y2: {
+                                show: true
+                            },
+                            x: {
+                                type: 'category',
+                                categories: ['2018-11-05','2018-11-15','2018-11-19','2018-11-20','2018-11-22','2018-11-26']
+                            }
+                        },
+                        grid: {
+                            y: {
+                                show: true
+                            }
+                        }
+                    });
+                }
+
+            }
+        });*/
 
         var option = "";
         $.ajax({
@@ -1579,6 +1865,18 @@
             
         });
 
+        // Start Dendy 20-03-2019
+        $('.upload-project-charter').on('click', function () {
+            $('#modal_upload_project_charter').modal('show');
+        });
+        // End Dendy 20-03-2019
+
+        // Start Dendy 26-03-2019
+        $('.upload-project-kmz').on('click', function () {
+            $('#modal_upload_project_kmz').modal('show');
+        });
+        // End Dendy 26-03-2019
+
         $('#vendor_form').submit(function(e){
             e.preventDefault();
             var form = $(this);
@@ -1598,6 +1896,70 @@
                 }
             });
         });
+
+        // Start Dendy 20-03-2019
+        $('#project_charter_form').submit(function(e){
+            e.preventDefault();
+            var form = $(this);       
+            $.ajax({
+                url: JS_BASE_URL + '/planning/upload_project_charter/',
+                type: 'POST',
+                dataType: 'json',
+                data: new FormData(this),
+                processData:false,
+                contentType:false,
+                cache:false,
+                async: false,
+                success: function (res) {
+                    if (res.status == 'success') {
+                        var table1 = $('.datatable-project-charter-list').dataTable();
+                        alertSuccess();
+                        $('#modal_upload_project_charter').modal('toggle');
+                        table1.api().ajax.reload();
+                        $(`#modal_upload_project_charter input[name="project_charter_file"]`).val('');
+                    }else{
+                        new PNotify({
+                            title: 'Warning',
+                            text: res.status,
+                            addclass: 'bg-danger'
+                        });
+                    }
+                }
+            });
+        });
+        // End Dendy 20-03-2019
+
+        // Start Dendy 26-03-2019
+        $('#project_kmz_form').submit(function(e){
+            e.preventDefault();
+            var form = $(this);       
+            $.ajax({
+                url: JS_BASE_URL + '/planning/upload_project_kmz/',
+                type: 'POST',
+                dataType: 'json',
+                data: new FormData(this),
+                processData:false,
+                contentType:false,
+                cache:false,
+                async: false,
+                success: function (res) {
+                    if (res.status == 'success') {
+                        var table1 = $('.datatable-project-kmz-list').dataTable();
+                        alertSuccess();
+                        $('#modal_upload_project_kmz').modal('toggle');
+                        table1.api().ajax.reload();
+                        $(`#modal_upload_project_kmz input[name="project_kmz_file"]`).val('');
+                    }else{
+                        new PNotify({
+                            title: 'Warning',
+                            text: res.status,
+                            addclass: 'bg-danger'
+                        });
+                    }
+                }
+            });
+        });
+        // End Dendy 26-03-2019
 
 
         CallbackProject();

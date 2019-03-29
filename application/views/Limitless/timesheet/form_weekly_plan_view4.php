@@ -714,6 +714,29 @@
                     $('#modal_create_plan').modal('show');
                     // console.log(user_id);
                 })
+
+                $("#addChild").click(function(event){
+                    event.preventDefault;
+                    // alert(numRowChilds);
+                    addNewPlan(person_id);
+                    return false;
+                });
+
+                var numPlan=$('#follow_up tbody').children().length;
+
+                function addNewPlan(person_id){
+                    var row='<tr>';
+                    row += '<td><input type="text" name = "follow_up['+numPlan+'][date]" class="form-control daterange-single"></td><td><input type="text" name = "follow_up['+numPlan+'][description]" class="form-control"></td><td><input type="file" name = "attachment'+numPlan+'" class="form-control"><td><a href="#" class ="dismiss"><i class ="icon-trash"></i></span></td></td>';
+                    row+='</td></tr>';  
+                    $("#follow_up tbody").append(row);
+                    /*$('.daterange-single').daterangepicker({
+                        singleDatePicker: true,
+                        locale: {
+                            format: 'YYYY-MM-DD'
+                        },
+                    });*/
+                    numPlan++;
+                }
             })
 
 

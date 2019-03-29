@@ -167,7 +167,7 @@
                         </div>
                         <br/>
 
-                        <div class="tabs">
+                        <div class="tabs table-responsive">
                         </div>
                 </div>
             </div>
@@ -204,11 +204,24 @@
                             <div class="form-group mt-10">
                                 <div class="row">
                                     <div class="col-sm-12">
+                                        <label class="col-lg-2 control-label">Project</label>
+                                        <select class="select dgb" name="project_id" id="project_id">
+                                            <option value=""></option>
+                                            <?php foreach ($projects as $key => $value) { ?>
+                                            <option value="<?php echo $value->id ?>"><?php echo $value->project_name ?></option>  
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mt-10">
+                                <div class="row">
+                                    <div class="col-sm-12">
                                         <label class="col-lg-2 control-label">Area</label>
-                                        <select class="select dgb" name="areaid" id="areaid">
+                                        <select class="select dgb" name="areaid[]" id="areaid[]" multiple>
                                             <option value=""></option>
                                             <?php foreach ($work_location as $key => $value) { ?>
-                                            <option value="<?php echo $value->location ?>"><?php echo $value->location ?></option>  
+                                            <option value="<?php echo $value->location_id ?>"><?php echo $value->location ?></option>  
                                             <?php } ?>
                                         </select>
                                     </div>
@@ -243,13 +256,62 @@
         </div>
     </div>
 
+    <div id="modal_create_plan" class="modal fade">
+        <div class="modal-dialog modal-full">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h5 class="modal-title">Weekly Plan</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12"> 
+                        <form method = "POST"  action= "/issueRisk/updateFollowUp" id = "follow_up_form" enctype="multipart/form-data" > 
+                              <div class="form-group"> 
+                                   <div class="row">
+                                        <div class="col-sm-1">
+                                              <button type = "button" class="btn btn-primary btn-s" id = "addChild">Add Plan</button>
+                                        </div>
+
+                                   </div>
+                              </div>
+                              <div class="row mb-20">
+                                <div class = "table-responsive">
+                                    <table id = "follow_up" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <td>Tanggal</td>
+                                                <td>Time</td>
+                                                <td>Plan Description</td>
+                                                <td>Segmen</td>
+                                                <td>Span</td>
+                                                <td>Target</td>
+                                                <td>UoM</td>
+                                                <td></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                    </div>
+                </div>
+                <br/>
+                <br/>
+                <div class="modal-footer">
+                    <!-- <button type="button" id = "finalClose" value = "true" class="btn btn-danger">Close</button> -->
+                    <button type="submit" name = "submit_followup" value = "true" class="btn btn-primary">Posting</button>
+                </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+
     <script type="text/javascript">
         $(function () {
-            /*$("#area_ids").val('1').trigger("change");
-            $("#pc_id").val(258).trigger("change");
-            $("#segmen_ids").val([2,3]).trigger("change");
-            $("#project").val(3).trigger("change");*/
-            // $("#parameters").hide();
             var segment = [];
             var span = [];
             $("#project").change(function(){
@@ -322,11 +384,11 @@
 
                 var $e = $(".prm:checked");
                 // console.log($e);
-                var dt=[];
                 var vendor_option = "";
                 var segment_option = "";
                 var vendor_arr = [];
                 // console.log(segment);
+                var dt=[];
                 $.ajax({
                     url: JS_BASE_URL + '/timesheet/dateRange/',
                     type: 'POST',
@@ -588,8 +650,24 @@
                 var pc_id = $("#pc_id").val();
                 var start = $("#start").val();
                 var end = $("#end").val();
+                var dt = [];
+                var range_date = "";
+                $.ajax({
+                    url: JS_BASE_URL + '/timesheet/dateRange/',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {start: start, end: end},
+                    async: false,
+                    success: function (res) {
+                        // h_total = res;
+                        $.each(res, function (index, value) {
+                            dt.push(moment(value).format('YYYY-MM-DD'));
+                            range_date += "<th width='1000px'>" + value + "</th>";
+                        });
+                    }
+                });
 
-                alert(start);
+                // alert(start);
 
                 $.ajax({
                     url: JS_BASE_URL + '/timesheet/load_daily_plan2/',
@@ -599,18 +677,43 @@
                     async: false,
                     success: function (res) {
                         if(res.status == 'success'){
+                            var row = "";
                             $.each(res.data, function (index, value) {
-                                //vendor_option += '<option value = "'+value.vendor_id+'">'+value.vendor_name+'</option>';
+                                row += '<tr>';
+                                row += '<td>'+value.fullname+'<br/><button type = "button" class = "btn bg-teal-400 btn-sm create_plan" user_id = "'+value.user_id+'">Create Plan</button></td>';
+
+                                $.each(dt, function(i, dt){
+                                    row += '<td></td>';
+                                })
+                                row += '</tr>';
                             });
+
+
+                            var tab = '<div class = "row temp table">' +
+                                '<div class="table-responsive">' +
+                                '<table class="table table-bordered table-striped table-xs ">' +
+                                '<thead class="bg-info-800">' +
+                                '<tr>' +
+                                '<th width="200px">Name</th>' +
+                                range_date +
+                                '</tr>' +
+                                '</thead>' +
+                                '<tbody>' +
+                                row +
+                                '</tbody>' +
+                                '</table>' +
+                                '</div></div>';
+                            $(".tabs").append(tab);
                         }
                     }
                 });
 
 
-
-
-
-                //$(".tabs").append(row);
+                $('.create_plan').click(function(){
+                    var user_id = $(this).attr('user_id');
+                    $('#modal_create_plan').modal('show');
+                    // console.log(user_id);
+                })
             })
 
 

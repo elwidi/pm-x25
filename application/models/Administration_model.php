@@ -823,7 +823,7 @@ class Administration_model extends CI_Model
     }
 
 
-    public function saveParent(){
+    public function saveParent2(){
          /**
          * ===================================================
          * Transactions with databases
@@ -880,6 +880,64 @@ class Administration_model extends CI_Model
         }
 
 
+
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        if ($this->db->trans_status() === FALSE)
+        {
+            $this->db->trans_rollback();
+        }
+        else
+        {
+            $this->db->trans_commit();
+        }
+
+        return true;
+        
+    }
+
+
+    public function saveParent(){
+         /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        $this->db->trans_begin();
+
+        $user = $this->input->post('fi_id');
+        $area = $this->input->post('areaid');
+
+        foreach ($user as $key => $value) {
+            $appr = array(
+                'user_id' => $value,
+                'parent_id' => $this->input->post('pcid'),
+            );
+
+            $this->db->insert('pm_user_approval', $appr);
+
+            $project_team = array(
+                'user_id' => $value,
+                'project_id' => $this->input->post('project_id'),
+                'position_id' => 10,
+                'join_date_to_project' => date('Y-m-d')
+            );
+
+            $this->db->insert('pm_resource_allocation', $project_team);
+            $res_id = $this->db->insert_id();
+
+
+            foreach ($area as $key => $value) {
+                $res_area = array(
+                    'resource_allocation_id' => $res_id,
+                    'area_id' => $value
+                );
+                $this->db->insert('pm_resource_location', $res_area);
+            }
+        }
 
         /**
          * ===================================================

@@ -295,8 +295,23 @@ class Timesheet_model extends CI_Model {
         return $usersArea;
     }
 
+
+    public function get_field_inspector($project_id, $pc_id){
+        $this->db->select("a.*, e.fullname, GROUP_CONCAT(d.location, '') AS loc");
+        $this->db->from('pm_user_approval a');
+        $this->db->join('pm_resource_allocation b', 'a.user_id = b.user_id');
+        $this->db->join('pm_resource_location c', 'b.id = c.resource_allocation_id','left');
+        $this->db->join('pm_work_location d', 'd.location_id = c.area_id','left');
+        $this->db->join('pm_user e', 'a.user_id = e.user_id','left');
+        $this->db->where('parent_id', $pc_id);
+        $this->db->where('project_id', $project_id);
+        $this->db->where('inactive_date is null');
+        $this->db->group_by('b.user_id');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
     public function user_team_area(){
-        // var_dump($this->input->post()); exit();
         $userId = $this->input->post('pc');
         $areaId = $this->input->post('area');
         $users  = $this->userChildbyArea($userId, $areaId);

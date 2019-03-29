@@ -626,11 +626,28 @@
         <div class="tab-pane fade <?php echo ($active_tab == 'segment')? "active in" : ""?>" id="segment">
             <div class="panel-body" style="padding-top: 0">
                 <h4>Segment</h4>
-
+                
+                <!-- Start Dendy 26-03-2019 -->
+                <div class="heading-elements">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success btn-labeled btn-labeled-left add_segment"><b><i class="icon-plus3"></i></b>Add Segment</button>
+                    </div>
+                </div>
             </div>
 
-
-
+            <table class="table text-nowrap datatable-project-segment-list">
+                <thead>
+                <tr> 
+                    <th>No</th>
+                    <th>Segment Name</th>
+                    <th>Cluster</th>
+                    <th><i class = "icon-chevron-down pull-right"></i></th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <!-- End Dendy 26-03-2019 -->
         </div>
 
 </div>
@@ -1034,6 +1051,95 @@
 </div>
 <!-- End 26-03-2019 -->
 
+<!-- Start Dendy 27-03-2019 -->
+<div id="modal_add_segment" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Add Segment</h5>
+            </div>
+
+            <div class="modal-body ">
+                <div class="col-lg-12">
+                    <form method = "POST"  action = "" id = "segment_form" enctype="multipart/form-data" class = "form-validate-jquery">
+                    <div class="form-group">
+                       <div class="row">
+                            <div class="col-sm-12">
+                                 <label>Segment</label>
+                                 <input type = "hidden" name = "project_id" value = "<?php echo $project_id?>"/>
+                                 <input type="text" name="segment_name" class="form-control">
+                            </div> 
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Cluster</label>
+                                <input type="text" name="cluster" class="form-control">                                
+                            </div>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button type="submit" name = "submit_form" value = "true" class="btn btn-primary">Save</button>
+            </div>
+            </form> 
+        </div>
+    </div>
+</div>
+<!-- End Dendy 27-03-2019 -->
+
+<!-- Start Dendy 27-03-2019 -->
+<div id="modal_edit_segment" class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Edit Segment Span</h5>
+            </div>
+
+            <div class="modal-body ">
+                <div class="col-lg-12">
+                    <form class = "form-validate-jquery" id="save-project-segment-span">
+                        <input type = "hidden" name = "project_id" value = "<?php echo $project_id?>"/>
+                        <input type = "hidden" name = "segment_id"/>
+                        <table class="table table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">NO.</th>
+                                    <th colspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">SPAN</th>                                    
+                                    <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">ACTION</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">HH START</th>
+                                    <th class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">HH END</th>
+                                </tr>
+                            </thead>
+                            <tbody id="segment-span">                                
+                                <tr class="text-semibold">
+                                    <td colspan="10" style="background-color: rgb(0,0,0);color:#ffffff;" id="segment_name"></td>
+                                </tr>                                
+                            </tbody>
+                        </table>
+                        <br/>
+                </div>
+            </div>
+            <br/>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primaty pull-left" id="add_span">Add Span</button>
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button type="submit" name = "submit_form" value = "true" class="btn btn-primary">Save</button>
+            </div>
+            </form> 
+        </div>
+    </div>
+</div>
+<!-- End Dendy 27-03-2019 -->
+
 
 <script type="text/javascript">
     $(function () {
@@ -1077,6 +1183,10 @@
                                 res.data.plan,
                                 res.data.d_actual
                             ],
+
+                            /*regions: {
+                                'Baseline': [{'style':'dashed','type': 'spline'}]
+                            },*/
                             type: 'spline',
                         },
                         bar: {
@@ -1085,7 +1195,7 @@
                             }
                         },
                         color: {
-                            pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
+                            pattern : ['#cecece', '#45852c', '#009688', '#4CAF50']
                         },
                         axis: {
                             x: {
@@ -1095,8 +1205,11 @@
                                         max: 1
                                     },
                                     format: function (chart_date) {
-                                        if(chart_date.getDate() == 1){
-                                            return monthName(chart_date.getMonth()); 
+                                        if(chart_date.getDate() == 1 || chart_date.getDate() == 20){
+                                            var y = chart_date.getFullYear();
+                                            var e = y.toString();
+                                            e = e.replace("20","");
+                                            return monthName(chart_date.getMonth()) +'-'+ e; 
                                         } else {
                                             return "";
                                         }
@@ -1147,7 +1260,7 @@
                             //width: 100 // this makes bar width 100px
                         },
                         color: {
-                            pattern : ['#FF9800', '#F44336', '#009688', '#4CAF50']
+                            pattern : ['#cecece', '#F44336', '#009688', '#4CAF50']
                         },
                         axis: {
                             y2: {
@@ -1176,18 +1289,18 @@
 
         function monthName(index) {
             var month = [
-                'Januari',
-                'Februari',
-                'Maret',
-                'April',
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
                 'Mei',
-                'Juni',
-                'Juli',
-                'Agustus',
-                'September',
-                'Oktober',
-                'November',
-                'Desember'
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Okt',
+                'Nov',
+                'Des'
             ];
 
             return month[index];
@@ -1681,6 +1794,222 @@
             $('#modal_edit_value').modal('show');
             
         });
+
+        // Start Dendy 27-03-2019
+        $('.add_segment').on('click', function () {
+            $('#modal_add_segment').modal('show');                
+        });
+        // End Dendy 27-03-2019
+
+        // Start Dendy 27-03-2019
+        $('#add_span').on('click', function(e) {
+            e.preventDefault();            
+            let trLength = $("#modal_edit_segment #segment-span").children().length;
+            $("#modal_edit_segment #segment-span").append(`
+                <tr class="segment-span-row">
+                    <td>${trLength}.</td>
+                    <td><input type="text" class="form-control" name="new_span[${trLength}][span_hh_start]"></td>
+                    <td><input type="text" class="form-control" name="new_span[${trLength}][span_hh_end]"></td>             
+                    <td><a href = "#" class = "delete_span"><i class = 'icon-trash-alt'></i></a></td>
+                </tr>
+            `);
+        });
+        // End Dendy 27-03-2019
+
+        // Start Dendy 27-03-2019
+        $('#modal_edit_segment').on('hidden.bs.modal', function (e) {
+            let spanRow = $('#modal_edit_segment #segment-span').children();
+            for (let i = 0; i < spanRow.length; i++) {
+                if (i != 0) {
+                    spanRow[i].remove();
+                }
+            }            
+        });
+        // End Dendy 27-03-2019
+
+        // Start Dendy 27-03-2019
+        $('#segment_form').submit(function(e){
+            e.preventDefault();
+            var form = $(this);
+            
+            $.ajax({
+                url: JS_BASE_URL + '/planning/save_project_segment/',
+                type: 'POST',
+                dataType: 'json',
+                data: form.serialize(),
+                async: false,
+                success: function (res) {
+                    if (res.status == 'success') {
+                        var table1 = $('.datatable-project-segment-list').dataTable();
+                        alertSuccess();
+                        $('#modal_add_segment').modal('toggle');
+                        table1.api().ajax.reload();
+                    }
+                }
+            });
+        });
+        // End Dendy 27-03-2019
+
+        // Start Dendy 29-03-2019
+        $('#modal_edit_segment #save-project-segment-span').submit(function(e) {
+            e.preventDefault();
+            let form = $(this);
+            $.ajax({
+                url: JS_BASE_URL + '/planning/save_project_segment_span',
+                type: 'POST',
+                dataType: 'json',
+                data: form.serialize(),
+                async: false,
+                success: function(res) {
+                    if (res.status == 'success') {
+                        $('#modal_edit_segment').trigger('hidden.bs.modal');
+                        $.ajax({
+                            url: JS_BASE_URL + "/planning/project_segment_detail/",
+                            type: "POST",
+                            data: { segment: $('#modal_edit_segment input[name="segment_id"]').val() },
+                            dataType: "json",
+                            async: false,
+                            success: function(res) {
+                                if (res.status == "success") {
+                                    detail = res.data;                                      
+
+                                    if (
+                                        detail.span_id != null &&
+                                        detail.span_hh_start != null &&
+                                        detail.span_hh_end != null
+                                    ) {
+                                        let span_id = detail.span_id.split(",");
+                                        let span_hh_start = detail.span_hh_start.split(",");
+                                        let span_hh_end = detail.span_hh_end.split(",");
+
+                                        if (span_hh_start.length == span_hh_end.length) {
+                                        for (let i = 0; i < span_hh_start.length; i++) {
+                                            $("#modal_edit_segment #segment-span").append(`
+                                                <tr class="segment-span-row">
+                                                <td>${i + 1}.</td>
+                                                <td><input type="text" class="form-control" name="span[${span_id[i]}][span_hh_start]" value="${
+                                                span_hh_start[i]
+                                                }"></td>
+                                                <td><input type="text" class="form-control" name="span[${span_id[i]}][span_hh_end]" value="${
+                                                span_hh_end[i]
+                                                }"></td>             
+                                                <td><a href = "#" class = "delete_span" span_id="${
+                                                    span_id[i]
+                                                }"><i class = 'icon-trash-alt'></i></a></td>
+                                                </tr>
+                                            `);
+                                        }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    alertSuccess();
+                }
+            });
+        });
+        // End Dendy 29-03-2019
+
+        // Start Dendy 29-03-2019
+        $(document).on('click', '.delete_span', function() {
+            var id = $(this).attr('span_id'),
+                tr = $(this).parent().parent();
+
+                
+                var notice = new PNotify({
+                    title: 'Confirmation',
+                    text: '<p>Are you sure you want delete this span?</p>',
+                    hide: false,
+                type: 'info',
+                confirm: {
+                    confirm: true,
+                    buttons: [
+                        {
+                            text: 'Yes',
+                            addClass: 'btn btn-sm btn-primary'
+                        },
+                        {
+                            addClass: 'btn btn-sm btn-link'
+                        }
+                    ]
+                },
+                buttons: {
+                    closer: false,
+                    sticker: false
+                },
+                history: {
+                    history: false
+                }
+            })
+            // On confirm
+            notice.get().on('pnotify.confirm', function() {
+                if (id == undefined) {
+                    tr.remove();
+                    return;                    
+                }
+                $.ajax({
+                    url:  JS_BASE_URL +'/planning/delete_project_segment_span/',
+                    type : 'POST',
+                    dataType: 'json',
+                    data: {id : id},
+                    success: function(res) {                                       
+                        alertDeleteSuccess();
+                        tr.remove();
+
+                        // Active this code if user want the number recreate from 1
+                        // $('#modal_edit_segment').trigger('hidden.bs.modal');
+                        // $.ajax({
+                        //     url: JS_BASE_URL + "/planning/project_segment_detail/",
+                        //     type: "POST",
+                        //     data: { segment: $('#modal_edit_segment input[name="segment_id"]').val() },
+                        //     dataType: "json",
+                        //     async: false,
+                        //     success: function(res) {
+                        //         if (res.status == "success") {
+                        //         detail = res.data;
+                        //         console.log(detail);                                
+                        //             if (
+                        //                 detail.span_id != null &&
+                        //                 detail.span_hh_start != null &&
+                        //                 detail.span_hh_end != null
+                        //             ) {
+                        //                 let span_id = detail.span_id.split(",");
+                        //                 let span_hh_start = detail.span_hh_start.split(",");
+                        //                 let span_hh_end = detail.span_hh_end.split(",");
+
+                        //                 if (span_hh_start.length == span_hh_end.length) {
+                        //                 for (let i = 0; i < span_hh_start.length; i++) {
+                        //                     $("#modal_edit_segment #segment-span").append(`
+                        //                     <tr class="segment-span-row">
+                        //                     <td>${i + 1}.</td>
+                        //                     <td><input type="text" class="form-control" name="span[${span_id[i]}][span_hh_start]" value="${
+                        //                     span_hh_start[i]
+                        //                     }"></td>
+                        //                     <td><input type="text" class="form-control" name="span[${span_id[i]}][span_hh_end]" value="${
+                        //                     span_hh_end[i]
+                        //                     }"></td>             
+                        //                     <td><a href = "#" class = "delete_span" span_id="${
+                        //                         span_id[i]
+                        //                     }"><i class = 'icon-trash-alt'></i></a></td>
+                        //                     </tr>
+                        //                 `);
+                        //                 }
+                        //                 }
+                        //             }
+                        //         }
+                        //     }
+                        //     });
+                    }
+                });
+            })
+
+            // On cancel
+            notice.get().on('pnotify.cancel', function() {
+                // alert('Oh ok. Chicken, I see.');
+            });            
+        });
+        // End Dendy 29-03-2019
 
         $('.add_task_list').on('click', function () {
             bootbox.dialog({

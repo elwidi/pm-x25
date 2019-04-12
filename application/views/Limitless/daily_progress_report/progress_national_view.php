@@ -20,36 +20,36 @@
 
                     <div class="row tab p<?php echo $d->id ?>">
                         <div class="table-responsive">
-                            <table class="table table-xs" style="font-weight: bold;">
+                            <table class="" style="font-weight: bold; width: 1300px">
                                 <thead class="bg-info-800">
                                 <tr>
-                                    <th rowspan="2" colspan="3" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">PROJECT NAME</th>
-                                    <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">CUSTOMER</th>
-                                    <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">PL Start</th>
-                                    <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">PL Finish</th>
-                                    <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">CAPACITY</th>
-                                    <th colspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">OVERALL PROGRESS</th>
+                                    <th rowspan="2" colspan="3" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">PROJECT NAME</th>
+                                    <th rowspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">CUSTOMER</th>
+                                    <th rowspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">PL Start</th>
+                                    <th rowspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">PL Finish</th>
+                                    <th rowspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">CAPACITY</th>
+                                    <th colspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">OVERALL PROGRESS</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td colspan="3" style=""><?php echo $d->project_name ?></td>
-                                    <td style="text-align: center;"><?php echo $d->customer ?></td>
-                                    <td style="text-align: center;"><?php echo $d->start_date ?></td>
-                                    <td style="text-align: center;"><?php echo $d->end_date ?></td>
-                                    <td style="text-align: center;"><?php echo $d->capacity ?></td>
-                                    <td style="text-align: center;"><?php echo $d->completion . "%" ?></td>
+                                    <td colspan="3" style="padding: 8px 20px;"><?php echo $d->project_name ?></td>
+                                    <td style="padding: 8px 20px;text-align: center;"><?php echo $d->customer ?></td>
+                                    <td style="padding: 8px 20px;text-align: center;"><?php echo $d->start_date ?></td>
+                                    <td style="padding: 8px 20px;text-align: center;"><?php echo $d->end_date ?></td>
+                                    <td style="padding: 8px 20px;text-align: center;"><?php echo $d->capacity ?></td>
+                                    <td style="padding: 8px 20px;text-align: center;"><?php echo $d->completion . "%" ?></td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4" style="background-color: rgb(255,0,0);color:#ffffff;text-align: center;">IMPORTANT REMARKS</td>
-                                    <td rowspan="4" colspan="4">
-                                        <div class="chart-container">
+                                    <td colspan="4" style="width:500px;padding: 8px 20px;background-color: rgb(255,0,0);color:#ffffff;text-align: center;">IMPORTANT REMARKS</td>
+                                    <td rowspan="4" colspan="4" style="width:800px;padding: 8px 20px;vertical-align: bottom;height: 400px">
+                                        <div class="chart-container"">
                                             <div class="chart emp" id="c3-axis-labels-<?php echo $d->id;?>"></div>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="4">
+                                    <td colspan="4" style="padding: 8px 20px;vertical-align: top;height: 300px">
                                         <?php if (!empty($d->milestone[0]->mil)) {
                                             if (!empty($d->milestone[0]->mil[0]->progress)) {
                                                 ?>
@@ -64,43 +64,44 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">BASELINE</td>
-                                    <td colspan="2" style="background-color: rgb(84,130,53);color:#ffffff;text-align: center;">COMPLETION</td>
-                                    <td style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">GAP</td>
+                                    <td style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">BASELINE</td>
+                                    <td colspan="2" style="padding: 8px 20px;background-color: rgb(84,130,53);color:#ffffff;text-align: center;">COMPLETION</td>
+                                    <td style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">GAP</td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align: center;"><?php echo $d->baseline ."%";?></td>
-                                    <td colspan="2" style="background-color: rgb(169,208,142);text-align: center;"><?php echo $d->completion ."%";?></td>
-                                    <td style="text-align: center;color:#ff0000;"><?php echo $d->baseline-$d->completion ."%";?></td>
+                                    <td style="padding: 8px 20px;text-align: center;"><?php echo $d->baseline ."%";?></td>
+                                    <td colspan="2" style="padding: 8px 20px;background-color: rgb(169,208,142);text-align: center;"><?php echo $d->completion ."%";?></td>
+                                    <td style="padding: 8px 20px;text-align: center;color:#ff0000;"><?php echo $d->baseline-$d->completion ."%";?></td>
                                 </tr>
                                 <tr>
-                                    <td rowspan="2" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">ACTIVITY</td>
-                                    <td colspan="2" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">SCOPE</td>
-                                    <td rowspan="2" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">CR <br/>(Qty)</td>
-                                    <td rowspan="2" colspan="2" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">DAILY BASELINE <br/>(Qty)</td>
-                                    <td colspan="2" style="background-color: rgb(84,130,53);color:#ffffff;text-align: center;">COMPLETE</td>
+                                    <td rowspan="2" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">ACTIVITY</td>
+                                    <td colspan="2" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">SCOPE</td>
+                                    <td rowspan="2" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">CR <br/>(Qty)</td>
+                                    <td rowspan="2" colspan="2" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">DAILY BASELINE <br/>(Qty)</td>
+                                    <td colspan="2" style="padding: 8px 20px;background-color: rgb(84,130,53);color:#ffffff;text-align: center;">COMPLETE</td>
                                 </tr>
                                 <tr>
-                                    <td style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">UoM</td>
-                                    <td style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">Qty</td>
-                                    <td style="background-color: rgb(84,130,53);color:#ffffff;text-align: center;">QTY</td>
-                                    <td style="background-color: rgb(84,130,53);color:#ffffff;text-align: center;">%</td>
+                                    <td style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">UoM</td>
+                                    <td style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;text-align: center;">Qty</td>
+                                    <td style="padding: 8px 20px;background-color: rgb(84,130,53);color:#ffffff;text-align: center;">QTY</td>
+                                    <td style="padding: 8px 20px;background-color: rgb(84,130,53);color:#ffffff;text-align: center;">%</td>
                                 </tr>
                                 <?php foreach ($d->milestone as $key => $value) { ?>
                                     <tr class="text-semibold">
-                                        <td colspan="10" style="background-color: rgb(0,0,0);color:#ffffff;"><?php echo $value->group_name ?></td>
+                                        <td colspan="10" style="padding: 8px 20px;background-color: rgb(0,0,0);color:#ffffff;"><?php echo $value->group_name ?></td>
                                         <!-- <td colspan="2"></td> -->
                                     </tr>
                                     <?php foreach ($value->mil as $k => $v) { ?>
                                         <tr class="">
-                                            <td><?php echo $v->milestone_name ?></td>
-                                            <td style="text-align: center;"><?php echo $v->uom; ?></td>
-                                            <td style="text-align: center;"><?php echo number_format($v->qty); ?></td>
-                                            <td style="text-align: center;"></td>
-                                            <td colspan="2" style="text-align: center;"><?php echo number_format($v->daily_baseline); ?></td>
+                                            <td style="padding: 8px 20px;"><?php echo $v->milestone_name ?></td>
+                                            <td style="padding: 8px 20px;text-align: center;"><?php echo $v->uom; ?></td>
+                                            <td style="padding: 8px 20px;text-align: center;"><?php echo number_format($v->qty); ?></td>
+                                            <td style="text-align: center;"><?php if($v->cr_qty >= 1000)  { echo number_format($v->cr_qty, 2);} else {echo $v->cr_qty;}?></td>
+                                            <td colspan="2" style="text-align: center;"><?php if($v->daily_baseline >= 1000)  { echo number_format($v->daily_baseline, 2);} else {echo $v->daily_baseline;}?></td>
+                                            <!-- <td colspan="2" style="padding: 8px 20px;text-align: center;"><?php echo number_format($v->daily_baseline); ?></td> -->
                                             <?php if (!empty($v->progress)) { ?>
-                                                <td style="text-align: center;"><?php echo number_format($v->progress->complete_qty); ?></td>
-                                                <td style="text-align: center;"><?php echo $v->progress->complete_percent ?></td>
+                                                <td style="padding: 8px 20px;text-align: center;"><?php echo number_format($v->progress->complete_qty); ?></td>
+                                                <td style="padding: 8px 20px;text-align: center;"><?php echo $v->progress->complete_percent ?></td>
                                             <?php } ?>
                                         </tr>
                                     <?php }
@@ -243,7 +244,10 @@
                                             },
                                             format: function (chart_date) {
                                                 if(chart_date.getDate() == 1){
-                                                    return monthName(chart_date.getMonth()); 
+                                                    var y = chart_date.getFullYear();
+                                                    var e = y.toString();
+                                                    e = e.substring(2,4);
+                                                    return monthName(chart_date.getMonth()) +'-'+ e; 
                                                 } else {
                                                     return "";
                                                 }
@@ -282,18 +286,18 @@
 
             function monthName(index) {
                 var month = [
-                    'Januari',
-                    'Februari',
-                    'Maret',
-                    'April',
+                    'Jan',
+                    'Feb',
+                    'Mar',
+                    'Apr',
                     'Mei',
-                    'Juni',
-                    'Juli',
-                    'Agustus',
-                    'September',
-                    'Oktober',
-                    'November',
-                    'Desember'
+                    'Jun',
+                    'Jul',
+                    'Aug',
+                    'Sep',
+                    'Okt',
+                    'Nov',
+                    'Des'
                 ];
 
                 return month[index];

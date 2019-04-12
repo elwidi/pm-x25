@@ -382,4 +382,179 @@ class ToolManagement_model extends CI_Model {
         return true;
     }
 
+    // Dendy 01-04-2019
+    private function _get_datatable_progress_parameter_query()
+    {
+        $column_search = array('a.id', 'a.parameter_name', 'a.measurement', 'b.group_name');
+        $column_order = array('a.id', 'a.parameter_name', 'a.measurement', 'b.group_name');
+        $this->db->select('a.id, a.parameter_name, a.measurement, b.group_name');
+        $this->db->from('pm_daily_parameter a');
+        $this->db->join('pm_milestone_group b', 'a.ms_group_id = b.id', 'left');
+
+        $i = 0;
+        foreach ($column_search as $item) // loop column
+        {
+            if($_POST['search']['value']) // if datatable send POST for search
+            {
+                if($i===0) // first loop
+                {
+                    $this->db->like($item, $_POST['search']['value']);
+                }
+                else
+                {
+                    $this->db->or_like($item, $_POST['search']['value']);
+                }
+            }
+            $i++;
+        }
+
+        if(isset($_POST['order'])) // here order processing
+        {
+            $this->db->order_by($column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        }
+
+    }
+
+    function get_datatable_progress_parameter()
+    {
+        $this->_get_datatable_progress_parameter_query();
+        if($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    function count_filtered_progress_parameter()
+    {
+        $this->_get_datatable_progress_parameter_query();
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    public function count_all_progress_parameter()
+    {
+        $this->db->from("pm_daily_parameter");
+        return $this->db->count_all_results();
+    }
+
+    public function getMilestoneGroup(){
+        $this->db->select('*');
+        $this->db->from('pm_milestone_group');
+        $query = $this->db->get();
+        $milestone = $query->result();
+        return $milestone;
+    }
+
+    public function saveProgressParameter(){
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        $this->db->trans_begin();
+
+        $uom_name = $this->getMilestoneUOMDetail($this->input->post('measurement_id'));
+
+        $data = array(
+            'ms_group_id' => $this->input->post('ms_group_id'),
+            'parameter_name' => $this->input->post('parameter_name'),
+            'measurement' => $uom_name->uom_name            
+        );
+        $this->db->insert('pm_daily_parameter', $data);
+
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        if ($this->db->trans_status() === FALSE)
+        {
+            $this->db->trans_rollback();
+        }
+        else
+        {
+            $this->db->trans_commit();
+        }
+
+        return true;
+    }
+
+    public function getProgressParameterDetail($id){
+        $this->db->select('*');
+        $this->db->from('pm_daily_parameter');
+        $this->db->where('id', $id);
+        $query = $this->db->get();
+        $pp = $query->row();
+        return $pp;
+    }
+
+    public function getMilestoneGroupPP(){
+        $this->db->select('id, group_name AS text');
+        $this->db->from('pm_milestone_group');
+        $query = $this->db->get();
+        $milestone = $query->result();
+        return $milestone;
+    }
+
+    // Dendy 02-04-2019
+    public function updateProgressParameter(){
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        $this->db->trans_begin();
+
+        $data = array(
+            'ms_group_id' => $this->input->post('ms_group_id'),
+            'parameter_name' => $this->input->post('parameter_name'),
+            'measurement' => $this->input->post('measurement'),            
+        );
+        $this->db->where('id', $this->input->post('parameter_id'));
+        $this->db->update('pm_daily_parameter', $data);
+
+        /**
+         * ===================================================
+         * Transactions with databases
+         * ===================================================
+         */
+        if ($this->db->trans_status() === FALSE)
+        {
+            $this->db->trans_rollback();
+        }
+        else
+        {
+            $this->db->trans_commit();
+        }
+
+        return true;
+    }
+
+    // Dendy 02-02-2019
+    public function getMilestoneUOM(){
+        $this->db->select('*');
+        $this->db->from('pm_milestone_uom');
+        $query = $this->db->get();
+        $milestone = $query->result();
+        return $milestone;
+    }
+
+    // Dendy 02-02-2019
+    public function getMilestoneUOMPP(){
+        $this->db->select('uom_name AS id, uom_name AS text');
+        $this->db->from('pm_milestone_uom');
+        $query = $this->db->get();
+        $milestone = $query->result();
+        return $milestone;
+    }
+
+    public function getMilestoneUOMDetail($id){
+        $this->db->select('*');
+        $this->db->from('pm_milestone_uom');
+        $this->db->where('id', $id);
+        $query = $this->db->get();
+        $pp = $query->row();
+        return $pp;
+    }
+
 } 

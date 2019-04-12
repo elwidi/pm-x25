@@ -25,6 +25,7 @@ class Implementation extends CI_Controller {
 		parent::__construct();
 		$this->load->model('Implementation_model', 'm_implement');
 		$this->load->model('Administration_model', 'm_admin');
+		$this->load->model('IssueRisk_model', 'm_issue');
 		$this->load->model('Planning_model', 'm_planning');
 
 		//TODO: create an object and call a class method
@@ -75,6 +76,17 @@ class Implementation extends CI_Controller {
 		if($this->m_implement->saveDailyProgress()){
 			$this->session->set_flashdata('message', 'Daily Progress has been saved');
 			redirect('implementation/dailyProgress');
+		}
+	}
+
+	public function save_progress2(){
+		$id = $this->input->post('project_id');
+		if($this->m_implement->saveDailyProgress2()){
+			$this->session->set_flashdata('message', 'Data has been saved');
+            $link = 'implementation/progress/'.$id."?tab=daily_progress";
+            redirect($link);
+			// $this->session->set_flashdata('message', 'Daily Progress has been saved');
+			// redirect('implementation/dailyProgress');
 		}
 	}
 
@@ -203,6 +215,108 @@ class Implementation extends CI_Controller {
     }
 
 
+    public function dataTableProgressTracking()
+	{
+		$list = $this->m_implement->get_datatable_progress_tracking();
+		$data = array();
+		$no = $_POST['start'];
+		foreach ($list as $mta) {
+			$no++;
+			$row = array();
+			$row['no'] = $no;
+			foreach ($mta as $key => $value) {
+				if (empty($value)){
+					$value = "";
+				}
+				$row[$key] = $value;
+
+			}
+			$row['cities'] = str_replace(",", ", ", $row['cities']);
+			$row['pm_name'] = str_replace(",", ", ", $row['pm_name']);
+			$data[] = $row;
+		}
+
+		$output = array(
+				"draw" => $_POST['draw'],
+				"recordsTotal" => $this->m_planning->count_all_project(),
+				"recordsFiltered" => $this->m_planning->count_filtered_project(),
+				"data" => $data,
+		);
+		echo json_encode($output); exit;
+	}
+
+	public function progress($id)
+	{	
+		// Get Apps Config
+		$data = $this->apps->info();
+		$data['page_title'] = '<span class="text-semibold">Implementation</span> - Daily Progress';
+
+		// Get project detail
+		$project = $this->m_planning->getProjectDetailById($id);
+		$project->leader = $this->m_admin->getLeadersbyProject($id);
+
+
+		// $data['project_gap'] = $this->months($id);
+
+		// $data['area'] = $this->m_planning->workLocation();
+
+		// $data['scope'] = $this->m_planning->getAllProjectScope();
+
+		// $data['vendor'] = $this->m_planning->allVendor();
+
+		/*$task_list = $this->m_planning->getTasklistByProjectId($id);
+
+		foreach ($task_list as $key => $value) {
+			$task = $this->m_planning->getTaskByProjectTaskListId($value->id);
+			$task_list[$key]->task = $task;
+		}
+
+		$data['general_task'] = $this->m_planning->getTaskInGeneral($id);
+
+		$data['task_list'] = $task_list;*/
+
+		
+		// $data['milestone_grup'] = $this->m_planning->milestoneGrup();
+
+		// $data['milestone'] = $this->m_planning->milestones();
+
+		// $data['project_milestone'] = $this->m_planning->getMileStone($id);
+
+		// $data['milestones'] = $this->m_planning->getMileStone($id);
+
+
+		// $data['uom'] = $this->m_planning->milestone_uom();
+
+		// $data['user'] = array_chunk($this->m_planning->getUserByProject($id), 4);
+
+		// $data['position'] = $this->m_planning->getPosition();
+
+		// $data['resource'] = $this->m_admin->getActiveUser();
+
+		// $data['project_coordi'] = $this->m_planning->pcOnProject($id);
+
+		// $data['page_title'] = '<span class="text-semibold"></span>' . $project->project_name . ' <small>' . $project->company . '</small>';
+
+		$data['project_id'] = $id;
+
+		// //For Tab Overview
+		// $data['project'] = $project;
+		// $data['km_cable'] = $this->m_planning->getMileStoneDetailByProjectId($id,'10');
+		// $data['scope_of_work'] = $this->m_planning->getMileStone($id);
+		// $data['vendor_info'] = $this->m_planning->getAllVendorByProjectId($id);
+
+		//For Tab Tab and Assignment
+		$data['total_issue'] = $this->m_issue->getTotalIssueRiskByProjectId($id);
+		$data['open_issue'] = $this->m_issue->getTotalOpenIssueRiskByProjectId($id);
+		$data['close_issue'] = $this->m_issue->getTotalCloseIssueRiskByProjectId($id);
+
+		$data['active_tab'] = "";
+		if(!empty($_GET)){
+			$data['active_tab'] = $_GET['tab'];
+		}
+
+		$this->load->view('implementation/progress_detail_view', $data);
+	}
 
 
 }

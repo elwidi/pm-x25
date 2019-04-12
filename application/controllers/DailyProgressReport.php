@@ -48,7 +48,7 @@ class DailyProgressReport extends CI_Controller {
 		$data['project'] = $projects;
 		$data['page_title'] = '<span class="text-semibold">Summary Progress Report</span>';
 
-		$this->load->view('daily_progress_report/summary_progress_report_view', $data);
+		$this->load->view('daily_progress_report/summary_progress_report_view2', $data);
 	}
 
 	public function summaryProgressReport2()
@@ -69,26 +69,6 @@ class DailyProgressReport extends CI_Controller {
 		$data['page_title'] = '<span class="text-semibold">Summary Progress Report 2</span>';
 
 		$this->load->view('daily_progress_report/summary_progress_report_view2', $data);
-	}
-
-	public function summaryProgressReport3()
-	{
-		// Get Apps Config
-		$data = $this->apps->info();
-
-		$projects = $this->m_plan->getSummaryProjectsByStatus('On Progress');
-		foreach ($projects as $key => $value) {
-			$projects[$key]->km = $this->m_report->getCableScope(10,$value->id);
-			$projects[$key]->hdpe = $this->m_report->getCableScope(8,$value->id);
-			$projects[$key]->pole = $this->m_report->getCableScope(9,$value->id);
-			$projects[$key]->tower = $this->m_report->getCableScope(4,$value->id);
-			$projects[$key]->dwdm = $this->m_report->getCableScope(12,$value->id);
-			$projects[$key]->isp = $this->m_report->getCableScope(18,$value->id);
-		}
-		$data['project'] = $projects;
-		$data['page_title'] = '<span class="text-semibold">Summary Progress Report 2</span>';
-
-		$this->load->view('daily_progress_report/summary_progress_report_view3', $data);
 	}
 
 	public function progressPerProject()

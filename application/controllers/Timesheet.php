@@ -55,6 +55,19 @@ class Timesheet extends CI_Controller {
 		$this->load->view('timesheet/weekly_activity_view', $data);
 	}
 
+
+	public function weeklyActivity2()
+	{
+		// Get Apps Config
+		$data = $this->apps->info();
+		$data['page_title'] = '<span class="text-semibold">Weekly Work Activity</span>';
+		$data['projects'] = $this->m_planning->project_by_emp();
+		$data['coordinator'] = $this->m_admin->usersInRole(5);
+		$data['work_location'] = $this->m_admin->getWorkLocation();
+
+		$this->load->view('timesheet/weekly_activity_view2', $data);
+	}
+
 	public function formWeeklyPlan()
 	{
 		// Get Apps Config
@@ -89,7 +102,8 @@ class Timesheet extends CI_Controller {
 		// Get Apps Config
 		$data = $this->apps->info();
 		$data['page_title'] = '<span class="text-semibold">Weekly Work Plan 4</span>';
-		$data['projects'] = $this->m_planning->getAllProject();
+		// $data['projects'] = $this->m_planning->getAllProject();
+		$data['projects'] = $this->m_planning->project_by_emp();
 		$data['users'] = $this->m_admin->getActiveUser();
 		$data['coordinator'] = $this->m_admin->usersInRole(5);
 		$data['work_location'] = $this->m_admin->getWorkLocation();
@@ -164,8 +178,31 @@ class Timesheet extends CI_Controller {
 		}
 	}
 
+
+	public function save_weekly_plan(){
+		if($this->m_timesheet->save_weekly_plan()){
+			$data = array('status' => 'success');
+		} else {
+			$data = array('status' => 'failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
 	public function getPlanAct(){
 		$plan_act = $this->m_timesheet->getPlan();
+		if(empty($plan_act)){
+			$data = array("status" => "failed");
+		} else {
+			$data = array("status" => "success", "data" => $plan_act);
+		}
+		echo json_encode($data);
+		exit();
+	}
+
+	public function getPlanAct2(){
+		$plan_act = $this->m_timesheet->getPlan2();
 		if(empty($plan_act)){
 			$data = array("status" => "failed");
 		} else {
@@ -200,12 +237,23 @@ class Timesheet extends CI_Controller {
 	public function load_daily_plan2(){
 		$pc_id = $this->input->post('pc_id');
 		$project_id = $this->input->post('project_id');
-		$plan_act = $this->m_timesheet->get_field_inspector($project_id, $pc_id);
-		// var_dump($plan_act); exit();
+		$plan_act = $this->m_timesheet->load_weekly_plan();
+		// $plan_act = $this->m_timesheet->get_field_inspector($project_id, $pc_id);
 		if(empty($plan_act)){
 			$data = array("status" => "failed");
 		} else {
 			$data = array("status" => "success", "data" => $plan_act);
+		}
+		echo json_encode($data);
+		exit();
+	}
+
+	public function load_parameters(){
+		$parameters = $this->m_timesheet->getParameter();
+		if(empty($parameters)){
+			$data = array('status' => 'failed');
+		} else {
+			$data = array('status' => 'success', 'data' => $parameters);
 		}
 		echo json_encode($data);
 		exit();
@@ -219,6 +267,80 @@ class Timesheet extends CI_Controller {
 			$data = array("status" => "failed");
 		} else {
 			$data = array("status" => "success", "data" => $fi);
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function load_uom(){
+		$uoms = $this->m_timesheet->getUOM();
+		if(empty($uoms)){
+			$data = array("status" => "failed");
+		} else {
+			$data = array("status" => "success", "data" => $uoms);
+		}
+
+		echo json_encode($data);
+		exit();	
+	}
+
+	public function param_name(){
+		$id = $this->input->post('id');
+		$detail = $this->m_timesheet->get_parameter_name($id);
+		if(empty($detail)){
+			$data = array("status" => "failed");
+		} else {
+			$data = array("status" => "success", "data" => $detail);
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function person_weekly_plan(){
+		$param = array();
+		$param['user_id'] = $this->input->post('user_id');
+		$param['project_id'] = $this->input->post('project_id');
+		$param['start'] = date('Y-m-d', strtotime($this->input->post('start')));
+		$param['end'] = date('Y-m-d', strtotime($this->input->post('end')));
+		$personal_plan = $this->m_timesheet->get_planning_person2($param);
+
+		if(empty($personal_plan)){
+			$data = array('status' => 'failed');
+		} else {
+			$data = array('status' => 'success', 'data' => $personal_plan);
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function approve_activity(){
+		if($this->m_timesheet->approveActivity()){
+			$data = array('status' => 'success');
+		} else {
+			$data = array('status' => 'failed');
+		}
+
+		echo json_encode($data);
+		exit();
+	}
+
+	public function get_waspang_team(){
+		$project_id = $this->input->post('project_id');
+		$pc_id = $this->input->post('pc_id');
+
+		if(empty($pc_id)){
+			$user = $this->apps->info();
+			$pc_id = $user['userRole'][2];
+		}
+		$waspang = $this->m_timesheet->get_field_inspector($project_id, $pc_id);
+
+		if(empty($waspang)){
+			$data = array('status' => 'failed');
+		} else {
+			$data = array('status' => 'success', 'data' => $waspang);
 		}
 
 		echo json_encode($data);

@@ -9,7 +9,7 @@ class Report_model extends CI_Model {
     }
 
     public function getMileStone($id){
-        $this->db->select('a.id as pm_id, a.milestone_grup_id, a.uom, a.qty, a.daily_baseline, b.*');
+        $this->db->select('a.id as pm_id, a.milestone_grup_id, a.uom, a.qty, a.daily_baseline, a.cr_qty, b.*');
         $this->db->from('pm_project_milestone a');
         $this->db->join('pm_milestone_definition b','a.milestone_id = b.id');
         $this->db->where('project_id',$id);
@@ -217,14 +217,14 @@ class Report_model extends CI_Model {
         $this->db->from('pm_project_chart a');
         $this->db->join('pm_projects b', 'a.project_id = b.id');
         $this->db->where('a.project_id', $project_id);
-        $this->db->where('a.date >= b.start_date');
-        $this->db->where('a.date <= b.end_date');
-       /* if(!empty($p_detail->start_date)){
+        /*$this->db->where('a.date >= b.start_date');
+        $this->db->where('a.date <= b.end_date');*/
+        if(!empty($p_detail->start_date)){
             $this->db->where('date >=', $p_detail->start_date);
         }
         if(!empty($p_detail->end_date)){
             $this->db->where('date <=', $p_detail->end_date);
-        }*/
+        }
         $this->db->where('month IS NOT NULL');
         $q = $this->db->get();
 

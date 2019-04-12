@@ -426,6 +426,7 @@
                                 <tr>
                                     <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">ACTIVITY</th>
                                     <th colspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">SCOPE</th>
+                                 <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">CR</th>
                                  <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;">BASELINE</th>
                                     <!--    <th colspan="2" class="text-center">PREVIOUS</th>
                                     <th colspan="2" class="text-center">PROGRESS</th>
@@ -454,6 +455,7 @@
                                     <td><?php echo $v->milestone_name?></td>
                                     <td class="text-center"><?php echo $v->uom?></td>
                                     <td class="text-center"><?php if($v->qty >= 1000)  { echo number_format($v->qty, 2);} else {echo $v->qty;}?></td>
+                                    <td class = "text-center"><?php if($v->cr_qty >= 1000)  { echo number_format($v->cr_qty, 2);} else {echo $v->cr_qty;}?></td>
                                     <td class="text-center"><?php if($v->daily_baseline >= 1000)  { echo number_format($v->daily_baseline, 2);} else {echo $v->daily_baseline;}?></td>
                                 </tr>
                                 <?php } } ?>
@@ -463,15 +465,15 @@
                 </div>
                 <br/>
 
-                <div class = "col-md-12 mt-20">
+                <div class = "col-md-12 mt-20 row">
                     <form action="/index.php/planning/save_plan/" method="post" class="form-horizontal" id = "project_plan_form">
                     <div class="table-responsive">
-                        <table class="table table-condensed table-bordered" style="font-weight: bold;">
+                        <table class= "table-condensed table-bordered" style="font-weight: bold;">
                             <thead>
                                 <tr>
                                     <th class="text-center"><input type="hidden" name="project_id" value = <?php echo $project->id?>></th>
                                     <?php foreach ($project_gap as $mth) { ?>
-                                        <th class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;"><?php echo $mth['month']?></th>
+                                        <th class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;"><?php echo $mth['month']." '".substr($mth['year'],-2)?></th>
                                     <? } ?>
                                     <!--    <th colspan="2" class="text-center">PREVIOUS</th>
                                     <th colspan="2" class="text-center">PROGRESS</th>
@@ -481,11 +483,11 @@
                             <tbody>
                                 <th class="text-center" >Plan</th>
                                 <?php foreach ($project_gap as $key => $mth) { ?>
-                                    <th class="text-center">
+                                    <td class="text-center"  width='200px'>
                                         <input type="hidden" name="plan[<?php echo $key?>][date]" value = "<?php echo strtolower($mth['month'])."_".$mth['year']?>">
                                         <input type="hidden" name="plan[<?php echo $key?>][id]" id = "id_<?php echo strtolower($mth['month'])."_".$mth['year']?>">
                                         <input type="number" step = "0.001" id = "plan_<?php echo strtolower($mth['month'])."_".$mth['year']?>" class = "form-control" name="plan[<?php echo $key?>][plan]">
-                                    </th>
+                                    </td>
                                 <? } ?>
                             </tbody>
                         </table>
@@ -669,6 +671,7 @@
                                 <tr>
                                     <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">ACTIVITY</th>
                                     <th colspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">SCOPE</th>
+                                    <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">CR</th>
                                     <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">BASELINE</th>
                                     <th rowspan="2" class="text-center" style="background-color: rgb(31,78,120);color:#ffffff;text-align: center;">ACTION</th>
                                 </tr>
@@ -685,7 +688,12 @@
                                 </tr>
                                 <?php foreach($value->mil as $k => $v){?>
                                 <tr class="" >
-                                    <td><?php echo $v->milestone_name?></td>
+                                    <td>
+                                        <?php echo $v->milestone_name?>
+                                        <input type="hidden" name="value[<?php echo $v->id?>][project_id]" value = "<?php echo $v->project_id?>">
+                                        <input type="hidden" name="value[<?php echo $v->id?>][milestone_grup_id]" value = "<?php echo $v->milestone_grup_id?>">
+                                        <input type="hidden" name="value[<?php echo $v->id?>][milestone_id]" value = "<?php echo $v->milestone_id?>">
+                                    </td>
                                     <td>
                                        <!--  <input type="text" class = "form-control" name = "value[<?php echo $v->id?>][uom]" value = "<?php echo $v->uom?>"> -->
                                         <select class="form-control select" name = "value[<?php echo $v->id?>][uom]">
@@ -700,7 +708,8 @@
                                             <?php }?>
                                         </select>
                                     </td>
-                                    <td> <input type="number" step = "0.001" class = "form-control" name = value[<?php echo $v->id?>][qty] value = "<?php echo $v->qty?>"></td>
+                                    <td><input type="number" step = "0.001" class = "form-control" name = value[<?php echo $v->id?>][qty] value = "<?php echo $v->qty?>"></td>
+                                    <td><input type="number" step = "0.001" class = "form-control" name = value[<?php echo $v->id?>][cr_qty] value = "<?php echo $v->cr_qty?>"></td>
                                     <td><input type="number" step = "0.001" class = "form-control" name = value[<?php echo $v->id?>][baseline] value = "<?php echo $v->daily_baseline?>"></td>
                                     <td><a href = "#" class = "delete_milestone" mls_id = "<?php echo $v->id?>"><i class = 'icon-trash-alt'></i></a></td>
                                 </tr>
@@ -790,7 +799,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h5 class="modal-title">Allocate Resource to Project</h5>
+                <h5 class="modal-title">Add Team Project</h5>
             </div>
 
             <div class="modal-body ">
@@ -810,6 +819,22 @@
                             </div> 
                         </div>
                     </div>
+
+                    <div class="form-group project_coordinator hidden">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Project Coordinator</label>
+                                <select id="project_coordinator" name="project_coordinator" data-placeholder="Select Resource" class="select">
+                                    <option value = ""></option>
+                                    <?php foreach ($project_coordi as $value) { ?>
+                                        <option
+                                            value="<?php echo $value->user_id ?>"><?php echo $value->fullname ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <div class="row">
                             <div class="col-sm-12">
@@ -823,6 +848,8 @@
                             </div>
                         </div>
                     </div>
+
+
 
                     <div class="form-group">
                         <div class="row">
@@ -870,6 +897,20 @@
                                 </div> 
                             </div>
                         </div>
+                        <div class="form-group res_project_coordinator hidden">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Project Coordinator</label>
+                                <select id="resource_project_coordinator" name="resource_project_coordinator" data-placeholder="Select Resource" class="select">
+                                    <option value = ""></option>
+                                    <?php foreach ($project_coordi as $value) { ?>
+                                        <option
+                                            value="<?php echo $value->user_id ?>"><?php echo $value->fullname ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-sm-12">
@@ -1057,7 +1098,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h5 class="modal-title">Add Segment</h5>
+                <h5 class="modal-title">Segment</h5>
             </div>
 
             <div class="modal-body ">
@@ -1068,6 +1109,7 @@
                             <div class="col-sm-12">
                                  <label>Segment</label>
                                  <input type = "hidden" name = "project_id" value = "<?php echo $project_id?>"/>
+                                 <input type = "hidden" name = "segment_id"/>
                                  <input type="text" name="segment_name" class="form-control">
                             </div> 
                         </div>
@@ -1099,7 +1141,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h5 class="modal-title">Edit Segment Span</h5>
+                <h5 class="modal-title">Add Span</h5>
             </div>
 
             <div class="modal-body ">
@@ -1171,7 +1213,7 @@
                     var chartId = '#c3-axis';
                     var axis_additional = c3.generate({
                         bindto: chartId,
-                        size: { height: 300, width : 1000},
+                        size: { height: 300, width : 1300},
                         data: {
                             xs: {
                                 'Daily': 'daily',
@@ -1208,7 +1250,7 @@
                                         if(chart_date.getDate() == 1 || chart_date.getDate() == 20){
                                             var y = chart_date.getFullYear();
                                             var e = y.toString();
-                                            e = e.replace("20","");
+                                            e = e.substring(2,4);
                                             return monthName(chart_date.getMonth()) +'-'+ e; 
                                         } else {
                                             return "";
@@ -1424,6 +1466,15 @@
 
             }
         });*/
+        //el - 4/3/2019
+        $('#position_id').change(function(){
+            if($(this).val() == 10){
+                $('.project_coordinator').removeClass('hidden');
+            } else {
+                $("#project_coordinator").val('').trigger("change");
+                $('.project_coordinator').addClass('hidden');
+            }
+        })
 
         var option = "";
         $.ajax({
@@ -1797,6 +1848,9 @@
 
         // Start Dendy 27-03-2019
         $('.add_segment').on('click', function () {
+            $("#modal_add_segment input[name='segment_id']").val('');
+            $("#modal_add_segment input[name='segment_name']").val('');
+            $("#modal_add_segment input[name='cluster']").val('');
             $('#modal_add_segment').modal('show');                
         });
         // End Dendy 27-03-2019
@@ -1957,7 +2011,7 @@
                         alertDeleteSuccess();
                         tr.remove();
 
-                        // Active this code if user want the number recreate from 1
+                        // Active this code if user want the number recreate from 1 after update
                         // $('#modal_edit_segment').trigger('hidden.bs.modal');
                         // $.ajax({
                         //     url: JS_BASE_URL + "/planning/project_segment_detail/",

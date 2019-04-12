@@ -49,7 +49,7 @@
                             <label class="col-lg-2 control-label">Baseline</label>
                             <div class="col-lg-2">
                                 <input type = "hidden" name = "project_id" id = "project_id">
-                                <input type="text" disabled class="form-control bc" name = "baseline" id = "baseline">
+                                <input type="text" class="form-control bc" name = "baseline" id = "baseline">
                             </div>
                         </div>
                         <div class="form-group">

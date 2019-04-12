@@ -391,6 +391,11 @@ class Administration extends CI_Controller {
         }
     }
 
+    public function save_parent(){
+        if($this->m_admin->saveParent2()){
+            redirect('timesheet/formWeeklyPlan');
+        }
+    }
 
     public function update_status(){
         $status = $this->input->post('status');

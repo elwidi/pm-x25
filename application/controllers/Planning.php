@@ -65,7 +65,6 @@ class Planning extends CI_Controller {
 		$project = $this->m_planning->getProjectDetailById($id);
 		$project->leader = $this->m_admin->getLeadersbyProject($id);
 
-		$data['project'] = $project;
 
 		$data['project_gap'] = $this->months($id);
 
@@ -95,7 +94,6 @@ class Planning extends CI_Controller {
 
 		$data['milestones'] = $this->m_planning->getMileStone($id);
 
-		$data['km_cable'] = $this->m_planning->getMileStoneDetailByProjectId($id,'10');
 
 		$data['uom'] = $this->m_planning->milestone_uom();
 
@@ -104,6 +102,8 @@ class Planning extends CI_Controller {
 		$data['position'] = $this->m_planning->getPosition();
 
 		$data['resource'] = $this->m_admin->getActiveUser();
+
+		$data['project_coordi'] = $this->m_planning->pcOnProject($id);
 
 		$data['page_title'] = '<span class="text-semibold"></span>' . $project->project_name . ' <small>' . $project->company . '</small>';
 
@@ -132,24 +132,39 @@ class Planning extends CI_Controller {
 		$project = $this->m_planning->getProjectDetailById($id);
 		$e = date('Y-m-01', strtotime($project->start_date));
 		$f = date('Y-m-01', strtotime($project->end_date));
-		
-		$datetime1 = date_create($e);
+
+		$d1 = strtotime($e);
+		$d2 = strtotime($f);
+		$min_date = min($d1, $d2);
+		$max_date = max($d1, $d2);
+		$h = 0;
+
+		while (($min_date = strtotime("+1 MONTH", $min_date)) <= $max_date) {
+		    $h++;
+		}
+		/*$datetime1 = date_create($e);
         $datetime2 = date_create($f);
+
+        var_dump($datetime1);
+		var_dump($datetime2);
        
         $days = date_diff($datetime1, $datetime2);
         $year = $days->format('%y');
         $months = $days->format('%m');
+        $day = $days->format('%d');
 
         if($year >= 1){
         	$months += 12 * $year;
         }
+
+        if($day > 15)*/
         $mths = array();
         $mths[] = array(
         	'full' => date('Y-m-d', strtotime($project->start_date)),
         	'month' => date('M', strtotime($project->start_date)),
         	'year' => date('Y', strtotime($project->start_date))
         );
-        for ($i=0; $i < $months-1; $i++) { 
+        for ($i=0; $i < $h; $i++) { 
 			$last = end($mths);
 			$mth = array();
 			$mth['full'] = date('Y-m-d', strtotime("+1 month", strtotime($last['full'])));
@@ -158,7 +173,7 @@ class Planning extends CI_Controller {
 			$mths[] = $mth;
 		}
 
-		if(date('M y', strtotime($project->start_date)) == date('M y', strtotime($project->end_date))){
+		/*if(date('M y', strtotime($project->start_date)) == date('M y', strtotime($project->end_date))){
 
 		} else {
 			$mths[] = array(
@@ -166,7 +181,7 @@ class Planning extends CI_Controller {
 	        	'year' => date('Y', strtotime($project->end_date))
 	        );
 
-		}
+		}*/
 
 		
         return $mths;
@@ -1138,7 +1153,7 @@ class Planning extends CI_Controller {
 				'project_id' => $this->input->post('project_id'),
 				'filename' => $_FILES["project_charter_file"]['name'],
 				'filename_encrypt' => $upload_data['file_name'],
-				'document_type' => $file_type[1],
+				'document_type' => 'project charter',
 				'path' => $upload_data['file_path'],
 				'created_by' => $this->setUserId(),
 				'created_date' => date('Y-m-d H:i:s')
@@ -1423,5 +1438,84 @@ class Planning extends CI_Controller {
 
 		echo json_encode($data);
 	}
+
+	public function datatable_project_segment($id){
+        $list = $this->m_planning->get_datatable_project_segment($id);
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $mta) {
+            $no++;
+            $row = array();
+            $row['no'] = $no;
+            foreach ($mta as $key => $value) {
+                if (empty($value)){
+                    $value = "";
+                }
+                $row[$key] = $value;
+
+            }
+            $data[] = $row;
+
+
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->m_planning->count_all_project_segment($id),
+            "recordsFiltered" => $this->m_planning->count_filtered_project_segment($id),
+            "data" => $data,
+        );
+        echo json_encode($output); exit;
+	}
+
+	// Dendy 27-03-2019
+	public function save_project_segment(){
+        if($this->m_planning->saveProjectSegment()){
+            $data = array('status' => 'success');
+        } else {
+            $data = array('status' => 'failed');
+        }
+
+        echo json_encode($data);
+        exit();
+	}
+	
+    // Dendy 27-03-2019
+	public function project_segment_detail(){
+    	$id = $this->input->post('segment');
+    	$project_segment = $this->m_planning->projectSegmentDetail($id);
+    	if(!empty($project_segment)){
+    		$data = array('status' => 'success', 'data' => $project_segment);
+    	} else {
+    		$data = array('status' => 'failed');
+    	}
+
+    	echo json_encode($data);
+    	exit();
+	}
+	
+	// Dendy 29-03-2019
+	public function save_project_segment_span(){    	
+    	if($this->m_planning->save_project_segment_span()){
+    		$data = array('status' => 'success');            
+        } else {
+    		$data = array('status' => 'failed');            
+		}
+
+		echo json_encode($data);
+    	exit();
+	}
+	
+	// Dendy 29-03-2019
+	public function delete_project_segment_span(){
+		$id = $this->input->post('id');
+        if ($this->m_planning->delete_project_segment_span($id)) {
+            $data = array('status' => 'success');
+        } else {
+            $data = array('status' => 'failed');
+        }
+        echo json_encode($data);
+        exit();
+    }
 
 }

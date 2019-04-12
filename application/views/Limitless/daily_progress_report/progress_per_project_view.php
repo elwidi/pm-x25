@@ -59,7 +59,7 @@
                                     </tr>
                                     <tr>
                                         <td colspan="4" style="background-color: rgb(255,0,0);color:#ffffff;text-align: center;">IMPORTANT REMARKS</td>
-                                        <td rowspan="4" colspan="4">
+                                        <td rowspan="4" colspan="4" style="vertical-align: bottom;">
                                             <div class="chart-container">
                                                 <div class="chart emp" id="c3-axis-labels-<?php echo $d->id;?>"></div>
                                             </div>
@@ -113,8 +113,8 @@
                                                 <td><?php echo $v->milestone_name ?></td>
                                                 <td style="text-align: center;"><?php echo $v->uom ?></td>
                                                 <td style="text-align: center;"><?php echo number_format($v->qty); ?></td>
-                                                <td style="text-align: center;"></td>
-                                                <td colspan="2" style="text-align: center;"><?php echo number_format($v->daily_baseline); ?></td>
+                                                <td style="text-align: center;"><?php if($v->cr_qty >= 1000)  { echo number_format($v->cr_qty, 2);} else {echo $v->cr_qty;}?></td>
+                                                <td colspan="2" style="text-align: center;"><?php if($v->daily_baseline >= 1000)  { echo number_format($v->daily_baseline, 2);} else {echo $v->daily_baseline;}?></td>
                                                 <?php if (!empty($v->progress)) { ?>
                                                     <td style="text-align: center;"><?php echo number_format($v->progress->complete_qty); ?></td>
                                                     <td style="text-align: center;"><?php echo $v->progress->complete_percent ?></td>
@@ -217,7 +217,10 @@
                                     },
                                     format: function (chart_date) {
                                         if(chart_date.getDate() == 1){
-                                            return monthName(chart_date.getMonth()); 
+                                            var y = chart_date.getFullYear();
+                                            var e = y.toString();
+                                            e = e.substring(2,4);
+                                            return monthName(chart_date.getMonth()) +'-'+ e; 
                                         } else {
                                             return "";
                                         }
@@ -416,18 +419,18 @@
 
         function monthName(index) {
             var month = [
-                'Januari',
-                'Februari',
-                'Maret',
-                'April',
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
                 'Mei',
-                'Juni',
-                'Juli',
-                'Agustus',
-                'September',
-                'Oktober',
-                'November',
-                'Desember'
+                'Jun',
+                'Jul',
+                'Agu',
+                'Sep',
+                'Okt',
+                'Nov',
+                'Des'
             ];
 
             return month[index];

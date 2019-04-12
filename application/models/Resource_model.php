@@ -445,7 +445,7 @@ class Resource_model extends CI_Model {
     }
 
     public function saveResource(){
-
+        // var_dump($this->input->post()); exit;
         /**
          * ===================================================
          * Transactions with databases
@@ -454,26 +454,38 @@ class Resource_model extends CI_Model {
         $this->db->trans_begin();
         $area = $this->input->post('area');
         $users = $this->input->post('user_id');
+        $pc_id = $this->input->post('project_coordinator');
 
         foreach ($users as $key => $value) {
-            $data = array(
+            $f = array(
                 'user_id' => $value,
                 'project_id' => $this->input->post('project_id'),
                 'position_id' => $this->input->post('position_id'),
-                'area_id' => $area_id,
-                'area' => $area_name,
+                // 'area_id' => $area_id,
+                // 'area' => $area_name,
                 'join_date_to_project' => date('Y-m-d')
             );
 
-            $this->db->insert('pm_resource_allocation', $data);
+
+            if(!empty($pc_id)){
+                $data = array(
+                        'parent_id' => $pc_id,
+                        'user_id' => $value
+                );
+                $this->db->insert('pm_user_approval', $data);
+
+                $f['spv_id'] = $pc_id;
+            }
+
+            $this->db->insert('pm_resource_allocation', $f);
             $allocation_id = $this->db->insert_id();
 
 
             if(!empty($area)){
-                foreach ($area as $key => $value) {
+                foreach ($area as $k => $d) {
                     $data = array(
                         'resource_allocation_id' => $allocation_id,
-                        'area_id' => $value
+                        'area_id' => $d
                     );
                     $this->db->insert('pm_resource_location', $data);
                 }

@@ -16,6 +16,13 @@ class Administration_model extends CI_Model
         return $crop[0];
     }
 
+    public function appUserId(){
+        $user = $this->apps->info();
+        $userId = $user['userRole'][2];
+
+        return $userId;
+    }
+
     public function getAllRole(){
         $this->db->select('*');
         $this->db->from('pm_role');
@@ -823,7 +830,7 @@ class Administration_model extends CI_Model
     }
 
 
-    public function saveParent2(){
+    public function saveParent(){
          /**
          * ===================================================
          * Transactions with databases
@@ -900,21 +907,27 @@ class Administration_model extends CI_Model
     }
 
 
-    public function saveParent(){
+    public function saveParent2(){
          /**
          * ===================================================
          * Transactions with databases
          * ===================================================
          */
+
         $this->db->trans_begin();
 
         $user = $this->input->post('fi_id');
         $area = $this->input->post('areaid');
+        $pc_id = $this->input->post('pcid');
+
+        if(!isset($pc_id)){
+            $pc_id = $this->appUserId();
+        }
 
         foreach ($user as $key => $value) {
             $appr = array(
                 'user_id' => $value,
-                'parent_id' => $this->input->post('pcid'),
+                'parent_id' => $pc_id
             );
 
             $this->db->insert('pm_user_approval', $appr);

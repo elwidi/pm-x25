@@ -68,6 +68,7 @@
 
     <script type="text/javascript">
         var JS_BASE_URL = '<?php echo site_url(); ?>index.php';
+        var SITE_URL = '<?php echo site_url(); ?>';
     </script>
 </head>
 

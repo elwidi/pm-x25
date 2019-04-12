@@ -228,5 +228,104 @@ class ToolManagement extends CI_Controller {
         exit();
     }
 
+    // Dendy 01-01-2019
+    public function dailyProgressParameter() 
+    {
+        // Get Apps Config
+        $data = $this->apps->info();
+        $data['page_title'] = '<span class="text-semibold">Daily Progress Parameter</span>';
+        $data['milestone_group'] = $this->m_tool->getMilestoneGroup();
+        $data['milestone_uom'] = $this->m_tool->getMilestoneUOM();
+        $this->load->view('tool_management/list_progressparameter', $data);
+    }
 
+    public function datatableProgressParameter()
+    {
+        $list = $this->m_tool->get_datatable_progress_parameter();
+        $data = array();
+        $no = $_POST['start'];
+        foreach ($list as $mta) {
+            $no++;
+            $row = array();
+            $row['no'] = $no;
+            foreach ($mta as $key => $value) {
+                if (empty($value)){
+                    $value = "";
+                }
+                $row[$key] = $value;
+
+            }
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $_POST['draw'],
+            "recordsTotal" => $this->m_tool->count_filtered_progress_parameter(),
+            "recordsFiltered" => $this->m_tool->count_all_progress_parameter(),
+            "data" => $data,
+        );
+        echo json_encode($output); exit;
+    }
+
+    public function addProgressParameter()
+    {
+        if ($this->m_tool->saveProgressParameter()) {
+            $data = array('status' => 'Success');
+        } else {
+            $data = array('status' => 'Failed');
+        }
+
+        echo json_encode($data);
+        exit();
+    }
+
+    public function getProgressParameterDetail($id)
+    {
+        $pp = $this->m_tool->getProgressParameterDetail($id);
+        if (!empty($pp)) {
+            $data = array('status' => 'Success', 'data' => $pp);
+        } else {
+            $data = array('status' => 'Failed', 'data' => '');
+        }
+        echo json_encode($data);
+        exit();
+    }
+
+    public function getMilestoneGroupPP() 
+    {
+        $ms_group = $this->m_tool->getMilestoneGroupPP();
+        if (!empty($ms_group)) {
+            $data = array('status' => 'Success', 'data' => $ms_group);
+        } else {
+            $data = array('status' => 'Failed', 'data' => '');
+        }
+        echo json_encode($data);
+        exit();
+    }
+
+    // Dendy 02-02-2019
+    public function getMilestoneUOMPP() 
+    {
+        $ms_uom = $this->m_tool->getMilestoneUOMPP();
+        if (!empty($ms_uom)) {
+            $data = array('status' => 'Success', 'data' => $ms_uom);
+        } else {
+            $data = array('status' => 'Failed', 'data' => '');
+        }
+        echo json_encode($data);
+        exit();
+    }
+
+    // Dendy 02-04-2019
+    public function updateProgressParameter()
+    {
+        if ($this->m_tool->updateProgressParameter()) {
+            $data = array('status' => 'Success');
+        } else {
+            $data = array('status' => 'Failed');
+        }
+
+        echo json_encode($data);
+        exit();
+    }
 }

@@ -11,10 +11,10 @@
     </div>
 
     <div class="table-responsive">
-        <table class="" style="/*font-weight: bold; overflow-x: auto;width:3700px */">
+        <table id="example" class="table table-striped table-bordered nowrap" style="width:100%">
             <thead class="bg-info-800">
             <tr>
-                <th width="40px" rowspan="2" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">No.</th>
+                <th rowspan="2" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">No.</th>
                 <th width="370px" rowspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">PROJECT NAME</th>
                 <th width="50px" rowspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(84,130,53);color:#ffffff;">OVERALL COMPLETION</th>
                 <th rowspan="2" class="text-center" style="padding: 8px 20px;background-color: rgb(31,78,120);color:#ffffff;">BASELINE</th>
@@ -62,39 +62,39 @@
             </thead>
             <tbody>
             <?php $no = 1; foreach ($project as $key => $v) {?>
-            <tr>
-                <td style="padding: 8px 20px;"><?php echo $no?></td>
-                <td style="padding: 8px 20px;"><?php echo $v->project_name?></td>
-                <td style="padding: 8px 20px;background-color: rgb(231,230,230);color:#000;text-align: center"><?php echo $v->completion;?>%</td>
-                <td style="padding: 8px 20px;color:#000;text-align: center"><?php echo $v->baseline;?>%</td>
-                <td style="padding: 8px 20px;color:#000;text-align: center"><?php echo $v->baseline - $v->completion;?>%</td>
-                <td style="padding: 8px 20px;"><?php echo $v->km['scope'];?></td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->hdpe['scope'];?></td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->hdpe['actual'];?></td>
-                <td style="padding: 8px 20px;"><?php echo $v->pole['scope'];?></td>
-                <td style="padding: 8px 20px;"><?php echo $v->pole['actual'];?></td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->km['scope'];?></td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->km['actual'];?></td>
-                <td style="padding: 8px 20px;"><?php echo $v->tower['actual'];?></td>
-                <td style="padding: 8px 20px;"><?php echo $v->tower['scope'];?></td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->isp['scope'];?></td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->isp['actual'];?></td>
-                <td style="padding: 8px 20px;"><?php echo $v->dwdm['scope'];?></td>
-                <td style="padding: 8px 20px;"><?php echo $v->dwdm['actual'];?></td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
-                <td style="padding: 8px 20px;">0</td>
-                <td style="padding: 8px 20px;">0</td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
-                <td style="padding: 8px 20px;">0</td>
-                <td style="padding: 8px 20px;">0</td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
-                <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
-                <td style="padding: 8px 20px;">0</td>
-                <td style="padding: 8px 20px;">0</td>
-            </tr>
-            <?php $no++; } ?>
+                <tr>
+                    <td width="63px" style="padding: 8px 20px;"><?php echo $no?></td>
+                    <td style="padding: 8px 20px;"><?php echo $v->project_name?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(231,230,230);color:#000;text-align: center"><?php echo $v->completion;?>%</td>
+                    <td style="padding: 8px 20px;color:#000;text-align: center"><?php echo $v->baseline;?>%</td>
+                    <td style="padding: 8px 20px;color:#000;text-align: center"><?php echo $v->baseline - $v->completion;?>%</td>
+                    <td style="padding: 8px 20px;"><?php echo $v->km['scope'];?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->hdpe['scope'];?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->hdpe['actual'];?></td>
+                    <td style="padding: 8px 20px;"><?php echo $v->pole['scope'];?></td>
+                    <td style="padding: 8px 20px;"><?php echo $v->pole['actual'];?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->km['scope'];?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->km['actual'];?></td>
+                    <td style="padding: 8px 20px;"><?php echo $v->tower['actual'];?></td>
+                    <td style="padding: 8px 20px;"><?php echo $v->tower['scope'];?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->isp['scope'];?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);"><?php echo $v->isp['actual'];?></td>
+                    <td style="padding: 8px 20px;"><?php echo $v->dwdm['scope'];?></td>
+                    <td style="padding: 8px 20px;"><?php echo $v->dwdm['actual'];?></td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
+                    <td style="padding: 8px 20px;">0</td>
+                    <td style="padding: 8px 20px;">0</td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
+                    <td style="padding: 8px 20px;">0</td>
+                    <td style="padding: 8px 20px;">0</td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
+                    <td style="padding: 8px 20px;background-color: rgb(221,235,247);">0</td>
+                    <td style="padding: 8px 20px;">0</td>
+                    <td style="padding: 8px 20px;">0</td>
+                </tr>
+                <?php $no++; } ?>
 
             </tbody>
         </table>
@@ -102,23 +102,28 @@
 </div>
 <!-- /bordered striped table -->
 
+
 <script>
     $(document).ready(function() {
-        $('tbody').scroll(function(e) { //detect a scroll event on the tbody
-            /*
-             Setting the thead left value to the negative valule of tbody.scrollLeft will make it track the movement
-             of the tbody element. Setting an elements left value to that of the tbody.scrollLeft left makes it maintain 			it's relative position at the left of the table.
-             */
-            $('thead').css("left", -$("tbody").scrollLeft()); //fix the thead relative to the body scrolling
-            $('thead th:nth-child(1)').css("left", $("tbody").scrollLeft()); //fix the first cell of the header
-            $('tbody td:nth-child(1)').css("left", $("tbody").scrollLeft()); //fix the first column of tdbody
-        });
-    });
+        var table = $('#example').DataTable( {
+            ordering:       false,
+            scrollY:        "480px",
+            scrollX:        true,
+            scrollCollapse: true,
+            paging:         false,
+            fixedColumns: {
+                leftColumns: 2
+            }
+        } );
+    } );
 </script>
+
+<script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
+
 
 <style>
     table {
-        /*border-collapse: collapse;*/
+        border-collapse: collapse;
     }
 
     table, th, td {
@@ -126,73 +131,5 @@
         /*padding: 8px 20px;*/
     }
 
-
-
-
-
-    table {
-        position: relative;
-        width: 1700px;
-        
-        overflow: hidden;
-        border-collapse: collapse;
-    }
-
-
-    /*thead*/
-    thead {
-        position: relative;
-        display: block; /*seperates the header from the body allowing it to be positioned*/
-        /*width: 100px;*/
-        overflow: visible;
-    }
-
-    thead th {
-        background-color: #99a;
-        min-width: 120px;
-        /*height: 32px;*/
-        border: 1px solid #222;
-    }
-
-    thead th:nth-child(1) {/*first cell in the header*/
-        position: relative;
-        display: block; /*seperates the first cell in the header from the header*/
-        background-color: #88b;
-    }
-
-    thead th:nth-child(2) {/*first cell in the header*/
-        position: relative;
-        display: block; /*seperates the first cell in the header from the header*/
-        background-color: #88b;
-    }
-
-    /*tbody*/
-    tbody {
-        position: relative;
-        display: block; /*seperates the tbody from the header*/
-        width: 1700px;
-        height: 500px;
-        overflow: scroll;
-    }
-
-    tbody td {
-        background-color: #bbc;
-        min-width: 120px;
-        border: 1px solid #222;
-    }
-
-    tbody tr td:nth-child(1) {  /*the first cell in each tr*/
-        position: relative;
-        display: block; /*seperates the first column from the tbody*/
-
-        background-color: #99a;
-    }
-
-    tbody tr td:nth-child(2) {  /*the first cell in each tr*/
-        position: relative;
-        /*display: block; /*seperates the first column from the tbody*/
-        height: 40px;
-        background-color: #99a;
-    }
 
 </style>

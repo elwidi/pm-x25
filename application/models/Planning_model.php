@@ -14,7 +14,12 @@ class Planning_model extends CI_Model {
         return $crop[0];
     }
 
-    
+    public function appUserId(){
+        $user = $this->apps->info();
+        $userId = $user['userRole'][2];
+
+        return $userId;
+    }
 
     public function getProjectDetailById($id)
     {
@@ -519,6 +524,20 @@ class Planning_model extends CI_Model {
             }
         }
 
+        if(!empty($pic)){
+            $pic_ids = $this->input->post('pic');
+            foreach ($pic_ids as $index => $dt) {
+                $position_user = $this->get_position_user($dt);
+                $res_alloc = array(
+                    'user_id' => $value,
+                    'project_id' => $this->input->post('project_id'),
+                    'position_id' => $position_user->role_id,
+                    'join_date_to_project' => date('Y-m-d')
+                );
+                $this->db->insert('pm_resource_allocation', $res_alloc);
+            }
+        }
+
         /**
          * ===================================================
          * Transactions with databases
@@ -534,6 +553,15 @@ class Planning_model extends CI_Model {
         }
 
         return true;
+    }
+
+    public function get_position_user($user_id){
+        $this->db->select('*');
+        $this->db->from('pm_user');
+        $this->db->where('user_id');
+        $query = $this->db->get();
+
+        return $query->row();
     }
 
     public function saveMilestone(){
@@ -892,6 +920,7 @@ class Planning_model extends CI_Model {
                     }
                     $projectIds = "id IN (".substr($projectIds,0,-1).")";
                     $this->db->where($projectIds);
+                    $this->db->or_like('pic_id', "|".$roles['userRole'][2]."|");
                 } else {
                     $this->db->like('pic_id', "|".$roles['userRole'][2]."|");
                 }
@@ -1187,13 +1216,34 @@ class Planning_model extends CI_Model {
     public function saveValueMils(){
         $milestones = $this->input->post('value');
         foreach ($milestones as $key => $value) {
+            // $detail = $this->getMileStoneDetailByProjectId($value['project_id'], $value['milestone_id']);
             $data = array(
                 'uom' => $value['uom'],
                 'qty' => $value['qty'],
-                'daily_baseline' => $value['baseline']
+                'cr_qty' => $value['cr_qty'],
+                'daily_baseline' => $value['baseline'],
+                'last_updated_date' => date('Y-m-d H:i:s'),
+                'last_updated_by' => $this->appUserId()
             );
             $this->db->where('id',$key);
             $this->db->update('pm_project_milestone', $data);
+
+            // if($detail->uom != $value['uom'] || $detail->qty != $value['qty'] || $detail->cr_qty != $value['cr_qty'] || $detail->daily_baseline != $value['baseline']) {
+            $history = array(
+                'proj_milestone_id' => $key,
+                'project_id' => $value['project_id'],
+                'milestone_grup_id' => $value['milestone_grup_id'],
+                'milestone_id' => $value['milestone_id'],
+                'uom' => $value['uom'],
+                'qty' => $value['qty'],
+                'cr_qty' => $value['cr_qty'],
+                'daily_baseline' => $value['baseline'],
+                'created_date' => date('Y-m-d H:i:s'),
+                'created_by' => $this->appUserId()
+            );
+
+            $this->db->insert('pm_project_milestone_history', $history);
+            // }
         }
 
         return true;
@@ -1424,6 +1474,7 @@ class Planning_model extends CI_Model {
         $this->db->trans_begin();
 
         $plans = $this->input->post('plan');
+        $project = $this->getProjectDetailById($this->input->post('project_id'));
 
         foreach ($plans as $key => $value) {
             if(!empty($value['plan'])){
@@ -1431,13 +1482,18 @@ class Planning_model extends CI_Model {
                     $month_year = explode('_', $value['date']);
                     $month = ucfirst($month_year[0]);
                     $year = $month_year[1];
-                    $date = "01 ".$month." ".$year;
+                    if($key == 0){
+                        $date = $project->start_date;
+                    } else {
+                        $date = "01 ".$month." ".$year;
+                        $date = date('Y-m-d',strtotime($date));
+                    }
                     $data = array(
                         'project_id' => $this->input->post('project_id'),
                         'month' => $month,
                         'year' => $year,
                         'plan' => $value['plan'],
-                        'date' => date('Y-m-d',strtotime($date)),
+                        'date' => $date,
                         'created_date' => date('Y-m-d H:i:s')
                     );
                     // var_dump($data);
@@ -1780,6 +1836,7 @@ class Planning_model extends CI_Model {
         // $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
         // $this->db->join('pm_project_vendor_scope c', 'a.id = c.project_vendor_id','left');
         // $this->db->join('pm_project_scope d', 'd.id = c.scope_id','left');
+        $this->db->where('document_type', 'project charter');
         $this->db->where('project_id', $id);
         $i = 0;
         $condition = '(';
@@ -2006,5 +2063,194 @@ class Planning_model extends CI_Model {
         $query = $this->db->get();
         return $query->row();
     }
+
+    private function _get_datatable_project_segment_query($id)
+    {
+        $column_select = array("*");
+        $column_search = array("segment_name");
+        // $column_order = array("b.fullname", "c.position_title", "a.join_date_to_project");
+        $this->db->select($column_select);
+        $this->db->from('pm_project_segment');
+        // $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
+        // $this->db->join('pm_project_vendor_scope c', 'a.id = c.project_vendor_id','left');
+        // $this->db->join('pm_project_scope d', 'd.id = c.scope_id','left');
+        // $this->db->join('pm_project_vendor_area e', 'a.id = e.project_vendor_id','left');
+        // $this->db->join('pm_work_location f', 'f.location_id = e.area_id','left');
+        $this->db->where('project_id', $id);
+        $i = 0;
+        $condition = '(';
+        foreach ($column_search as $item) // loop column
+        {
+            if($_POST['search']['value']) {
+                if($i===0) // first loop
+                {
+                    $condition .= $item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                else
+                {
+                    $condition .= " OR ".$item." LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+                }
+                $i++;
+            
+            }
+        }
+
+        if($_POST['search']['value']){
+            $condition .= " OR segment_name LIKE '%".$_POST['search']['value']."%' ESCAPE '!'";
+            $condition .= ")";
+            $this->db->having($condition);
+        }
+
+        $this->db->group_by('id');
+
+        /*if(isset($_POST['order'])) // here order processing
+        {
+            $this->db->order_by($column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        }*/
+
+    }
+    function get_datatable_project_segment($id)
+    {
+        $this->_get_datatable_project_segment_query($id);
+        if($_POST['length'] != -1)
+            $this->db->limit($_POST['length'], $_POST['start']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    function count_filtered_project_segment($id)
+    {
+        $this->_get_datatable_project_segment_query($id);
+        $query = $this->db->get();
+        return $query->num_rows();
+    }
+
+    public function count_all_project_segment($id)
+    {
+        $this->db->from("pm_project_segment");
+        $this->db->where('project_id', $id);
+        return $this->db->count_all_results();
+    }
+
+    // Dendy 27-03-2019
+    public function saveProjectSegment(){
+        $segment_id = $this->input->post('segment_id');
+
+        if (!empty($segment_id)) {
+            $update_data = array(                
+                'segment_name' => $this->input->post('segment_name'),
+                'cluster' => $this->input->post('cluster')
+            );
+            
+            $this->db->where('id', $segment_id);
+            if ($this->db->update('pm_project_segment', $update_data)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            $save_data = array(
+                'project_id' => $this->input->post('project_id'),
+                'segment_name' => $this->input->post('segment_name'),
+                'cluster' => $this->input->post('cluster')
+            );
+    
+            if ($this->db->insert('pm_project_segment', $save_data)) {
+                return true;
+            } else {
+                return false;
+            }   
+        }
+    }
+
+    // Dendy 27-03-2019
+    public function projectSegmentDetail($id){
+        $this->db->select("a.*, GROUP_CONCAT(b.id, '') AS span_id, GROUP_CONCAT(b.span_hh_start, '') AS span_hh_start, GROUP_CONCAT(b.span_hh_end, '') AS span_hh_end");
+        $this->db->from('pm_project_segment a');
+        $this->db->join('pm_project_segment_span b','a.id = b.segment_id', 'left');
+        $this->db->where('a.id', $id);
+        $query = $this->db->get();
+        return $query->row();
+    }
+
+    public function delete_project_segment_span($id){
+        $this->db->delete('pm_project_segment_span', array('id' => $id)); 
+        return true;
+    }
+
+    // Dendy 29-03-2019
+    public function save_project_segment_span(){
+        $span = $this->input->post('span');
+        if ($span) {
+            foreach ($span as $key => $value) {
+                $data = array(
+                    'span_hh_start' => $value['span_hh_start'],
+                    'span_hh_end' => $value['span_hh_end']                
+                );
+                $this->db->where('id', $key);
+                $this->db->update('pm_project_segment_span', $data);
+            }
+        }
+
+        $new_span = $this->input->post('new_span');
+        if ($new_span) {
+            foreach ($new_span as $key => $value) {
+                $data = array(
+                    'project_id' => $this->input->post('project_id'),
+                    'segment_id' => $this->input->post('segment_id'),
+                    'span_hh_start' => $value['span_hh_start'],
+                    'span_hh_end' => $value['span_hh_end']                
+                );                
+                $this->db->insert('pm_project_segment_span', $data);
+            }
+        }
+
+        return true;
+
+    }
+
+
+    //Laras 4/1/2019
+
+    public function project_by_emp(){
+        $roles = $this->apps->info();
+        $role = $roles['userRole'][0];
+
+        $this->db->select('*');
+        $this->db->from('pm_projects');
+        if ($role !== 1) {
+            if($roles['allProject'] == 'false'){
+                $projectIds = "";
+                if(!empty($roles['projects'])){
+                     foreach ($roles['projects'] as $i => $v){
+                        $projectIds .= $v->id.",";
+                    }
+                    $projectIds = "id IN (".substr($projectIds,0,-1).")";
+                    $this->db->where($projectIds);
+                } else {
+                    $this->db->like('pic_id', "|".$roles['userRole'][2]."|");
+                }
+               
+            }
+        }
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    //Laras 4/3/2019
+
+    public function pcOnProject($id){
+    	$this->db->select('*');
+    	$this->db->from('pm_resource_allocation a');
+    	$this->db->join('pm_user b', 'a.user_id = b.user_id');
+    	$this->db->where('project_id', $id);
+    	$this->db->where('position_id', 5);
+    	$query = $this->db->get();
+
+    	return $query->result();
+    }
+
+
 
 }

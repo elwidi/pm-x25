@@ -33,8 +33,9 @@
             </a>
             <ul class="dropdown-menu width-200">
                 <li class="dropdown-header">Implementation</li>
+                <li><a href="<?php echo base_url();?>index.php/implementation/progressTracking">Progress Tracking</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/dailyProgress">Input Daily Progress Report</a></li>
-                <li><a href="<?php echo base_url();?>index.php/timesheet/dailyWeeklyPlan">Input Weekly Plan</a></li>
+                <li><a href="<?php echo base_url();?>index.php/timesheet/dailyWeeklyPlan2">Input Weekly Plan</a></li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/progressTask">Progress Task</a></li>
                 <!--
                 <li><a href="<?php echo base_url();?>index.php/implementation/">Submarine</a></li>
@@ -49,6 +50,7 @@
                 -->
                 <li class="dropdown-header">Configuration</li>
                 <li><a href="<?php echo base_url();?>index.php/implementation/daily_activity_rules">Daily Activity Rules and Scoring</a></li>
+                <li><a href="<?php echo base_url();?>index.php/toolManagement/dailyProgressParameter">Daily Progress Parameter</a></li>
             </ul>
         </li>
 
@@ -74,8 +76,9 @@
                 <li><a href="<?php echo base_url();?>index.php/dailyProgressReport/summaryProgressReport">Summary Progress Report</a></li>
                 <li><a href="<?php echo base_url();?>index.php/dailyProgressReport/progressPerProject">Progress per Project</a></li>
                 <li><a href="<?php echo base_url();?>index.php/dailyProgressReport/progressNational">Progress National</a></li>
-                <li><a href="<?php echo base_url();?>index.php/timesheet/weeklyActivity">Daily Report Plan</a></li>
+                <li><a href="<?php echo base_url();?>index.php/timesheet/weeklyActivity2">Daily Report Plan</a></li>
                 <li><a href="#">Summary Weekly Plan</a></li>
+                <li><a href="#">Vendor Analysis Report</a></li>
 
           <li class="dropdown-header">Timesheet</li>
                 <li class="dropdown-submenu dropdown-submenu-hover">

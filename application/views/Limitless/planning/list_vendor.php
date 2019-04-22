@@ -34,7 +34,11 @@
                 <h5 class="modal-title">Vendors</h5>
             </div>
 
-            <div class="modal-body ">
+            <div class="modal-body">
+                <div class="alert alert-danger no-border" id = "alert_name">
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span><span class="sr-only">Close</span></button>
+                    <span class="text-semibold"> Nama Vendor sudah ada</span>
+                </div>
                 <div class="col-lg-12">
                     <form method = "POST"  action = "" id = "vendor_form" class = "form-validate-jquery">
                         <div class="form-group">
@@ -90,6 +94,7 @@
 
 <script type="text/javascript">
     $(function () {
+        $('#alert_name').hide();
         $('#add_vendor').click(function(){
             $('#vendor_id').val('');
             $('#vendor_form')[0].reset();
@@ -98,19 +103,37 @@
 
         $('#vendor_form').submit(function(e){
             e.preventDefault();
+            $('#alert_name').hide();
+
             var form = $(this);
+            var vendor_name = $('#vendor_name').val();
             $.ajax({
-                url: JS_BASE_URL + '/planning/save_vendor/',
+                url: JS_BASE_URL + '/planning/validate_vendor/',
                 type: 'POST',
                 dataType: 'json',
-                data: form.serialize(),
+                data: {vendor_name : vendor_name},
                 async: false,
                 success: function (res) {
                     if (res.status == 'success') {
-                        var table1 = $('.datatable-vendor-list').dataTable();
-                        alertSuccess();
-                        $('#modal_vendors').modal('toggle');
-                        table1.api().ajax.reload();
+                        $('#alert_name').hide();
+                        $.ajax({
+                            url: JS_BASE_URL + '/planning/save_vendor/',
+                            type: 'POST',
+                            dataType: 'json',
+                            data: form.serialize(),
+                            async: false,
+                            success: function (res) {
+                                if (res.status == 'success') {
+                                    var table1 = $('.datatable-vendor-list').dataTable();
+                                    alertSuccess();
+                                    $('#modal_vendors').modal('toggle');
+                                    table1.api().ajax.reload();
+                                }
+                            }
+                        });
+                    } else {
+                        $('#alert_name').show();
+
                     }
                 }
             });

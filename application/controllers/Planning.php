@@ -94,7 +94,13 @@ class Planning extends CI_Controller {
 
 		$data['milestones'] = $this->m_planning->getMileStone($id);
 
+		$data['project_scope'] = $this->m_planning->getMileStoneGrup($id); 
 
+		if(!empty($data['project_scope'])){
+			foreach ($data['project_scope'] as $k => $v) {
+				$data['project_scope_id'][] = $v->milestone_grup_id;
+			}
+		}
 		$data['uom'] = $this->m_planning->milestone_uom();
 
 		$data['user'] = array_chunk($this->m_planning->getUserByProject($id), 4);
@@ -915,8 +921,8 @@ class Planning extends CI_Controller {
 
         $output = array(
             "draw" => $_POST['draw'],
-            "recordsTotal" => $this->m_planning->count_filtered_customer(),
-            "recordsFiltered" => $this->m_planning->count_all_customer(),
+            "recordsTotal" => $this->m_planning->count_all_vendor(),
+            "recordsFiltered" => $this->m_planning->count_filtered_vendor(),
             "data" => $data,
         );
         echo json_encode($output); exit;
@@ -1137,7 +1143,6 @@ class Planning extends CI_Controller {
 		$config['file_name'] = $filename_encript;
 		$config['upload_path']          = './assets/file/planning/';
 		$config['allowed_types']        = 'pdf';
-		// $config['max_size']             = 5120;
 		
 		$this->load->library('upload', $config);
 		
@@ -1510,6 +1515,29 @@ class Planning extends CI_Controller {
 	public function delete_project_segment_span(){
 		$id = $this->input->post('id');
         if ($this->m_planning->delete_project_segment_span($id)) {
+            $data = array('status' => 'success');
+        } else {
+            $data = array('status' => 'failed');
+        }
+        echo json_encode($data);
+        exit();
+    }
+
+    public function get_project_vendor(){
+    	$id = $this->input->post('id');
+    	$project_vendor = $this->m_planning->getProjectVendor($id);
+        if (!empty($project_vendor)) {
+            $data = array('status' => 'success', 'data' => $project_vendor);
+        } else {
+            $data = array('status' => 'failed');
+        }
+        echo json_encode($data);
+        exit();
+    }
+
+    //laras 18-04-19
+    public function validate_vendor(){
+        if ($this->m_planning->validateVendorName()) {
             $data = array('status' => 'success');
         } else {
             $data = array('status' => 'failed');

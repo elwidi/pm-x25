@@ -249,11 +249,13 @@ class Implementation extends CI_Controller {
 	{	
 		// Get Apps Config
 		$data = $this->apps->info();
-		$data['page_title'] = '<span class="text-semibold">Implementation</span> - Daily Progress';
 
 		// Get project detail
 		$project = $this->m_planning->getProjectDetailById($id);
 		$project->leader = $this->m_admin->getLeadersbyProject($id);
+
+		$data['page_title'] = '<span class="text-semibold"></span>' . $project->project_name . ' <small>' . $project->company . '</small>';
+
 
 
 		// $data['project_gap'] = $this->months($id);

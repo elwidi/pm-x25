@@ -103,6 +103,8 @@ class Implementation_model extends CI_Model {
         $milestones = $this->input->post('milestone');
         $charts = $this->input->post('chart');
 
+        $project_id = $this->input->post('project_id');
+
         $plan_id = $this->getPlanId($this->input->post('project_id'));
 
         foreach ($milestones as $key => $value) {
@@ -172,21 +174,29 @@ class Implementation_model extends CI_Model {
             'actual' => $this->input->post('completion')
         );
 
-        // var_dump($e); exit();
         $this->db->where('project_id', $this->input->post('project_id'));
         $this->db->where('month', date('M'));
         $this->db->where('year', date('Y'));
         $this->db->update('pm_project_chart', $actual);
 
         $actual_detail = array(
-            'plan_id' => $plan_id->id,
             'project_id' => $this->input->post('project_id'),
             'actual' => $this->input->post('completion'),
             'date' => date('Y-m-d'),
             'created_date' => date('Y-m-d H:i:s')
         );
-        $this->db->insert('pm_project_chart_detail', $actual_detail);
-
+        if(empty($plan_id)){
+            $this->db->where('project_id', $project_id);
+        } else {
+            $actual_detail['plan_id'] = $plan_id->id;
+            $this->db->where('plan_id', $plan_id->id);
+        }
+        $this->db->where('date', date('Y-m-d'));
+        $this->db->update('pm_project_chart_detail', $actual_detail);
+        $affected_row = $this->db->affected_rows();
+        if($affected_row == 0){
+            $this->db->insert('pm_project_chart_detail', $actual_detail);
+        }
         /**
          * ===================================================
          * Transactions with databases

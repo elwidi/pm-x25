@@ -504,16 +504,19 @@ class Timesheet_model extends CI_Model {
     }
 
     public function get_planning_person2($param){
-        $this->db->select('a.*, b.plan_date,b.work_in,b.work_out,d.segment_name, e.span_hh_start, e.span_hh_end');
+        $this->db->select("a.*, b.plan_date,b.work_in,b.work_out,d.segment_name, e.span_hh_start, e.span_hh_end, GROUP_CONCAT(DISTINCT(g.vendor_name), '') AS vendor");
         $this->db->from('pm_daily_parameter_progress a');
         $this->db->join('pm_daily_activity_plan b', 'a.plan_id = b.daily_plan_id');
         $this->db->join('pm_daily_assign_plan c', 'b.daily_plan_id = c.daily_plan_id');
         $this->db->join('pm_project_segment d', 'a.segment_id = d.id');
         $this->db->join('pm_project_segment_span e', 'a.span_id = e.id');
+        $this->db->join('pm_daily_parameter_vendor f', 'a.segment_id = f.segment_id');
+        $this->db->join('pm_vendor g', 'f.vendor_id = g.id');
         $this->db->where('c.user_id', $param['user_id']);
         $this->db->where('b.project_id',$param['project_id']);
         $this->db->where('plan_date >=', $param['start']);
         $this->db->where('plan_date <=', $param['end']);
+        $this->db->group_by('a.id');
         $this->db->order_by('plan_date','asc');
         $query = $this->db->get();
         $plans = $query->result();
@@ -557,6 +560,15 @@ class Timesheet_model extends CI_Model {
         return $query->result();
     }
 
+    public function getSegmentVendor($id){
+        $this->db->select('*');
+        $this->db->from('pm_project_segment_vendor');
+        $this->db->where('segment_id', $id);
+        $query = $this->db->get();
+
+        return $query->result();
+    }
+
 
     public function save_weekly_plan(){
         /**
@@ -565,6 +577,7 @@ class Timesheet_model extends CI_Model {
          * ===================================================
         */
         $this->db->trans_begin();
+        $user_id = $this->setUserId();
         $param = array(
             'user_id' => $this->input->post('plan_user_id'),
             'project_id' => $this->input->post('plan_project_id'),
@@ -572,7 +585,6 @@ class Timesheet_model extends CI_Model {
             'end' => date('Y-m-d', strtotime($this->input->post('plan_end_date'))),
         );
         $plans = $this->input->post('plan');
-        // var_dump($plans); exit();
         $existing_plan = $this->get_planning_person($param);
         $ep = array();
         if(!empty($existing_plan)){
@@ -627,6 +639,8 @@ class Timesheet_model extends CI_Model {
                 'work_out' => $work_out,
                 'total_hours' => $total_hours,
                 'parameter' => $param,
+                'created_by' => $user_id,
+                'created_date' => date('Y-m-d H:i:s')
             );
 
             if(isset($data['plan_id'])){
@@ -661,16 +675,29 @@ class Timesheet_model extends CI_Model {
                     $this->db->update('pm_daily_parameter_progress', $prog);
                 } else {
                     $this->db->insert('pm_daily_parameter_progress', $prog);
+                    $vendor_segment  = $this->getSegmentVendor($b['segmen']);
+                    foreach ($vendor_segment as $s => $v) {
+                        $plan_vendor = array(
+                            'plan_id' => $plan_id,
+                            'segment_id' => $b['segmen'],
+                            'parameter_id' => $b['parameter'],
+                            'vendor_id' => $v->vendor_id
+                        );
+
+                        $this->db->insert('pm_daily_parameter_vendor', $plan_vendor);
+                    }
                 }
             }
-
         }
 
         if(!empty($parameter_ids)){
             $deleted = array_diff($e_param, $parameter_ids);
             foreach ($deleted as $key => $value) {
                 $this->db->where('id', $value);
-                $this->db->delete('pm_daily_parameter_progress');
+                if($this->db->delete('pm_daily_parameter_progress')){
+                    $this->db->where('parameter_id', $value);
+                    $this->db->delete('pm_daily_parameter_vendor');
+                }
             }
         }
 

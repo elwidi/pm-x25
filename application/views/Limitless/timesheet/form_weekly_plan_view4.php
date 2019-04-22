@@ -656,6 +656,7 @@
                                             row += '<td>Span</td>';
                                             row += '<td>Target</td>';
                                             row += '<td>UOM</td>';
+                                            row += '<td>Vendor</td>';
                                             row += '</tr>';
                                             row += '<tbody>';
                                             $.each(ep[date], function(key, plan){
@@ -668,6 +669,7 @@
                                                 row += '<td>'+plan.span_hh_start+'-'+plan.span_hh_end+'</td>';
                                                 row += '<td>'+plan.target+'</td>';
                                                 row += '<td>'+plan.uom+'</td>';
+                                                row += '<td>'+plan.vendor+'</td>';
                                                 row += '</tr>';
                                             })
                                             row += '</tbody>';

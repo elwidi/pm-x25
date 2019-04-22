@@ -238,7 +238,6 @@ class Timesheet extends CI_Controller {
 		$pc_id = $this->input->post('pc_id');
 		$project_id = $this->input->post('project_id');
 		$plan_act = $this->m_timesheet->load_weekly_plan();
-		// $plan_act = $this->m_timesheet->get_field_inspector($project_id, $pc_id);
 		if(empty($plan_act)){
 			$data = array("status" => "failed");
 		} else {

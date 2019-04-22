@@ -445,7 +445,6 @@ class Resource_model extends CI_Model {
     }
 
     public function saveResource(){
-        // var_dump($this->input->post()); exit;
         /**
          * ===================================================
          * Transactions with databases

@@ -23,7 +23,7 @@
         <li class="<?php echo ($active_tab == "boq")?  "active": ""?>"><a href="#boq" data-toggle="tab" aria-expanded="false"><i
                     class="icon-clipboard2 position-left"></i> BOQ</a></li>
         <li class="<?php echo ($active_tab == "segment")?  "active": ""?>"><a href="#segment" data-toggle="tab" aria-expanded="false"><i
-                    class="icon-git-branch position-left"></i> Segment</a></li>
+                    class="icon-git-branch position-left"></i> Detail Scope</a></li>
 
     </ul>
 
@@ -627,30 +627,114 @@
 
         <div class="tab-pane fade <?php echo ($active_tab == 'segment')? "active in" : ""?>" id="segment">
             <div class="panel-body" style="padding-top: 0">
-                <h4>Segment</h4>
+                <h4>Detail Scope</h4>
                 
                 <!-- Start Dendy 26-03-2019 -->
-                <div class="heading-elements">
+                <!-- <div class="heading-elements">
                     <div class="btn-group">
                         <button type="button" class="btn btn-success btn-labeled btn-labeled-left add_segment"><b><i class="icon-plus3"></i></b>Add Segment</button>
                     </div>
-                </div>
+                </div> -->
             </div>
 
-            <table class="table text-nowrap datatable-project-segment-list">
-                <thead>
-                <tr> 
-                    <th>No</th>
-                    <th>Segment Name</th>
-                    <th>Cluster</th>
-                    <th><i class = "icon-chevron-down pull-right"></i></th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-            <!-- End Dendy 26-03-2019 -->
+            <ul class="nav nav-lg nav-tabs nav-tabs-bottom nav-tabs-toolbar no-margin">
+                <?php foreach ($milestone_grup as $t => $l) {
+                    $show = "hidden";
+                    if(in_array($l->id, $project_scope_id)){
+                        $show = "";
+                    }
+
+                    ?>
+                <li class="<?php echo $show?>"><a href="#mile-grup<?php echo $l->id?>" data-toggle="tab" aria-expanded="true"><?php echo $l->group_name ?></a></li>
+                <?php } ?>
+            </ul>
+
+            <div class = "tab-content">
+                <div class="tab-pane fade active in" id="mile-grup1">
+                    <div class="panel-body" style="padding-top: 0">
+                    
+                        <h4>SITAC + CME + MW</h4>
+                        
+                        <!-- Start Dendy 26-03-2019 -->
+                        <div class="heading-elements">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="mile-grup2">
+                    <div class="panel-body" style="padding-top: 0">
+                        <h4>INLAND</h4>
+                        <div class="heading-elements">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-success btn-labeled btn-labeled-left add_segment"><b><i class="icon-plus3"></i></b>Add Segment</button>
+                            </div>
+                        </div>
+                        <table class="table text-nowrap datatable-project-segment-list">
+                            <thead>
+                            <tr> 
+                                <th>No</th>
+                                <th>Segment Name</th>
+                                <th>Cluster</th>
+                                <th>Vendor</th>
+                                <th><i class = "icon-chevron-down pull-right"></i></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="mile-grup3">
+                    <div class="panel-body" style="padding-top: 0">
+                        <h4>SUBMARINE</h4>
+                        
+                        <!-- Start Dendy 26-03-2019 -->
+                        <div class="heading-elements">
+                        </div>
+                    </div>
+                </div> 
+                <div class="tab-pane fade" id="mile-grup4">
+                    <div class="panel-body" style="padding-top: 0">
+                        <h4>ISP (EQUIPMENT)</h4>
+                        
+                        <!-- Start Dendy 26-03-2019 -->
+                        <div class="heading-elements">
+                        </div>
+                    </div>
+                </div> 
+                <div class="tab-pane fade" id="mile-grup5">
+                    <div class="panel-body" style="padding-top: 0">
+                        <h4>DOC ATP READINESS</h4>
+                        
+                        <!-- Start Dendy 26-03-2019 -->
+                        <div class="heading-elements">
+                        </div>
+                    </div>
+                </div> 
+
+                <div class="tab-pane fade" id="mile-grup6">
+                    <div class="panel-body" style="padding-top: 0">
+                        <h4>ATP</h4>
+                        
+                        <!-- Start Dendy 26-03-2019 -->
+                        <div class="heading-elements">
+                        </div>
+                    </div>
+                </div> 
+                <div class="tab-pane fade" id="mile-grup7">
+                    <div class="panel-body" style="padding-top: 0">
+                        <h4>BAST</h4>
+                        
+                        <!-- Start Dendy 26-03-2019 -->
+                        <div class="heading-elements">
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            
         </div>
+    </div>
 
 </div>
 
@@ -1092,7 +1176,7 @@
 </div>
 <!-- End 26-03-2019 -->
 
-<!-- Start Dendy 27-03-2019 -->
+<!-- Start Dendy 27-03-2019 // modified : laras 12/4/2019 -->
 <div id="modal_add_segment" class="modal fade">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -1119,6 +1203,16 @@
                             <div class="col-sm-12">
                                 <label>Cluster</label>
                                 <input type="text" name="cluster" class="form-control">                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Vendor</label>
+                                <select id="vendor_id" name="vendor_id[]" data-placeholder="Select vendor" class="select" required="required" multiple>
+                                    <option value = ""></option>
+                                </select>                                
                             </div>
                         </div>
                     </div>                    
@@ -1851,7 +1945,24 @@
             $("#modal_add_segment input[name='segment_id']").val('');
             $("#modal_add_segment input[name='segment_name']").val('');
             $("#modal_add_segment input[name='cluster']").val('');
-            $('#modal_add_segment').modal('show');                
+            $('#modal_add_segment').modal('show');
+            var option = "";
+            $.ajax({
+                url: JS_BASE_URL + '/planning/get_project_vendor/',
+                type: 'POST',
+                dataType: 'json',
+                data: {id: <?php echo $project_id?>},
+                async: false,
+                success: function (res) {
+                    $('#modal_add_segment #vendor_id').find('option').remove();
+                    if (res.status == 'success') {
+                        $.each(res.data, function(a, b){
+                            option += '<option value = "'+b.id+'">'+b.vendor_name+'</option>';
+                        })
+                        $('#modal_add_segment #vendor_id').append(option);
+                    }
+                }
+            });           
         });
         // End Dendy 27-03-2019
 
@@ -2346,71 +2457,6 @@
 
 
         CallbackProject();
-        // $('.add_user').on('click', function () {
-        //     var option = "";
-        //     $.ajax({
-        //         url: JS_BASE_URL + '/projects/getPeopleNotInProject/' +<?php echo $project_id?>,
-        //         type: 'GET',
-        //         dataType: 'json',
-        //         async: false,
-        //         success: function (res) {
-        //             if (res.status == 'Success') {
-        //                 console.log(res.data);
-        //                 $.each(res.data, function (i, val) {
-        //                     option += '<option value="' + val.id + '">' + val.name + '</option> ';
-        //                 });
-        //             }
-        //         }
-        //     });
-        //     bootbox.dialog({
-        //             title: "Add people to this project",
-        //             message: '<div class="row">  ' +
-        //             '<div class="col-md-12">' +
-        //             '<form action="#" id = "task_list_form">' +
-        //             '<div class="form-group">' +
-        //             '<input type="hidden" name = "project_id"  value = "<?php echo $project_id?>" class="form-control">' +
-        //             '<select name="team[]" data-placeholder="Select people" class="select" multiple = "multiple">' +
-        //             '<option value="">No Milestone</option>' +
-        //             option +
-        //             '</select>' +
-        //             '</div>' +
-        //             '</form>' +
-        //             '</div>' +
-        //             '</div>',
-        //             buttons: {
-        //                 success: {
-        //                     label: "Add people",
-        //                     className: "btn-success",
-        //                     callback: function () {
-        //                         var form = $('#task_list_form');
-        //                         $.ajax({
-        //                             url: JS_BASE_URL + '/projects/addUser',
-        //                             type: 'POST',
-        //                             dataType: 'json',
-        //                             data: form.serialize(),
-        //                             success: function (res) {
-        //                                 /*if(res.status == 'Success'){
-        //                                  window.location.replace(JS_BASE_URL +'/projects/all');
-        //                                  }*/
-        //                             }
-        //                         });
-
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     );
-
-        //     $('.select').parents('.bootbox').removeAttr('tabindex');
-        //     $('.select').select2();
-
-        //     // Single picker
-        //     $('.daterange-single').daterangepicker({
-        //         singleDatePicker: true,
-
-        //     });
-        // });
-
     });
 
 </script>

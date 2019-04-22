@@ -1086,6 +1086,17 @@ $(function() {
       },
       {
         render: function(data, type, row) {
+          return (
+            '<span class="text-size-small text-default">' +
+            row.vendor_name +
+            "</span>"
+          );
+        },
+        orderable: true,
+        targets: 3
+      },
+      {
+        render: function(data, type, row) {
           var action_menu =
             '<ul class="icons-list pull-right">' +
             '<li class="dropdown">' +
@@ -1109,7 +1120,7 @@ $(function() {
         },
         orderable: false,
         // targets: 2
-        targets: 3
+        targets: 4
       }
     ],
     // dom: '<"datatable-scroll"t><"datatable-footer"ip>',
@@ -6707,10 +6718,32 @@ var projectSegmentCB = function() {
           detail = res.data;
           console.log(detail);
           $("#modal_add_segment input[name='segment_id']").val(detail.id);
-          $("#modal_add_segment input[name='segment_name']").val(
-            detail.segment_name
-          );
+          $("#modal_add_segment input[name='segment_name']").val(detail.segment_name);
           $("#modal_add_segment input[name='cluster']").val(detail.cluster);
+          if(detail.vendor_ids != null){
+            detail.vendor_ids = detail.vendor_ids.split(",");
+          }
+          $.ajax({
+              url: JS_BASE_URL + '/planning/get_project_vendor/',
+              type: 'POST',
+              dataType: 'json',
+              data: {id: detail.project_id},
+              async: false,
+              success: function (res) {
+                  $('#modal_add_segment #vendor_id').find('option').remove();
+                  var option = "";
+                  if (res.status == 'success') {
+                    console.log(detail.vendor_ids);
+                    $.each(res.data, function(a, b){
+                        option += '<option value = "'+b.id+'">'+b.vendor_name+'</option>';
+                    })
+                    $('#modal_add_segment #vendor_id').append(option);
+                    if(detail.vendor_ids != null){
+                      $("#modal_add_segment #vendor_id").val(detail.vendor_ids).trigger("change");
+                    }
+                  }
+              }
+          });
         }
       }
     });

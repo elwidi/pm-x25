@@ -1378,7 +1378,7 @@ class Planning_model extends CI_Model {
 
     public function count_all_vendor()
     {
-        $this->db->from("pm_customer");
+        $this->db->from("pm_vendor");
         return $this->db->count_all_results();
     }
 
@@ -2066,17 +2066,14 @@ class Planning_model extends CI_Model {
 
     private function _get_datatable_project_segment_query($id)
     {
-        $column_select = array("*");
+        $column_select = array("a. *, GROUP_CONCAT(c.vendor_name, '') AS vendor_name");
         $column_search = array("segment_name");
         // $column_order = array("b.fullname", "c.position_title", "a.join_date_to_project");
         $this->db->select($column_select);
-        $this->db->from('pm_project_segment');
-        // $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
-        // $this->db->join('pm_project_vendor_scope c', 'a.id = c.project_vendor_id','left');
-        // $this->db->join('pm_project_scope d', 'd.id = c.scope_id','left');
-        // $this->db->join('pm_project_vendor_area e', 'a.id = e.project_vendor_id','left');
-        // $this->db->join('pm_work_location f', 'f.location_id = e.area_id','left');
-        $this->db->where('project_id', $id);
+        $this->db->from('pm_project_segment a');
+        $this->db->join('pm_project_segment_vendor b', 'a.id = b.segment_id', 'left');
+        $this->db->join('pm_vendor c', 'b.vendor_id = c.id', 'left');
+        $this->db->where('a.project_id', $id);
         $i = 0;
         $condition = '(';
         foreach ($column_search as $item) // loop column
@@ -2101,7 +2098,7 @@ class Planning_model extends CI_Model {
             $this->db->having($condition);
         }
 
-        $this->db->group_by('id');
+        $this->db->group_by('a.id');
 
         /*if(isset($_POST['order'])) // here order processing
         {
@@ -2132,30 +2129,65 @@ class Planning_model extends CI_Model {
         return $this->db->count_all_results();
     }
 
-    // Dendy 27-03-2019
+    // Dendy 27-03-2019 - modified : Laras 15-04-2019
     public function saveProjectSegment(){
         $segment_id = $this->input->post('segment_id');
+        $vendors = $this->input->post('vendor_id');
+        $data = array(
+            'segment_name' => $this->input->post('segment_name'),
+            'cluster' => $this->input->post('cluster')
+        );
 
         if (!empty($segment_id)) {
-            $update_data = array(                
-                'segment_name' => $this->input->post('segment_name'),
-                'cluster' => $this->input->post('cluster')
-            );
-            
+            $detail = $this->projectSegmentDetail($segment_id);
+            $vendor_exst = explode(",", $detail->vendor_ids);
+
+
+            $added = array();
+            $deleted = array();
+            if(!empty($vendors) && !empty($vendor_exst)){
+                $added = array_diff($vendors, $vendor_exst);
+                $deleted = array_diff($vendor_exst, $vendors);
+            }
+
             $this->db->where('id', $segment_id);
-            if ($this->db->update('pm_project_segment', $update_data)) {
+            if ($this->db->update('pm_project_segment', $data)) {
+                if(!empty($added)){
+                    foreach ($added as $k => $v) {
+                        $segment_vendor = array(
+                            'project_id' => $this->input->post('project_id'),
+                            'segment_id'=> $segment_id,
+                            'vendor_id'=> $v
+                        );
+                        $this->db->insert('pm_project_segment_vendor', $segment_vendor);
+                    }
+                }
+
+                if(!empty($deleted)){
+                    foreach ($deleted as $i => $o) {
+                        $this->db->where('project_id', $this->input->post('project_id'));
+                        $this->db->where('segment_id', $this->input->post('segment_id'));
+                        $this->db->where('vendor_id', $o);
+                        $this->db->delete('pm_project_segment_vendor');
+                    }
+                }
                 return true;
             } else {
                 return false;
             }
         } else {
-            $save_data = array(
-                'project_id' => $this->input->post('project_id'),
-                'segment_name' => $this->input->post('segment_name'),
-                'cluster' => $this->input->post('cluster')
-            );
-    
-            if ($this->db->insert('pm_project_segment', $save_data)) {
+            $data['project_id'] = $this->input->post('project_id');
+
+            if ($this->db->insert('pm_project_segment', $data)) {
+                $proj_segment = $this->db->insert_id();
+                foreach ($vendors as $i => $value) {
+                    $segment_vendor = array(
+                        'project_id' => $this->input->post('project_id'),
+                        'segment_id'=> $proj_segment,
+                        'vendor_id'=> $value
+                    );
+                    $this->db->insert('pm_project_segment_vendor', $segment_vendor);
+                }
                 return true;
             } else {
                 return false;
@@ -2163,11 +2195,12 @@ class Planning_model extends CI_Model {
         }
     }
 
-    // Dendy 27-03-2019
+    // Dendy 27-03-2019 - modified : Laras 15-04-2019
     public function projectSegmentDetail($id){
-        $this->db->select("a.*, GROUP_CONCAT(b.id, '') AS span_id, GROUP_CONCAT(b.span_hh_start, '') AS span_hh_start, GROUP_CONCAT(b.span_hh_end, '') AS span_hh_end");
+        $this->db->select("a.*, GROUP_CONCAT(b.id, '') AS span_id, GROUP_CONCAT(b.span_hh_start, '') AS span_hh_start, GROUP_CONCAT(b.span_hh_end, '') AS span_hh_end, GROUP_CONCAT(c.vendor_id, '') AS vendor_ids");
         $this->db->from('pm_project_segment a');
         $this->db->join('pm_project_segment_span b','a.id = b.segment_id', 'left');
+        $this->db->join('pm_project_segment_vendor c', 'a.id = c.segment_id','left');
         $this->db->where('a.id', $id);
         $query = $this->db->get();
         return $query->row();
@@ -2241,16 +2274,40 @@ class Planning_model extends CI_Model {
     //Laras 4/3/2019
 
     public function pcOnProject($id){
-    	$this->db->select('*');
-    	$this->db->from('pm_resource_allocation a');
-    	$this->db->join('pm_user b', 'a.user_id = b.user_id');
-    	$this->db->where('project_id', $id);
-    	$this->db->where('position_id', 5);
-    	$query = $this->db->get();
+        $this->db->select('*');
+        $this->db->from('pm_resource_allocation a');
+        $this->db->join('pm_user b', 'a.user_id = b.user_id');
+        $this->db->where('project_id', $id);
+        $this->db->where('position_id', 5);
+        $query = $this->db->get();
 
-    	return $query->result();
+        return $query->result();
     }
 
+    //12/4/2019
 
+    public function getProjectVendor($id){
+        $this->db->select("b.id, b.vendor_name");
+        $this->db->from('pm_project_vendor a');
+        $this->db->join('pm_vendor b', 'a.vendor_id = b.id');
+        $this->db->where('project_id', $id);
+        $query = $this->db->get();
+
+        return $query->result();
+    }
+
+    //18-04-2019
+    public function validateVendorName(){
+        $input_name = $this->input->post('vendor_name');
+        $input_name = strtoupper(str_replace(".", "", str_replace(" ", "", $input_name)));
+        $query= "select UPPER(REPLACE(REPLACE(vendor_name,'.',''),' ','')) as val from pm_vendor having val = '$input_name'";
+        $res = $this->db->query($query);
+        $exst = $res->result();
+        if(!empty($exst)){
+            return false;
+        } else {
+            return true;
+        }
+    }
 
 }
